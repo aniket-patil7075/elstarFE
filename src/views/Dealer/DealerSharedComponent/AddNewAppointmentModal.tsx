@@ -18,6 +18,7 @@ import AddNewCustomerModal from "./AddNewCustomerModal";
 import AddNewVehicleModal from "./AddNewVehicleModal";
 import { getCustomers, useAppDispatch } from "../DealerLists/Store";
 import { useAppSelector } from "@/store";
+import BasicInfo from "../DealerInventory/PartsForm/BasicInfo";
 
 const AddNewAppointmentModal = ({
   eventsData,
@@ -46,26 +47,17 @@ const AddNewAppointmentModal = ({
   const [showVehicleForm, setshowVehicleForm] = useState(false);
   const [vehicleOptions, setVehicleOptions] = useState<any[]>([]);
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null); // Holds the event data for editing
-const [isNewAppointment, setIsNewAppointment] = useState(false); // Determines if the modal is for creating or updating
+//   const [selectedEvent, setSelectedEvent] = useState<any>(null); 
+// const [isNewAppointment, setIsNewAppointment] = useState(false); 
 
-const openEditModal = (event: any) => {
-  setSelectedEvent(event); // Set the event to be edited
-  setIsNewAppointment(false); // This is an update operation
-  setModalOpen(true); // Open the modal
-};
-
-const openAddModal = () => {
-  setSelectedEvent(null); // No event data for new appointment
-  setIsNewAppointment(true); // This is a new operation
-  setModalOpen(true); // Open the modal
-};
 
    const dispatch = useAppDispatch()
     const filterData = useAppSelector((state) => state.list.customerFilterData);
     const { pageIndex, pageSize, sort, query, total } = useAppSelector(
         (state) => state.dealer.tableData
     );
+  // const allCustomers : any  = useAppSelector((state) => state.list.allCustomers);
+    // const allCustomers : any = useAppSelector((state)=> state.inventory.allc)
 
     const fetchData = useCallback(() => {
         dispatch(getCustomers({ pageIndex, pageSize, sort, query, filterData }))
@@ -116,8 +108,9 @@ const openAddModal = () => {
 
     console.log("Appointment Data for update : ", newEventData);
     await apiAddNewAppointment(newEventData);
+    fetch()
     // debugger;
-    setModalOpen(false);
+    // setModalOpen(false);
   };
 
   const handleUpdateAppointment = async (id: string, values: any) => {
@@ -156,7 +149,7 @@ const openAddModal = () => {
   
     // Call the API to persist the updated data
     await apiUpdateAppointment(id, updatedEventData);
-  
+    fetch();
     setModalOpen(false);
   };
   
@@ -296,9 +289,10 @@ const openAddModal = () => {
   //   };
 
   const fetch = async () => {
-    if (isModalOpen) {
+   
       try {
         const allCustomers = await createCustomerOptions();
+        console.log(allCustomers);
         setallCustomers(allCustomers);
 
         const allVehicles = await createVehicleOptions(); // Updated to call `createVehicleOptions`
@@ -309,7 +303,7 @@ const openAddModal = () => {
       } catch (error) {
         console.error("Error in fetch:", error);
       }
-    }
+    
   };
 
   const handleButtonClick = () => {
@@ -324,6 +318,7 @@ const openAddModal = () => {
     const fetchVehicleOptions = async () => {
       const options = await createVehicleOptions();
       setVehicleOptions(options);
+      
     };
 
     const fetchCustomerOptions = async () => {
@@ -334,7 +329,9 @@ const openAddModal = () => {
     fetchVehicleOptions();
     fetchCustomerOptions();
     fetch();
+    // fetchData();
   }, []);
+
 
   const vehId = selectedEvent ? selectedEvent.vehicle : null;
   let vehicleDetails: string | null = null;
@@ -363,6 +360,11 @@ const openAddModal = () => {
   const appointmentEndDate = selectedEvent?.end
     ? new Date(selectedEvent.end)
     : null;
+
+    const [AddBrandModelOpen, setAddBrandModelOpen] = useState(false)
+    const [AddVendorModelOpen, setAddVendorModelOpen] = useState(false)
+    const [AddCategoryModelOpen, setAddCategoryModelOpen] = useState(false)
+    
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -404,11 +406,16 @@ const openAddModal = () => {
                   handleAddAppointment(values);
                 }
                 // fetchData();
+                fetch();
                 setSubmitting(false);
+               
               }}
+              // dispatch(fetch())
+              
             >
-              {({ setFieldValue }) => (
+              {({touched, errors, handleSubmit, setFieldValue }) => (
                 <Form>
+                  
                   <div className="mb-4">
                     <Field
                       type="text"
@@ -455,6 +462,9 @@ const openAddModal = () => {
                   </div>
 
                   <div className="h-0.5 bg-gray-200 my-4"></div>
+
+                 
+                  
 
                   {!isNewAppointment ? (
                     <div className="mb-4">
@@ -587,6 +597,8 @@ const openAddModal = () => {
                   </div>
                 </Form>
               )}
+
+
             </Formik>
           </div>
 

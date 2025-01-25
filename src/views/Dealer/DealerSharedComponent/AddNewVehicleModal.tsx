@@ -260,7 +260,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
                                             query,
                                             filterData,
                                         })
-                                        fetchData()
+                                        
                                         toast.push(
                                             <Notification
                                                 title="Success"
@@ -279,13 +279,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
                                             'Vehicle added successfully:',
                                             values,
                                         )
-                                        dispatch(getVehicles({
-                                            pageIndex,
-                                            pageSize,
-                                            sort,
-                                            query,
-                                            filterData,
-                                        }))
+                                        fetchData();
                                     } catch (error) {
                                         console.error(
                                             'Error adding vehicle:',
