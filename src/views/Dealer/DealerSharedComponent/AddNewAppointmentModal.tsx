@@ -3,7 +3,7 @@ import DateTimepicker from "@/components/ui/DatePicker/DateTimepicker";
 import SelectAndButton from "@/components/ui/SelectAndButton";
 import dayjs from "dayjs";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import React, { ChangeEvent, ReactNode, useEffect, useState } from "react";
+import React, { ChangeEvent, ReactNode, useCallback, useEffect, useState } from "react";
 import { FaBell, FaCar, FaRegUser } from "react-icons/fa";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 import {
@@ -16,6 +16,8 @@ import { getAllEstimates } from "../Services/WorkflowService";
 import * as Yup from "yup";
 import AddNewCustomerModal from "./AddNewCustomerModal";
 import AddNewVehicleModal from "./AddNewVehicleModal";
+import { getCustomers, useAppDispatch } from "../DealerLists/Store";
+import { useAppSelector } from "@/store";
 
 const AddNewAppointmentModal = ({
   eventsData,
@@ -44,6 +46,30 @@ const AddNewAppointmentModal = ({
   const [showVehicleForm, setshowVehicleForm] = useState(false);
   const [vehicleOptions, setVehicleOptions] = useState<any[]>([]);
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null); // Holds the event data for editing
+const [isNewAppointment, setIsNewAppointment] = useState(false); // Determines if the modal is for creating or updating
+
+const openEditModal = (event: any) => {
+  setSelectedEvent(event); // Set the event to be edited
+  setIsNewAppointment(false); // This is an update operation
+  setModalOpen(true); // Open the modal
+};
+
+const openAddModal = () => {
+  setSelectedEvent(null); // No event data for new appointment
+  setIsNewAppointment(true); // This is a new operation
+  setModalOpen(true); // Open the modal
+};
+
+   const dispatch = useAppDispatch()
+    const filterData = useAppSelector((state) => state.list.customerFilterData);
+    const { pageIndex, pageSize, sort, query, total } = useAppSelector(
+        (state) => state.dealer.tableData
+    );
+
+    const fetchData = useCallback(() => {
+        dispatch(getCustomers({ pageIndex, pageSize, sort, query, filterData }))
+    }, [pageIndex, pageSize, sort, query, filterData, dispatch])
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required("Title is required"),
@@ -356,6 +382,7 @@ const AddNewAppointmentModal = ({
         <div className="overflow-hidden p-4 flex h-6/6">
           <div className="w-full">
             <Formik
+            
               initialValues={{
                 title: selectedEvent?.title || "",
                 appointmentStartDate: selectedEvent?.start || "",
@@ -376,6 +403,7 @@ const AddNewAppointmentModal = ({
                   // Add new appointment logic
                   handleAddAppointment(values);
                 }
+                // fetchData();
                 setSubmitting(false);
               }}
             >

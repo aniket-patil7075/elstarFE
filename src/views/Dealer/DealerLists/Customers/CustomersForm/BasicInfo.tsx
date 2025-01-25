@@ -138,6 +138,8 @@ const BasicInfo = ({ touched, errors }: BasicInfo) => {
             email: prevValues.email.filter((_, i) => i !== index)
         }))
     }
+    
+    
 
     return (
         <AdaptableCard divider className="mb-4 p-2">

@@ -14,32 +14,35 @@ const DealerCalendar = () => {
 
   console.log("Appointment in Calender : ", eventsData);
 
+
+   const fetchAppointments = async () => {
+    try {
+      const response = await apiGetAllAppointment();
+      const appointments = response.allAppointment;
+
+      // console.log("All appointment data : ", appointments)
+
+      const transformedData = appointments.map((appointment: any) => ({
+        id: appointment._id,
+        title: appointment.title,
+        start: new Date(appointment.start).toISOString(),
+        end: appointment.end ? new Date(appointment.end).toISOString() : null,
+        customer : appointment.customerId,
+          vehicle : appointment.vehicleId,
+        eventColor: appointment.eventColor || "gray",
+        note: appointment.note || "",
+        sendConfirmation: appointment.sendConfirmation,
+        sendReminder: appointment.sendReminder,
+      }));
+
+      setEventsData(transformedData);
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const response = await apiGetAllAppointment();
-        const appointments = response.allAppointment;
-
-        // console.log("All appointment data : ", appointments)
-
-        const transformedData = appointments.map((appointment: any) => ({
-          id: appointment._id,
-          title: appointment.title,
-          start: new Date(appointment.start).toISOString(),
-          end: appointment.end ? new Date(appointment.end).toISOString() : null,
-          customer : appointment.customerId,
-            vehicle : appointment.vehicleId,
-          eventColor: appointment.eventColor || "gray",
-          note: appointment.note || "",
-          sendConfirmation: appointment.sendConfirmation,
-          sendReminder: appointment.sendReminder,
-        }));
-
-        setEventsData(transformedData);
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-      }
-    };
+   
 
     fetchAppointments();
   }, []);
