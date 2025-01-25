@@ -212,9 +212,9 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
                                     <HiOutlineChevronLeft className="text-xl" />
                                 </button>
                             )}
-                            <h3 className="text-base font-semibold">
+                            {/* <h3 className="text-base font-semibold">
                                 New Vehicle
-                            </h3>
+                            </h3> */}
                             <button
                                 className="text-gray-500 hover:text-gray-700"
                                 onClick={handleButtonClick}
