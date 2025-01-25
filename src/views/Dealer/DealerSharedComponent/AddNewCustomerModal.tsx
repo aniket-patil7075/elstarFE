@@ -92,6 +92,7 @@ const AddNewCustomerModal = ({ handleButtonClick }:any) => {
                                     resetForm()
                                     
                                     // setShowForm(false)
+                                    dispatch(getCustomers({ pageIndex, pageSize, sort, query, filterData }))
                                 } catch (error) {
                                     console.error(
                                         'Error saving form:',
@@ -143,14 +144,14 @@ const AddNewCustomerModal = ({ handleButtonClick }:any) => {
 
                                     {/* Move the Save button here */}
                                     <div className="absolute bottom-0 left-0 right-0 flex justify-end p-2 border-t bg-white">
-                                        <Button
+                                        {/* <Button
                                             variant="primary"
                                             type="button"
                                             className="bg-gray-300 mr-2 px-4 py-1.5"
                                             onClick={handleButtonClick}
                                         >
                                             Cancel
-                                        </Button>
+                                        </Button> */}
                                         <Button
                                             variant="solid"
                                             type="submit"
