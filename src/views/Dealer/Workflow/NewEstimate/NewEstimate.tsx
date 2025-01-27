@@ -186,7 +186,7 @@ const NewEstimate = () => {
   const fetchVehicles = async () => {
     let vehicles = await getAllVehicles();
 
-    // console.log("All Vehicles : ", vehicles);
+    console.log("All Vehicles : ", vehicles);
     let labelValArr = [];
     if (vehicles.allVehicles && vehicles.allVehicles.length) {
       labelValArr = vehicles.allVehicles.map((vehicle: any) => {
@@ -515,10 +515,19 @@ const NewEstimate = () => {
   );
 
   useEffect(() => {
+    console.log("addCustomerModalOpen changed: ", addCustomerModalOpen);
     if (!addCustomerModalOpen) {
       fetchCustomers();
     }
-  }, [addCustomerModalOpen]); 
+  }, [addCustomerModalOpen]);
+
+  useEffect(() => {
+    console.log("addVehicleModalOpen changed: ", addVehicleModalOpen);
+    if (!addVehicleModalOpen) {
+      console.log("refrsh vehicles....");
+      fetchVehicles();
+    }
+  }, [addVehicleModalOpen]);
 
   return (
     <div className="new-estimate w-full h-full ">
@@ -703,14 +712,13 @@ const NewEstimate = () => {
                 value={selectedVehicle}
                 onChange={(value: any) => setSelectedVehicle(value)}
                 placeholder="Add Vehicle..."
-                addNewClick={() => setAddVehicleModalOpen(!addVehicleModalOpen)}
+                addNewClick={() => setAddVehicleModalOpen(!addVehicleModalOpen)} // Toggle the modal open/close state
                 className="mb-4 w-[256px]"
               />
+
               {addVehicleModalOpen ? (
                 <AddNewVehicleModal
-                  handleButtonClick={() =>
-                    setAddVehicleModalOpen(!addVehicleModalOpen)
-                  }
+                  handleButtonClick={() => setAddVehicleModalOpen(false)} // This will close the modal by setting state to false
                 />
               ) : null}
             </div>
