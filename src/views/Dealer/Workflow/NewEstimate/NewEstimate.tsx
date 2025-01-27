@@ -186,7 +186,7 @@ const NewEstimate = () => {
   const fetchVehicles = async () => {
     let vehicles = await getAllVehicles();
 
-    console.log("All Vehicles : ", vehicles);
+    // console.log("All Vehicles : ", vehicles);
     let labelValArr = [];
     if (vehicles.allVehicles && vehicles.allVehicles.length) {
       labelValArr = vehicles.allVehicles.map((vehicle: any) => {
@@ -513,6 +513,12 @@ const NewEstimate = () => {
       </Menu>
     </div>
   );
+
+  useEffect(() => {
+    if (!addCustomerModalOpen) {
+      fetchCustomers();
+    }
+  }, [addCustomerModalOpen]); 
 
   return (
     <div className="new-estimate w-full h-full ">

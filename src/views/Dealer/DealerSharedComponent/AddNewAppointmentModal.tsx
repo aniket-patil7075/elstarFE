@@ -3,7 +3,13 @@ import DateTimepicker from "@/components/ui/DatePicker/DateTimepicker";
 import SelectAndButton from "@/components/ui/SelectAndButton";
 import dayjs from "dayjs";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import React, { ChangeEvent, ReactNode, useCallback, useEffect, useState } from "react";
+import React, {
+  ChangeEvent,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { FaBell, FaCar, FaRegUser } from "react-icons/fa";
 import { HiOutlineGlobeAlt } from "react-icons/hi";
 import {
@@ -16,7 +22,7 @@ import { getAllEstimates } from "../Services/WorkflowService";
 import * as Yup from "yup";
 import AddNewCustomerModal from "./AddNewCustomerModal";
 import AddNewVehicleModal from "./AddNewVehicleModal";
-import { getCustomers, useAppDispatch } from "../DealerLists/Store";
+import { fetchAllCustomers, fetchAllVehicles, getCustomers, useAppDispatch } from "../DealerLists/Store";
 import { useAppSelector } from "@/store";
 import BasicInfo from "../DealerInventory/PartsForm/BasicInfo";
 
@@ -31,9 +37,7 @@ const AddNewAppointmentModal = ({
   const disablePastDates = (date: Date) => {
     return dayjs(date).isBefore(dayjs(), "day"); // Disables dates before today
   };
-
-  // console.log("Seleected appointment in modal : ", selectedEvent);
-  // console.log("flag of appointment : ", isNewAppointment)
+  
 
   const [selectedTimeRange, setSelectedTimeRange] = useState<[Date, Date]>([
     new Date(),
@@ -47,21 +51,24 @@ const AddNewAppointmentModal = ({
   const [showVehicleForm, setshowVehicleForm] = useState(false);
   const [vehicleOptions, setVehicleOptions] = useState<any[]>([]);
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
-//   const [selectedEvent, setSelectedEvent] = useState<any>(null); 
-// const [isNewAppointment, setIsNewAppointment] = useState(false); 
+  //   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  // const [isNewAppointment, setIsNewAppointment] = useState(false);
+
+  const dispatch = useAppDispatch();
+  const filterData = useAppSelector((state) => state.list.customerFilterData);
+  const { pageIndex, pageSize, sort, query, total } = useAppSelector(
+    (state) => state.dealer.tableData
+  );
+
+  
 
 
-   const dispatch = useAppDispatch()
-    const filterData = useAppSelector((state) => state.list.customerFilterData);
-    const { pageIndex, pageSize, sort, query, total } = useAppSelector(
-        (state) => state.dealer.tableData
-    );
   // const allCustomers : any  = useAppSelector((state) => state.list.allCustomers);
-    // const allCustomers : any = useAppSelector((state)=> state.inventory.allc)
+  // const allCustomers : any = useAppSelector((state)=> state.inventory.allc)
 
-    const fetchData = useCallback(() => {
-        dispatch(getCustomers({ pageIndex, pageSize, sort, query, filterData }))
-    }, [pageIndex, pageSize, sort, query, filterData, dispatch])
+  // const fetchData = useCallback(() => {
+  //   dispatch(getCustomers({ pageIndex, pageSize, sort, query, filterData }));
+  // }, [pageIndex, pageSize, sort, query, filterData, dispatch]);
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required("Title is required"),
@@ -101,14 +108,14 @@ const AddNewAppointmentModal = ({
       sendConfirmation: values.sendConfirmation,
       sendReminder: values.sendReminder,
       eventColor: "orange",
-      status : values.status,
+      status: values.status,
     };
 
     setEventsData((prevEvents: any) => [...prevEvents, newEventData]);
 
-    console.log("Appointment Data for update : ", newEventData);
+    // console.log("Appointment Data for update : ", newEventData);
     await apiAddNewAppointment(newEventData);
-    fetch()
+    fetch();
     // debugger;
     // setModalOpen(false);
   };
@@ -119,13 +126,13 @@ const AddNewAppointmentModal = ({
     startDateTime.setMinutes(selectedTimeRange[0].getMinutes());
     startDateTime.setSeconds(0);
     startDateTime.setMilliseconds(0);
-  
+
     const endDateTime = new Date(values.appointmentEndtDate);
     endDateTime.setHours(selectedTimeRange[1].getHours());
     endDateTime.setMinutes(selectedTimeRange[1].getMinutes());
     endDateTime.setSeconds(0);
     endDateTime.setMilliseconds(0);
-  
+
     const updatedEventData = {
       id, // Ensure the ID is retained for the update
       title: values.title,
@@ -137,22 +144,21 @@ const AddNewAppointmentModal = ({
       eventColor: "orange", // You can set or update the color as needed
       status: values.status,
     };
-  
+
     // Update the event in the state
     setEventsData((prevEvents: any) =>
       prevEvents.map((event: any) =>
         event.id === id ? updatedEventData : event
       )
     );
-  
-    console.log("Updated Appointment Data: ", updatedEventData);
-  
+
+    // console.log("Updated Appointment Data: ", updatedEventData);
+
     // Call the API to persist the updated data
     await apiUpdateAppointment(id, updatedEventData);
     fetch();
     setModalOpen(false);
   };
-  
 
   const onSwitcherToggle = (val: boolean, e: ChangeEvent) => {};
   const ConfirmationContent = ({
@@ -269,42 +275,24 @@ const AddNewAppointmentModal = ({
     }
   };
 
-  //   const createEstimatesOptions = async () => {
-  //     try {
-  //       const allEstimates = await getAllEstimates(); // Updated to call `createVehicleOptions`
-  //       if (allEstimates?.allEstimates?.length) {
-  //         return allEstimates.allEstimates.map((estimate: any) => {
-  //           return {
-  //             ...estimate, // Keep other properties intact
-  //             value: estimate._id,
-  //             label: estimate.orderName,
-  //           };
-  //         });
-  //       }
-  //       return []; // Return an empty array in case of error
-  //     } catch (error) {
-  //       console.error("Error fetching vehicles:", error);
-  //       return []; // Return an empty array in case of error
-  //     }
-  //   };
+ 
 
   const fetch = async () => {
-   
-      try {
-        const allCustomers = await createCustomerOptions();
-        console.log(allCustomers);
-        setallCustomers(allCustomers);
+    try {
+      const allCustomers = await createCustomerOptions();
+      // console.log("All customers in fetch : ",allCustomers);
+      setallCustomers(allCustomers);
 
-        const allVehicles = await createVehicleOptions(); // Updated to call `createVehicleOptions`
-        setallVehicles(allVehicles); // Correct state setter for vehicles
-
-        // const allEstimates = await createEstimatesOptions(); // Updated to call `createVehicleOptions`
-        setallEstimates(allEstimates);
-      } catch (error) {
-        console.error("Error in fetch:", error);
-      }
-    
+      const allVehicles = await createVehicleOptions(); 
+      
+      // console.log("All vehicle in fetch : ",allVehicles);
+      setallVehicles(allVehicles); 
+      setallEstimates(allEstimates);
+    } catch (error) {
+      console.error("Error in fetch:", error);
+    }
   };
+
 
   const handleButtonClick = () => {
     setShowCustomerForm(!showCustomerForm); // Toggle form visibility
@@ -318,7 +306,6 @@ const AddNewAppointmentModal = ({
     const fetchVehicleOptions = async () => {
       const options = await createVehicleOptions();
       setVehicleOptions(options);
-      
     };
 
     const fetchCustomerOptions = async () => {
@@ -329,9 +316,7 @@ const AddNewAppointmentModal = ({
     fetchVehicleOptions();
     fetchCustomerOptions();
     fetch();
-    // fetchData();
   }, []);
-
 
   const vehId = selectedEvent ? selectedEvent.vehicle : null;
   let vehicleDetails: string | null = null;
@@ -361,17 +346,35 @@ const AddNewAppointmentModal = ({
     ? new Date(selectedEvent.end)
     : null;
 
-    const [AddBrandModelOpen, setAddBrandModelOpen] = useState(false)
-    const [AddVendorModelOpen, setAddVendorModelOpen] = useState(false)
-    const [AddCategoryModelOpen, setAddCategoryModelOpen] = useState(false)
+  const [AddBrandModelOpen, setAddBrandModelOpen] = useState(false);
+  const [AddVendorModelOpen, setAddVendorModelOpen] = useState(false);
+  const [AddCategoryModelOpen, setAddCategoryModelOpen] = useState(false);
+
+  
+  
+  useEffect(() => {
+    if (!showCustomerForm) {
+      createCustomerOptions();
+      fetch();
+    }
     
+  }, [showCustomerForm]);
+  
+  useEffect(() => {
+    if (!showVehicleForm) {
+      // console.log("vehicle useEffect")
+      createVehicleOptions();
+      fetch();
+    }
+  }, [showVehicleForm]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white w-[650px] h-[600px] rounded-lg shadow-lg relative border border-gray-200">
         <div className="flex justify-between items-center p-3 border-b">
-        {!isNewAppointment ? (
-          <h3 className="text-base font-semibold">Edit Appointment</h3>):(
+          {!isNewAppointment ? (
+            <h3 className="text-base font-semibold">Edit Appointment</h3>
+          ) : (
             <h3 className="text-base font-semibold">Add Appointment</h3>
           )}
           <button
@@ -384,7 +387,6 @@ const AddNewAppointmentModal = ({
         <div className="overflow-hidden p-4 flex h-6/6">
           <div className="w-full">
             <Formik
-            
               initialValues={{
                 title: selectedEvent?.title || "",
                 appointmentStartDate: selectedEvent?.start || "",
@@ -408,14 +410,12 @@ const AddNewAppointmentModal = ({
                 // fetchData();
                 fetch();
                 setSubmitting(false);
-               
+                dispatch(fetchAllCustomers())
+                dispatch(fetchAllVehicles())
               }}
-              // dispatch(fetch())
-              
             >
-              {({touched, errors, handleSubmit, setFieldValue }) => (
+              {({ touched, errors, handleSubmit, setFieldValue }) => (
                 <Form>
-                  
                   <div className="mb-4">
                     <Field
                       type="text"
@@ -462,9 +462,6 @@ const AddNewAppointmentModal = ({
                   </div>
 
                   <div className="h-0.5 bg-gray-200 my-4"></div>
-
-                 
-                  
 
                   {!isNewAppointment ? (
                     <div className="mb-4">
@@ -555,7 +552,6 @@ const AddNewAppointmentModal = ({
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
                         setFieldValue("status", e.target.value)
                       }
-
                     >
                       <option value="shifted">Shifted</option>
                       <option value="confirmed">Confirmed</option>
@@ -578,27 +574,25 @@ const AddNewAppointmentModal = ({
                     </Button>
 
                     {!isNewAppointment ? (
-
-                    <Button
-                      variant="solid"
-                      type="submit"
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5"
-                    >
-                      Update
-                    </Button>):(
                       <Button
-                      variant="solid"
-                      type="submit"
-                      className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5"
-                    >
-                      Save
-                    </Button>
+                        variant="solid"
+                        type="submit"
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5"
+                      >
+                        Update
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="solid"
+                        type="submit"
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5"
+                      >
+                        Save
+                      </Button>
                     )}
                   </div>
                 </Form>
               )}
-
-
             </Formik>
           </div>
 

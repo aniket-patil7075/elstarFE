@@ -1,4 +1,4 @@
-import { createSlice, Dispatch, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice,createAsyncThunk , Dispatch, PayloadAction } from "@reduxjs/toolkit";
 import {
   getAllDealers,
   updateDealer,
@@ -12,6 +12,7 @@ import {
   getAllCustomersByPage,
   getAllVehicles,
 } from "../Services/DealerListServices";
+import { all } from "axios";
 // import { setTableData } from '../../store';
 
 // Define dealer types
@@ -217,13 +218,29 @@ export const getVendors = (params: any) => async (dispatch: any) => {
   }
 };
 
-// export const getAllCustomers = () => async (dispatch: any) => {
-//     try {
-    
-//     } catch (error) {
-        
-//     }
-// }
+
+
+
+export const fetchAllCustomers = () => async (dispatch: any) => {
+    try {
+      dispatch(setLoading(true));
+       const response = await getAllCustomers();
+              if (response.status === 'success') {
+                  const allCustomers = response.allCustomers.map((customer: any) => ({
+                      value: customer._id,
+                      label: customer.label,
+                  }))
+                  
+                  console.log('Processed allCustomers:', allCustomers);
+      
+                  dispatch(setAllCustomers(allCustomers))
+              } else {
+                  toast.error('Failed to fetch all customers.')
+              }
+    } catch (error) {
+        console.log(error)
+    }
+}
 
 
 export const getCustomers = (data: any) => async (dispatch: any) => {
@@ -280,6 +297,58 @@ export const getCustomers = (data: any) => async (dispatch: any) => {
     dispatch(setLoading(false)); // Set loading to false after API call
   }
 };
+
+export const fetchAllVehicles = () => async (dispatch: any) => {
+  try {
+    dispatch(setLoading(true));
+     const response = await getAllVehicles();
+            if (response.status === 'success') {
+                const allVehicles = response.allVehicles.map((vehicle: any) => ({
+                    value: vehicle._id,
+                    label: vehicle.label,
+                }))
+    
+                dispatch(setAllVehicles(allVehicles))
+            } else {
+                toast.error('Failed to fetch all vehicles.')
+            }
+  } catch (error) {
+      console.log(error)
+  }
+}
+
+// export const createCustomerOptions = async () => {
+//   let customers = await getAllCustomers();
+//   if (customers.allCustomers && customers.allCustomers.length) {
+//     return customers.allCustomers.map((cust: any) => {
+//       const name = `${cust.firstName || ""} ${cust.lastName || ""}`;
+//       return {
+//         ...cust,
+//         value: name,
+//         label: (
+//           <div classNames="flex items-center justify-start w-full cursor-pointer">
+//             <Avatar
+//               shape="circle"
+//               size="sm"
+//               className="mr-4 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-100"
+//             >
+//               {`${cust.firstName?.[0] || ""}${cust.lastName?.[0] || ""}`}
+//             </Avatar>
+//             <div className="flex flex-col">
+//               <p className="text-black">{name}</p>
+//               {cust.phoneNumber?.[0]?.number ? (
+//                 <p className="text-xs">
+//                   Mobile: {cust.phoneNumber[0].number}
+//                 </p>
+//               ) : null}
+//             </div>
+//           </div>
+//         ),
+//       };
+//     });
+//   }
+//   return []; // Explicitly return an empty array if no customers exist
+// };
 
 
 

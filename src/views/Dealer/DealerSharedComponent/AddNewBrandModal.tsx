@@ -49,7 +49,7 @@ const AddNewBrandModal = ({ isOpen, onClose }: any) => {
                             >
                                 {({ touched, errors, isSubmitting }) => (
                                     <Form>
-                                        {/* <FormContainer>
+                                        <FormContainer>
                                             <FormItem label="Brand Name" invalid={!!(errors.brandName && touched.brandName)} errorMessage={errors.brandName}>
                                                 <Field
                                                     name="brandName"
@@ -71,7 +71,7 @@ const AddNewBrandModal = ({ isOpen, onClose }: any) => {
                                                     Save
                                                 </Button>
                                             </div>
-                                        </FormContainer> */}
+                                        </FormContainer>
                                     </Form>
                                 )}
                             </Formik>

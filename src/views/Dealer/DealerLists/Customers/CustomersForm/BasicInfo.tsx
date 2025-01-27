@@ -77,6 +77,7 @@ type BasicInfo = {
 }
 
 
+
 const BasicInfo = ({ touched, errors }: BasicInfo) => {
     const [selectedContact, setSelectedContact] = useState<string | null>(null)
     const [showAdditionalInfoForm, setShowAdditionalInfoForm] = useState(false)

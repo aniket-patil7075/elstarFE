@@ -11,7 +11,7 @@ import {
     getAllCustomers,
     getAllVehicles,
 } from '../DealerLists/Services/DealerListServices'
-import { getVehicles, useAppDispatch } from '../DealerLists/Store'
+import { fetchAllVehicles, getVehicles, useAppDispatch } from '../DealerLists/Store'
 import { useAppSelector } from '@/store'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
@@ -147,7 +147,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
             const response = await apiGetVehicleByVin(selectedVehicle.vin) // Await the API call
             // Create a lookup table keyed by VariableId
 
-            // console.log("Selected Vehicle after customer add : ", response);
+            console.log("Selected Vehicle after customer add : ", response);
 
             const resultLookup: Record<number, any> = response.Results.reduce(
                 (acc: any, item: any) => {
@@ -195,6 +195,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
         : searchResults.length > 0 || searchQuery
           ? 'h-[400px]'
           : 'h-[200px]'
+
 
     return (
         <>
@@ -280,6 +281,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
                                             values,
                                         )
                                         fetchData();
+                                        dispatch(fetchAllVehicles());
                                     } catch (error) {
                                         console.error(
                                             'Error adding vehicle:',

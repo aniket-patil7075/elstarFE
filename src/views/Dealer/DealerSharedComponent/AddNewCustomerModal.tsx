@@ -54,6 +54,9 @@ const AddNewCustomerModal = ({ handleButtonClick }: any) => {
 
   // console.log("Initial Values : ", initialValues)
 
+  
+  
+
   return (
     <div className="mb-4">
       <div className="flex justify-between items-center mb-3">
@@ -77,29 +80,26 @@ const AddNewCustomerModal = ({ handleButtonClick }: any) => {
                 validationSchema={validationSchema}
                 onSubmit={async (values, { resetForm, setSubmitting }) => {
                   try {
-                    console.log("Initial Values : ", values);
-                    const response = await apiNewCustomer(values);
-                    // fetchData();
+                    console.log("Saving new customer:", values);
+                    const response = await apiNewCustomer(values); // Save customer to the API
+
                     toast.push(
                       <Notification title="Success" type="success">
                         New Customer Saved Successfully
                       </Notification>
                     );
+
+                    // Re-fetch customers to update the list
+                    await fetchData();
+
+                    // Optionally close the modal
                     handleButtonClick();
+
+                    // Reset form and complete submission
                     resetForm();
                     setSubmitting(false);
-                    dispatch(
-                      getCustomers({
-                        pageIndex,
-                        pageSize,
-                        sort,
-                        query,
-                        filterData,
-                      })
-                    );
-                    // setShowForm(false)
                   } catch (error) {
-                    console.error("Error saving form:", error);
+                    console.error("Error saving customer:", error);
                     toast.push(
                       <Notification title="Error" type="danger">
                         Error saving customer
@@ -110,35 +110,8 @@ const AddNewCustomerModal = ({ handleButtonClick }: any) => {
               >
                 {({ touched, errors, handleSubmit }) => (
                   <Form onSubmit={handleSubmit}>
-                    {/* Render BasicInfo with relevant fields */}
                     <BasicInfo touched={touched} errors={errors} />
-                    {/* <AdditionInfo /> */}
-                    {/* <AddressInfo />
-                                    <div className="mb-4">
-                                        <button
-                                            type="button"
-                                            className="w-full flex justify-between items-center bg-gray-200 p-2 rounded-md border border-gray-300 hover:bg-gray-300"
-                                            onClick={() =>
-                                                setShowFees(!showFees)
-                                            }
-                                        >
-                                            <span>Fees</span>
-                                            <span>
-                                                {showFees ? (
-                                                    <HiX />
-                                                ) : (
-                                                    '+'
-                                                )}
-                                            </span>
-                                        </button>
-                                        {showFees && (
-                                            <FormItem>
-                                                <FeesInfo />
-                                            </FormItem>
-                                        )}
-                                    </div> */}
-
-                    {/* Move the Save button here */}
+                  
                     <div className="absolute bottom-0 left-0 right-0 flex justify-end p-2 border-t bg-white">
                       <Button
                         variant="primary"

@@ -103,14 +103,14 @@ const BasicInfo = (props: BasicInfo) => {
     null
   );
 
-  console.log("selcted customer : ", selectedCustomer)
+  // console.log("selected customer : ", selectedCustomer)
 
   const customerName = selectedCustomer
     ? `${selectedCustomer.firstName || ""} ${selectedCustomer.lastName || ""}`
     : "";
 
     const customerId = selectedCustomer && selectedCustomer._id ? selectedCustomer._id : "";
-console.log("selected customer id: ", customerId);
+// console.log("selected customer id: ", customerId);
 
 
   // console.log("Selected Customer Name : ", customerName)
