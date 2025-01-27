@@ -5,8 +5,8 @@ const { apiPrefix } = appConfig; // Use this to prefix your API calls (optional)
 
 // Set the base URL to point to your backend API
 
-const API_BASE_URL = 'http://localhost:1024'; // Assuming backend is running on localhost:1024
-// const API_BASE_URL = 'https://api.247automotive.services'; // Assuming backend is running on localhost:1024
+// const API_BASE_URL = 'http://localhost:1024'; // Assuming backend is running on localhost:1024
+const API_BASE_URL = 'https://testapi.247automotive.services'; // Assuming backend is running on localhost:1024
 
 // Sign-In API Call
 export async function apiSignIn(username: string, password: string) {

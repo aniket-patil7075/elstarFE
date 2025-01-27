@@ -2,8 +2,8 @@ import axios from "axios";
 import appConfig from "@/configs/app.config";
 import { error } from "console";
 // Set the base URL to point to your backend API
-const API_BASE_URL = 'http://localhost:1024'; 
-// const API_BASE_URL = 'https://api.247automotive.services'; // Assuming backend is running on localhost:1024
+// const API_BASE_URL = 'http://localhost:1024'; 
+const API_BASE_URL = 'https://testapi.247automotive.services'; // Assuming backend is running on localhost:1024
 const { apiPrefix } = appConfig; // If you have an API prefix like '/api'
 
 
