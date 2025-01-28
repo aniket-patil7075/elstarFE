@@ -101,7 +101,7 @@ const NewEstimate = () => {
 
   const filteredVehicleOptions = selectedCustomer
     ? vehicleOptions.filter(
-        (vehicle) => vehicle.customerId === selectedCustomer.id
+        (vehicle) => vehicle.customerId === selectedCustomer._id
       )
     : vehicleOptions;
 
@@ -111,7 +111,8 @@ const NewEstimate = () => {
   const customersArray = vehicleOptions.map((vehicle) => vehicle.customers);
   // console.log("Customer's Array : ", customersArray);
 
-  // console.log("filterred vehicle ; ", filteredVehicleOptions)
+  console.log("filterred vehicle ; ", filteredVehicleOptions)
+  console.log("customers options : ", selectedCustomer);
 
   const dropdownItems = [
     { key: "a", name: "Item A" },
@@ -181,7 +182,7 @@ const NewEstimate = () => {
   const fetchVehicles = async () => {
     let vehicles = await getAllVehicles();
 
-    console.log("All Vehicles : ", vehicles);
+    // console.log("All Vehicles : ", vehicles);
     let labelValArr = [];
     if (vehicles.allVehicles && vehicles.allVehicles.length) {
       labelValArr = vehicles.allVehicles.map((vehicle: any) => {
@@ -511,14 +512,12 @@ const NewEstimate = () => {
   const closeModal = useCallback(() => setAddVehicleModalOpen(false), []);
 
   useEffect(() => {
-    console.log("addCustomerModalOpen changed: ", addCustomerModalOpen);
     if (!addCustomerModalOpen) {
       fetchCustomers();
     }
   }, [addCustomerModalOpen]);
 
   useEffect(() => {
-    console.log("addVehicleModalOpen changed: ", addVehicleModalOpen);
     if (!addVehicleModalOpen) {
       console.log("refrsh vehicles....");
       fetchVehicles();
