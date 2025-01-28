@@ -18,7 +18,7 @@ import {
   FaChevronLeft,
   FaRegCheckCircle,
 } from "react-icons/fa";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { GoChevronDown } from "react-icons/go";
 import { AiOutlinePrinter } from "react-icons/ai";
 import { FiActivity, FiSend } from "react-icons/fi";
@@ -98,11 +98,6 @@ const NewEstimate = () => {
     useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const timerRef = useRef(null);
-
-  // console.log("Customers in dropdown : ", customerOptions)
-  // console.log("Vehicle options : ",vehicleOptions)
-
-  // console.log("selectedVehicle : ", selectedVehicle);
 
   const filteredVehicleOptions = selectedCustomer
     ? vehicleOptions.filter(
@@ -513,6 +508,7 @@ const NewEstimate = () => {
       </Menu>
     </div>
   );
+  const closeModal = useCallback(() => setAddVehicleModalOpen(false), []);
 
   useEffect(() => {
     console.log("addCustomerModalOpen changed: ", addCustomerModalOpen);
@@ -705,22 +701,25 @@ const NewEstimate = () => {
                   }
                 />
               ) : null}
+
               <SelectAndButton
-                // options={vehicleOptions}
                 options={filteredVehicleOptions}
                 addNewButtonLabel="Add New Vehicle"
                 value={selectedVehicle}
                 onChange={(value: any) => setSelectedVehicle(value)}
                 placeholder="Add Vehicle..."
-                addNewClick={() => setAddVehicleModalOpen(!addVehicleModalOpen)} // Toggle the modal open/close state
+                addNewClick={() => setAddVehicleModalOpen(!addVehicleModalOpen)}
                 className="mb-4 w-[256px]"
               />
-
               {addVehicleModalOpen ? (
                 <AddNewVehicleModal
-                  handleButtonClick={() => setAddVehicleModalOpen(false)} // This will close the modal by setting state to false
+                  handleButtonClick={() =>
+                    setAddVehicleModalOpen(!addVehicleModalOpen)
+                  }
                 />
               ) : null}
+
+             
             </div>
 
             <Tabs

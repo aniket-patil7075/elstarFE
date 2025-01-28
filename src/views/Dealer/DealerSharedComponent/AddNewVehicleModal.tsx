@@ -70,21 +70,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
 
     
 
-    //   useEffect(() => {
-    //     const fetchCustomers = async () => {
-    //       try {
-    //         const result = await getAllCustomers();
-    //         console.log("All Customers: ", result.
-    //             allCustomers
-    //             );
-    //         // setCustomers(result);
-    //       } catch (error) {
-    //         console.error("Error fetching customers: ", error);
-    //       }
-    //     };
     
-    //     fetchCustomers();
-    //   }, []);
 
     const dispatch = useAppDispatch()
     const fetchData = useCallback(() => {
@@ -134,11 +120,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
             }
         }, 2000)
 
-        // Filter vehicles based on search query
-        // const filteredResults = vehiclesData.filter(vehicle =>
-        //     vehicle.vehicleName.toLowerCase().includes(query.toLowerCase())
-        // );
-        // setSearchResults(filteredResults);
+       
     }
 
     const selectVehicle = async (index: number, setFieldValue: any) => {
@@ -270,7 +252,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
                                                 New Tire Saved Successfully
                                             </Notification>,
                                         )
-
+                                        handleButtonClick();
                                         // Reset form and close modal
                                         resetForm()
                                         handleFormClose()
@@ -450,23 +432,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
                                     </Button>
                                 </div>
                             )}
-                            {/* <div className="flex justify-end w-full">
-                        <Button
-                            variant="primary"
-                            type="button"
-                            className="bg-gray-300 mr-2 px-4 py-1.5"
-                            onClick={handleButtonClick}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant="solid"
-                            type="submit"
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5"
-                        >
-                            Save
-                        </Button>
-                    </div> */}
+                           
                         </div>
                     </div>
                 </div>
