@@ -55,8 +55,7 @@ import LeftSidePanel from "@/components/template/SidePanel/LeftSidePanel";
 
 interface Vehicle {
   _id: string;
-  customerName: string;
-  customerId: string; // This should match the customer ID property
+  customerId: string;
   make: string;
   model: string;
   year: string;
@@ -64,13 +63,12 @@ interface Vehicle {
   licencePlate?: { plateNumber: string }[];
   value?: string;
   label?: JSX.Element;
-  customers?: Customer[]; // Add this if you expect customers to be an array
+  customers?: Customer[];
 }
 
 interface Customer {
   id: string;
   name: string;
-  // Other customer properties
 }
 
 const NewEstimate = () => {
@@ -105,14 +103,15 @@ const NewEstimate = () => {
       )
     : vehicleOptions;
 
-  // console.log("selected customer : ", selectedCustomer);
+    
+
+  useEffect(() => {
+    console.log("selected customer : ", selectedCustomer);
+  }, [selectedCustomer]);
   // console.log("selected vehicle's customerId : ", vehicleOptions);
 
   const customersArray = vehicleOptions.map((vehicle) => vehicle.customers);
   // console.log("Customer's Array : ", customersArray);
-
-  console.log("filterred vehicle ; ", filteredVehicleOptions)
-  console.log("customers options : ", selectedCustomer);
 
   const dropdownItems = [
     { key: "a", name: "Item A" },
@@ -179,8 +178,10 @@ const NewEstimate = () => {
     setCustomerOptions(labelValArr);
   };
 
+  const selectedCustomerId = selectedCustomer?._id || null;
+
   const fetchVehicles = async () => {
-    let vehicles = await getAllVehicles();
+    let vehicles = await getAllVehicles(selectedCustomerId);
 
     // console.log("All Vehicles : ", vehicles);
     let labelValArr = [];
@@ -524,6 +525,9 @@ const NewEstimate = () => {
     }
   }, [addVehicleModalOpen]);
 
+ 
+  // console.log(selectedCustomerId);
+
   return (
     <div className="new-estimate w-full h-full ">
       {estimateData && estimateData._id ? (
@@ -686,12 +690,23 @@ const NewEstimate = () => {
                 options={customerOptions}
                 addNewButtonLabel="Add New Customer"
                 value={selectedCustomer}
-                onChange={(value: any) => setSelectedCustomer(value)}
+                onChange={(value: any) => {
+                  setSelectedCustomer(value);
+                  // Call another function here
+                  fetchVehicles()
+              }}
                 placeholder="Add Customer..."
                 addNewClick={() =>
                   setAddCustomerModalOpen(!addCustomerModalOpen)
                 }
                 className="mb-4 mr-12 w-[256px]"
+                styles={{
+                  menu: (base) => ({
+                    ...base,
+                    maxHeight: '200px', // Limit the height of the dropdown
+                    overflowY: 'auto',  // Add vertical scrolling
+                  }),
+                }}
               />
               {addCustomerModalOpen ? (
                 <AddNewCustomerModal
@@ -702,23 +717,29 @@ const NewEstimate = () => {
               ) : null}
 
               <SelectAndButton
-                options={filteredVehicleOptions}
+                options={vehicleOptions}
                 addNewButtonLabel="Add New Vehicle"
                 value={selectedVehicle}
                 onChange={(value: any) => setSelectedVehicle(value)}
                 placeholder="Add Vehicle..."
                 addNewClick={() => setAddVehicleModalOpen(!addVehicleModalOpen)}
                 className="mb-4 w-[256px]"
+                styles={{
+                  menu: (base) => ({
+                    ...base,
+                    maxHeight: '150px', // Limit the height of the dropdown
+                    overflowY: 'auto',  // Add vertical scrolling
+                  }),
+                }}
               />
               {addVehicleModalOpen ? (
                 <AddNewVehicleModal
+                customerid={selectedCustomerId}
                   handleButtonClick={() =>
                     setAddVehicleModalOpen(!addVehicleModalOpen)
                   }
                 />
               ) : null}
-
-             
             </div>
 
             <Tabs

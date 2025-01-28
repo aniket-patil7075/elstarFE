@@ -66,6 +66,7 @@
     "react-toastify": "^10.0.5",
     "react-tooltip": "^5.28.0",
     "redux-persist": "^6.0.0",
+    "tailwind-scrollbar": "^3.1.0",
     "twin.macro": "^3.4.1",
     "xlsx": "^0.18.5",
     "yup": "^1.4.0"

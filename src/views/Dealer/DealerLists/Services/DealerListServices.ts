@@ -47,15 +47,23 @@ export async function apiNewCustomer (data:any){
     }
 }
 
-export async function getAllVehicles() {
+export async function getAllVehicles(id?: string) {
     try {
-        const response = await axios.get(`${API_BASE_URL}${apiPrefix}/dealer/get-all-vehicles`);
+        let url = `${API_BASE_URL}${apiPrefix}/dealer/get-all-vehicles`;
+        
+        // Append the id if it is provided
+        if (id) {
+            url = `${url}?customerId=${id}`;
+        }
+
+        const response = await axios.get(url);
         return response.data; 
     } catch (error: any) {
         console.error('Get-All-Vehicles error', error);
         throw error.response?.data || 'Error in getting all vehicles';
     }
 }
+
 
 export async function getAllVehiclesByPage(filters: any) {
     try {

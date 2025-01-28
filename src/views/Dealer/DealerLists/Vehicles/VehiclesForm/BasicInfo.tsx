@@ -95,7 +95,6 @@ const BasicInfo = (props: BasicInfo) => {
   const [showFees, setShowFees] = useState(false);
   const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
   const [image, setImage] = useState<File | null>(null);
-  const [customers, setCustomers] = useState<any[]>([]);
 
   const [customerOptions, setCustomerOptions] = useState([]);
   const [addCustomerModalOpen, setAddCustomerModalOpen] = useState(false);
@@ -116,50 +115,50 @@ const BasicInfo = (props: BasicInfo) => {
   // console.log("Selected Customer Name : ", customerName)
 
 
-  const fetchCustomers = async () => {
-    let customers = await getAllCustomers();
-    let labelValArr = [];
-    if (customers.allCustomers && customers.allCustomers.length) {
-      labelValArr = customers.allCustomers.map((cust: any) => {
-        let name = `${cust.firstName || ""} ${cust.lastName || ""}`;
-        cust.value = name;
-        cust.label = (
-          <div className="flex items-center justify-start w-full cursor-pointer">
-            <Avatar
-              shape="circle"
-              size="sm"
-              className="mr-4 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-100"
-            >
-              {`${cust.firstName[0] || ""}${cust.lastName[0] || ""}`}
-            </Avatar>
-            <div className="flex flex-col">
-              <p className="text-black">{name}</p>
-              {cust.phoneNumber && cust.phoneNumber.length ? (
-                <p className="text-xs">
-                  Mobile: {`${cust.phoneNumber[0].number || ""}`}
-                </p>
-              ) : null}
-            </div>
-          </div>
-        );
-        return cust;
-      });
-    }
+  // const fetchCustomers = async () => {
+  //   let customers = await getAllCustomers();
+  //   let labelValArr = [];
+  //   if (customers.allCustomers && customers.allCustomers.length) {
+  //     labelValArr = customers.allCustomers.map((cust: any) => {
+  //       let name = `${cust.firstName || ""} ${cust.lastName || ""}`;
+  //       cust.value = name;
+  //       cust.label = (
+  //         <div className="flex items-center justify-start w-full cursor-pointer">
+  //           <Avatar
+  //             shape="circle"
+  //             size="sm"
+  //             className="mr-4 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-100"
+  //           >
+  //             {`${cust.firstName[0] || ""}${cust.lastName[0] || ""}`}
+  //           </Avatar>
+  //           <div className="flex flex-col">
+  //             <p className="text-black">{name}</p>
+  //             {cust.phoneNumber && cust.phoneNumber.length ? (
+  //               <p className="text-xs">
+  //                 Mobile: {`${cust.phoneNumber[0].number || ""}`}
+  //               </p>
+  //             ) : null}
+  //           </div>
+  //         </div>
+  //       );
+  //       return cust;
+  //     });
+  //   }
 
-    setCustomerOptions(labelValArr);
-  };
+  //   setCustomerOptions(labelValArr);
+  // };
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
+  // useEffect(() => {
+  //   fetchCustomers();
+  // }, []);
 
-  const handleSelect = (key: string) => {
-    const selected = customers.find((customer) => customer.key === key);
-    if (selected) {
-      setSelectedCustomer(selected.name);
-      // Call setFieldValue or other logic as needed
-    }
-  };
+  // const handleSelect = (key: string) => {
+  //   const selected = customers.find((customer) => customer.key === key);
+  //   if (selected) {
+  //     setSelectedCustomer(selected.name);
+  //     // Call setFieldValue or other logic as needed
+  //   }
+  // };
   // function setFieldValue(arg0: string, arg1: string): void {
   //     throw new Error('Function not implemented.')
   // }
@@ -230,44 +229,7 @@ const BasicInfo = (props: BasicInfo) => {
             />
           </FormItem>
 
-          <div>
-            <p className="text-gray-800 dark:text-white font-semibold mb-2">
-              Add Customer
-            </p>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-              <SelectAndButton
-                options={customerOptions}
-                addNewButtonLabel="Add New Customer"
-                value={selectedCustomer}
-                onChange={(value: any) => {
-                  setSelectedCustomer(value); // Keep the state update
-                
-                  const customerName = value
-                    ? `${value.firstName || ""} ${value.lastName || ""}`
-                    : "";
-                
-                  const customerId = value && value._id ? value._id : "";
-                
-                  // Set the computed customerName and customerId in Formik form field
-                  setFieldValue('customerName', customerName);
-                  setFieldValue('customerId', customerId);
-                }}
-                
-                placeholder="Add Customer..."
-                addNewClick={() =>
-                  setAddCustomerModalOpen(!addCustomerModalOpen)
-                }
-                className="w-full sm:w-[280px] flex-grow"
-              />
-              {addCustomerModalOpen ? (
-                <AddNewCustomerModal
-                  handleButtonClick={() =>
-                    setAddCustomerModalOpen(!addCustomerModalOpen)
-                  }
-                />
-              ) : null}
-            </div>
-          </div>
+          
         </div>
       </div>
 

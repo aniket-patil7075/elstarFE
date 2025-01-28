@@ -16,13 +16,11 @@ import { useAppSelector } from '@/store'
 import toast from '@/components/ui/toast'
 import Notification from '@/components/ui/Notification'
 
-const AddNewVehicleModal = ({ handleButtonClick }: any) => {
+const AddNewVehicleModal = ({ handleButtonClick,customerid }: any) => {
     type VehicleFormFields = {
         image: any
         year: string
         make: string
-        customerName: string;
-        customerId : string;
         model: string
         subModel: string
         transmission: string
@@ -37,14 +35,13 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
         color: string
         productiondate: string
         note: string
+        customerId : string
     }
     const initialValues: VehicleFormFields = {
         image: '',
         year: '',
         make: '',
         model: '',
-        customerName: '',
-        customerId:'',
         subModel: '',
         transmission: '',
         engineSize: '',
@@ -58,6 +55,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
         color: '',
         productiondate: '',
         note: '',
+        customerId: customerid,
     }
 
     const [isFormVisible, setIsFormVisible] = useState(false) // Toggle form visibility
@@ -141,9 +139,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
             const vehicleInfo = {
                 image: '',
                 year: resultLookup[29] || '', // Example: VariableId 28
-                make: resultLookup[26] || '', // Example: VariableId 28
-                customerName : resultLookup[50] || '', 
-                customerId : resultLookup[50] || '',
+                make: resultLookup[26] || '', 
                 model: resultLookup[28] || '', // Example: VariableId 29
                 subModel: resultLookup[110] || '', // Example: VariableId 29
                 transmission: resultLookup[37] || '', // Example: VariableId 29
@@ -158,6 +154,7 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
                 color: '', // Example: VariableId 29
                 productiondate: '', // Example: VariableId 29
                 note: '', // Example: VariableId 29
+                customerId : '',
             }
             setSelectedVehicle(vehicleInfo)
             setIsFormVisible(true)
@@ -214,7 +211,8 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
                                 validationSchema={validationSchema}
                                 onSubmit={async (values, { resetForm }) => {
                                     try {
-                                        // Convert to FormData
+                                        console.log("in add new vehicle : ",customerid);
+                                        
                                         const formData = new FormData()
                                         Object.keys(values).forEach((key) => {
                                             if (
@@ -225,13 +223,19 @@ const AddNewVehicleModal = ({ handleButtonClick }: any) => {
                                                     key,
                                                     values.image,
                                                 ) // Add file to FormData
-                                            } else {
+                                            } 
+                                    
+                                            else {
                                                 formData.append(
                                                     key,
                                                     values[key],
                                                 ) // Add other fields
                                             }
+
+                                          
                                         })
+
+                                        console.log(formData)
 
                                         await apiAddNewVehicle(formData) // Pass FormData to the API
 

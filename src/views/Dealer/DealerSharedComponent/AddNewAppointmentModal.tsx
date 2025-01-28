@@ -26,6 +26,26 @@ import { fetchAllCustomers, fetchAllVehicles, getCustomers, useAppDispatch } fro
 import { useAppSelector } from "@/store";
 import BasicInfo from "../DealerInventory/PartsForm/BasicInfo";
 
+interface Vehicle {
+  _id: string;
+  customerName: string;
+  customerId: string; 
+  make: string;
+  model: string;
+  year: string;
+  subModel?: string;
+  licencePlate?: { plateNumber: string }[];
+  value?: string;
+  label?: JSX.Element;
+  customers?: Customer[]; 
+}
+
+interface Customer {
+  id: string;
+  name: string;
+  
+}
+
 const AddNewAppointmentModal = ({
   eventsData,
   setEventsData,
@@ -43,13 +63,13 @@ const AddNewAppointmentModal = ({
     new Date(),
     new Date(new Date().getTime() + 60 * 60000),
   ]);
-  const [customerSelected, setCustomerSelected] = useState(false);
+  const [customerSelected, setCustomerSelected] = useState<any>(false);
   const [allCustomers, setallCustomers] = useState([]);
   const [allVehicles, setallVehicles] = useState([]);
   const [allEstimates, setallEstimates] = useState([]);
   const [showCustomerForm, setShowCustomerForm] = useState(false);
   const [showVehicleForm, setshowVehicleForm] = useState(false);
-  const [vehicleOptions, setVehicleOptions] = useState<any[]>([]);
+  const [vehicleOptions, setVehicleOptions] = useState<Vehicle[]>([]);
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
   //   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   // const [isNewAppointment, setIsNewAppointment] = useState(false);
@@ -60,15 +80,14 @@ const AddNewAppointmentModal = ({
     (state) => state.dealer.tableData
   );
 
-  
+  useEffect(() => {
+    if (customerSelected && customerSelected !== false) {
+      console.log("Selected Customer above return :", customerSelected);
+    }
+  }, [customerSelected]);
 
 
-  // const allCustomers : any  = useAppSelector((state) => state.list.allCustomers);
-  // const allCustomers : any = useAppSelector((state)=> state.inventory.allc)
-
-  // const fetchData = useCallback(() => {
-  //   dispatch(getCustomers({ pageIndex, pageSize, sort, query, filterData }));
-  // }, [pageIndex, pageSize, sort, query, filterData, dispatch]);
+  const filteredVehicleOptions = customerSelected ? vehicleOptions.filter((vehicle)=> vehicle.customerId === customerSelected._id) : allVehicles;
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required("Title is required"),
@@ -231,7 +250,7 @@ const AddNewAppointmentModal = ({
         };
       });
     }
-    return []; // Explicitly return an empty array if no customers exist
+    return []; 
   };
 
   const createVehicleOptions = async () => {
@@ -274,6 +293,9 @@ const AddNewAppointmentModal = ({
       return []; // Return an empty array in case of error
     }
   };
+
+  const selectedCustomerId = customerSelected?._id || null;
+  console.log(selectedCustomerId)
 
  
 
@@ -362,7 +384,6 @@ const AddNewAppointmentModal = ({
   
   useEffect(() => {
     if (!showVehicleForm) {
-      // console.log("vehicle useEffect")
       createVehicleOptions();
       fetch();
     }
@@ -483,12 +504,21 @@ const AddNewAppointmentModal = ({
                       options={allCustomers}
                       addNewButtonLabel="Add New Customer"
                       onChange={(value: any) => {
+                        // console.log("Selected Customer:", value);
                         setFieldValue("customer", value._id);
-                        setCustomerSelected(!!value);
+                        setCustomerSelected(value);
+                        fetchAllVehicles();
                       }}
                       placeholder="Select or Add Customer"
                       addNewClick={() => setShowCustomerForm(true)}
                       className="mb-4"
+                      styles={{
+                        menu: (base) => ({
+                          ...base,
+                          maxHeight: '150px', // Limit the height of the dropdown
+                          overflowY: 'auto',  // Add vertical scrolling
+                        }),
+                      }}
                     />
                   )}
                   <ErrorMessage
@@ -496,6 +526,7 @@ const AddNewAppointmentModal = ({
                     component="div"
                     className="text-red-500 text-sm mb-2"
                   />
+                  
 
                   {!isNewAppointment ? (
                     <div className="mb-4">
@@ -514,7 +545,7 @@ const AddNewAppointmentModal = ({
                     </div>
                   ) : (
                     <SelectAndButton
-                      options={allVehicles}
+                      options={vehicleOptions}
                       addNewButtonLabel="Add New Vehicle"
                       onChange={(value: any) =>
                         setFieldValue("vehicle", value._id)
@@ -522,6 +553,13 @@ const AddNewAppointmentModal = ({
                       addNewClick={() => setshowVehicleForm(true)}
                       placeholder="Select or Add Vehicle"
                       className="mb-4"
+                      styles={{
+                        menu: (base) => ({
+                          ...base,
+                          maxHeight: '150px', // Limit the height of the dropdown
+                          overflowY: 'auto',  // Add vertical scrolling
+                        }),
+                      }}
                     />
                   )}
                   <ErrorMessage
@@ -657,7 +695,10 @@ const AddNewAppointmentModal = ({
         <AddNewCustomerModal handleButtonClick={handleButtonClick} />
       )}
       {showVehicleForm && (
-        <AddNewVehicleModal handleButtonClick={handleVehicleFormClose} />
+        <AddNewVehicleModal 
+        customerid={selectedCustomerId}
+        handleButtonClick={handleVehicleFormClose}
+         />
       )}
     </div>
   );
