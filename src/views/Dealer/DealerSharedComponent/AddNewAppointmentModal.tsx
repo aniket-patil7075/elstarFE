@@ -22,14 +22,19 @@ import { getAllEstimates } from "../Services/WorkflowService";
 import * as Yup from "yup";
 import AddNewCustomerModal from "./AddNewCustomerModal";
 import AddNewVehicleModal from "./AddNewVehicleModal";
-import { fetchAllCustomers, fetchAllVehicles, getCustomers, useAppDispatch } from "../DealerLists/Store";
+import {
+  fetchAllCustomers,
+  fetchAllVehicles,
+  getCustomers,
+  useAppDispatch,
+} from "../DealerLists/Store";
 import { useAppSelector } from "@/store";
 import BasicInfo from "../DealerInventory/PartsForm/BasicInfo";
 
 interface Vehicle {
   _id: string;
   customerName: string;
-  customerId: string; 
+  customerId: string;
   make: string;
   model: string;
   year: string;
@@ -37,13 +42,12 @@ interface Vehicle {
   licencePlate?: { plateNumber: string }[];
   value?: string;
   label?: JSX.Element;
-  customers?: Customer[]; 
+  customers?: Customer[];
 }
 
 interface Customer {
   id: string;
   name: string;
-  
 }
 
 const AddNewAppointmentModal = ({
@@ -57,7 +61,6 @@ const AddNewAppointmentModal = ({
   const disablePastDates = (date: Date) => {
     return dayjs(date).isBefore(dayjs(), "day"); // Disables dates before today
   };
-  
 
   const [selectedTimeRange, setSelectedTimeRange] = useState<[Date, Date]>([
     new Date(),
@@ -82,12 +85,14 @@ const AddNewAppointmentModal = ({
 
   useEffect(() => {
     if (customerSelected && customerSelected !== false) {
-      console.log("Selected Customer above return :", customerSelected);
     }
   }, [customerSelected]);
 
-
-  const filteredVehicleOptions = customerSelected ? vehicleOptions.filter((vehicle)=> vehicle.customerId === customerSelected._id) : allVehicles;
+  const filteredVehicleOptions = customerSelected
+    ? vehicleOptions.filter(
+        (vehicle) => vehicle.customerId === customerSelected._id
+      )
+    : allVehicles;
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required("Title is required"),
@@ -179,6 +184,9 @@ const AddNewAppointmentModal = ({
     setModalOpen(false);
   };
 
+  const selectedCustomerId = customerSelected?._id || null;
+  console.log(selectedCustomerId);
+
   const onSwitcherToggle = (val: boolean, e: ChangeEvent) => {};
   const ConfirmationContent = ({
     icon,
@@ -250,54 +258,76 @@ const AddNewAppointmentModal = ({
         };
       });
     }
-    return []; 
+    return [];
   };
 
   const createVehicleOptions = async () => {
     try {
-      const vehicles = await getAllVehicles();
-      if (vehicles?.allVehicles?.length) {
-        return vehicles.allVehicles.map((vehicle: any) => {
-          const year = vehicle.year || "";
-          const make = vehicle.make || "";
-          const model = vehicle.model || "";
-          const subModel = vehicle.subModel || "";
-          const plateNumber = vehicle.licencePlate?.[0]?.plateNumber || "";
-
-          return {
-            ...vehicle, // Keep other properties intact
-            value: vehicle._id,
-            label: (
-              <div className="flex items-center justify-start w-full cursor-pointer">
-                <Avatar
-                  shape="circle"
-                  size="sm"
-                  className="mr-4 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-100"
-                >
-                  <FaCar />
-                </Avatar>
-                <div className="flex flex-col">
-                  <p className="text-black">{`${year} ${make} ${model}`}</p>
-                  {subModel || plateNumber ? (
-                    <p className="text-xs">{`${subModel} ${plateNumber}`}</p>
-                  ) : null}
-                </div>
+      const vehicles = await getAllVehicles(selectedCustomerId);
+      let labelValArr = [];
+      if (vehicles.allVehicles && vehicles.allVehicles.length) {
+        labelValArr = vehicles.allVehicles.map((vehicle: any) => {
+          vehicle.value = vehicle._id;
+          vehicle.label = (
+            <div className="flex items-center justify-start w-full cursor-pointer">
+              <Avatar
+                shape="circle"
+                size="sm"
+                className="mr-4 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-100"
+              >
+                <FaCar />
+              </Avatar>
+              <div className="flex flex-col">
+                <p className="text-black">{`${vehicle.year || ""} ${vehicle.make || ""} ${vehicle.model || ""}`}</p>
+                {vehicle.subModel && vehicle.licencePlate.length ? (
+                  <p className="text-xs">{`${vehicle.subModel || ""} ${vehicle.licencePlate[0].plateNumber || ""}`}</p>
+                ) : null}
               </div>
-            ),
-          };
+            </div>
+          );
+          return vehicle;
         });
-      }
-      return []; // Return an empty array if no vehicles exist
+      } 
+      setVehicleOptions(labelValArr);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
       return []; // Return an empty array in case of error
     }
+    
   };
 
-  const selectedCustomerId = customerSelected?._id || null;
-  console.log(selectedCustomerId)
+  const fetchVehiclesbycus = async (id:any) => {
+    
+    let vehicles = await getAllVehicles(id);
 
- 
+    // console.log("All Vehicles : ", vehicles);
+    let labelValArr = [];
+    if (vehicles.allVehicles && vehicles.allVehicles.length) {
+      labelValArr = vehicles.allVehicles.map((vehicle: any) => {
+        vehicle.value = vehicle._id;
+        vehicle.label = (
+          <div className="flex items-center justify-start w-full cursor-pointer">
+            <Avatar
+              shape="circle"
+              size="sm"
+              className="mr-4 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-100"
+            >
+              <FaCar />
+            </Avatar>
+            <div className="flex flex-col">
+              <p className="text-black">{`${vehicle.year || ""} ${vehicle.make || ""} ${vehicle.model || ""}`}</p>
+              {vehicle.subModel && vehicle.licencePlate.length ? (
+                <p className="text-xs">{`${vehicle.subModel || ""} ${vehicle.licencePlate[0].plateNumber || ""}`}</p>
+              ) : null}
+            </div>
+          </div>
+        );
+        return vehicle;
+      });
+    }
+
+    setVehicleOptions(labelValArr);
+  };
 
   const fetch = async () => {
     try {
@@ -305,16 +335,15 @@ const AddNewAppointmentModal = ({
       // console.log("All customers in fetch : ",allCustomers);
       setallCustomers(allCustomers);
 
-      const allVehicles = await createVehicleOptions(); 
-      
+      const allVehicles = await createVehicleOptions();
+
       // console.log("All vehicle in fetch : ",allVehicles);
-      setallVehicles(allVehicles); 
+      // setallVehicles(allVehicles);
       setallEstimates(allEstimates);
     } catch (error) {
       console.error("Error in fetch:", error);
     }
   };
-
 
   const handleButtonClick = () => {
     setShowCustomerForm(!showCustomerForm); // Toggle form visibility
@@ -327,7 +356,7 @@ const AddNewAppointmentModal = ({
   useEffect(() => {
     const fetchVehicleOptions = async () => {
       const options = await createVehicleOptions();
-      setVehicleOptions(options);
+      // setVehicleOptions(options);
     };
 
     const fetchCustomerOptions = async () => {
@@ -372,22 +401,23 @@ const AddNewAppointmentModal = ({
   const [AddVendorModelOpen, setAddVendorModelOpen] = useState(false);
   const [AddCategoryModelOpen, setAddCategoryModelOpen] = useState(false);
 
-  
-  
   useEffect(() => {
     if (!showCustomerForm) {
       createCustomerOptions();
       fetch();
     }
-    
   }, [showCustomerForm]);
-  
+
   useEffect(() => {
     if (!showVehicleForm) {
       createVehicleOptions();
       fetch();
     }
   }, [showVehicleForm]);
+
+  useEffect(()=>{
+    createVehicleOptions();
+  },[])
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -431,8 +461,8 @@ const AddNewAppointmentModal = ({
                 // fetchData();
                 fetch();
                 setSubmitting(false);
-                dispatch(fetchAllCustomers())
-                dispatch(fetchAllVehicles())
+                dispatch(fetchAllCustomers());
+                dispatch(fetchAllVehicles());
               }}
             >
               {({ touched, errors, handleSubmit, setFieldValue }) => (
@@ -504,10 +534,10 @@ const AddNewAppointmentModal = ({
                       options={allCustomers}
                       addNewButtonLabel="Add New Customer"
                       onChange={(value: any) => {
-                        // console.log("Selected Customer:", value);
+                        
                         setFieldValue("customer", value._id);
                         setCustomerSelected(value);
-                        fetchAllVehicles();
+                        fetchVehiclesbycus(value._id)
                       }}
                       placeholder="Select or Add Customer"
                       addNewClick={() => setShowCustomerForm(true)}
@@ -515,8 +545,8 @@ const AddNewAppointmentModal = ({
                       styles={{
                         menu: (base) => ({
                           ...base,
-                          maxHeight: '150px', // Limit the height of the dropdown
-                          overflowY: 'auto',  // Add vertical scrolling
+                          maxHeight: "150px", // Limit the height of the dropdown
+                          overflowY: "auto", // Add vertical scrolling
                         }),
                       }}
                     />
@@ -526,7 +556,6 @@ const AddNewAppointmentModal = ({
                     component="div"
                     className="text-red-500 text-sm mb-2"
                   />
-                  
 
                   {!isNewAppointment ? (
                     <div className="mb-4">
@@ -547,8 +576,12 @@ const AddNewAppointmentModal = ({
                     <SelectAndButton
                       options={vehicleOptions}
                       addNewButtonLabel="Add New Vehicle"
+                      
                       onChange={(value: any) =>
+                      {
                         setFieldValue("vehicle", value._id)
+                        
+                      }
                       }
                       addNewClick={() => setshowVehicleForm(true)}
                       placeholder="Select or Add Vehicle"
@@ -556,8 +589,8 @@ const AddNewAppointmentModal = ({
                       styles={{
                         menu: (base) => ({
                           ...base,
-                          maxHeight: '150px', // Limit the height of the dropdown
-                          overflowY: 'auto',  // Add vertical scrolling
+                          maxHeight: "150px", // Limit the height of the dropdown
+                          overflowY: "auto", // Add vertical scrolling
                         }),
                       }}
                     />
@@ -695,10 +728,10 @@ const AddNewAppointmentModal = ({
         <AddNewCustomerModal handleButtonClick={handleButtonClick} />
       )}
       {showVehicleForm && (
-        <AddNewVehicleModal 
-        customerid={selectedCustomerId}
-        handleButtonClick={handleVehicleFormClose}
-         />
+        <AddNewVehicleModal
+          customerid={selectedCustomerId}
+          handleButtonClick={handleVehicleFormClose}
+        />
       )}
     </div>
   );

@@ -97,20 +97,11 @@ const NewEstimate = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const timerRef = useRef(null);
 
-  const filteredVehicleOptions = selectedCustomer
-    ? vehicleOptions.filter(
-        (vehicle) => vehicle.customerId === selectedCustomer._id
-      )
-    : vehicleOptions;
-
-    
-
-  useEffect(() => {
-    console.log("selected customer : ", selectedCustomer);
-  }, [selectedCustomer]);
+  // useEffect(() => {
+  //   console.log("selected customer : ", selectedCustomer);
+  // }, [selectedCustomer]);
   // console.log("selected vehicle's customerId : ", vehicleOptions);
 
-  const customersArray = vehicleOptions.map((vehicle) => vehicle.customers);
   // console.log("Customer's Array : ", customersArray);
 
   const dropdownItems = [
@@ -178,10 +169,45 @@ const NewEstimate = () => {
     setCustomerOptions(labelValArr);
   };
 
+ 
   const selectedCustomerId = selectedCustomer?._id || null;
-
   const fetchVehicles = async () => {
-    let vehicles = await getAllVehicles(selectedCustomerId);
+    
+    let vehicles = await getAllVehicles(selectedCustomer?._id);
+
+    // console.log("All Vehicles : ", vehicles);
+    let labelValArr = [];
+    if (vehicles.allVehicles && vehicles.allVehicles.length) {
+      labelValArr = vehicles.allVehicles.map((vehicle: any) => {
+        vehicle.value = vehicle._id;
+        vehicle.label = (
+          <div className="flex items-center justify-start w-full cursor-pointer">
+            <Avatar
+              shape="circle"
+              size="sm"
+              className="mr-4 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-100"
+            >
+              <FaCar />
+            </Avatar>
+            <div className="flex flex-col">
+              <p className="text-black">{`${vehicle.year || ""} ${vehicle.make || ""} ${vehicle.model || ""}`}</p>
+              {vehicle.subModel && vehicle.licencePlate.length ? (
+                <p className="text-xs">{`${vehicle.subModel || ""} ${vehicle.licencePlate[0].plateNumber || ""}`}</p>
+              ) : null}
+            </div>
+          </div>
+        );
+        return vehicle;
+      });
+    }
+
+    setVehicleOptions(labelValArr);
+  };
+
+
+  const fetchVehiclesbycus = async (id:any) => {
+    
+    let vehicles = await getAllVehicles(id);
 
     // console.log("All Vehicles : ", vehicles);
     let labelValArr = [];
@@ -690,10 +716,11 @@ const NewEstimate = () => {
                 options={customerOptions}
                 addNewButtonLabel="Add New Customer"
                 value={selectedCustomer}
-                onChange={(value: any) => {
-                  setSelectedCustomer(value);
-                  // Call another function here
-                  fetchVehicles()
+                onChange={async (value: any) => {
+                  console.log("Selected Customer:", value._id);
+                  await setSelectedCustomer(value);
+                 
+                  fetchVehiclesbycus(value._id)
               }}
                 placeholder="Add Customer..."
                 addNewClick={() =>
