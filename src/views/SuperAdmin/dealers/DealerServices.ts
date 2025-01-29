@@ -1,11 +1,13 @@
 import axios from 'axios';
 import appConfig from '@/configs/app.config'; // Assuming you have this config for API prefix
 
+
 // Set the base URL to point to your backend API
 // const API_BASE_URL = 'http://localhost:1024'; // Replace with your backend URL
 // const API_BASE_URL = 'https://api.247automotive.services'; 
-const API_BASE_URL = 'https://testapi.247automotive.services'; 
+// const API_BASE_URL = 'https://testapi.247automotive.services'; 
 const { apiPrefix } = appConfig; // If you have an API prefix like '/api'
+const {API_BASE_URL} = appConfig;
 
 //Create Dealer API Call
 export async function apiCreateDealer(data: any) {

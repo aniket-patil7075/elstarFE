@@ -2,12 +2,12 @@ import axios from 'axios';
 import appConfig from '@/configs/app.config'; // Your app config
 
 const { apiPrefix } = appConfig; // Use this to prefix your API calls (optional)
-
+const {API_BASE_URL} = appConfig;
 // Set the base URL to point to your backend API
 
 // const API_BASE_URL = 'http://localhost:1024'; 
 // const API_BASE_URL = 'https://api.247automotive.services'; 
-const API_BASE_URL = 'https://testapi.247automotive.services';
+// const API_BASE_URL = 'https://testapi.247automotive.services';
 
 // Sign-In API Call
 export async function apiSignIn(username: string, password: string) {

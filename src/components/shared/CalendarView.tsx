@@ -32,7 +32,10 @@ const defaultColorList: Record<
 > = {
     red: { bg: 'bg-red-50 dark:bg-red-500/10', text: 'text-red-500 dark:text-red-100', dot: 'bg-red-500' },
     orange: { bg: 'bg-orange-50 dark:bg-orange-500/10', text: 'text-orange-500 dark:text-orange-100', dot: 'bg-orange-500' },
-    // Add other colors as needed...
+    green: { bg: 'bg-green-50 dark:bg-green-500/10', text: 'text-green-500 dark:text-green-100', dot: 'bg-green-500' },
+    blue: { bg: 'bg-blue-50 dark:bg-blue-500/10', text: 'text-blue-500 dark:text-blue-100', dot: 'bg-blue-500' },
+    yellow: { bg: 'bg-yellow-50 dark:bg-yellow-500/10', text: 'text-yellow-500 dark:text-yellow-100', dot: 'bg-yellow-500' },
+    purple: { bg: 'bg-purple-50 dark:bg-purple-500/10', text: 'text-purple-500 dark:text-purple-100', dot: 'bg-purple-500' },
 };
 
 const CalendarView = (props: CalendarViewProps) => {

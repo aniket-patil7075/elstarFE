@@ -1,6 +1,7 @@
-import { Avatar, Button, Card, Menu, Select, Switcher } from "@/components/ui";
+import { Avatar, Button, Card, Menu, Notification, Select, Switcher, toast } from "@/components/ui";
 import DateTimepicker from "@/components/ui/DatePicker/DateTimepicker";
 import SelectAndButton from "@/components/ui/SelectAndButton";
+import DatePicker from '@/components/ui/DatePicker'
 import dayjs from "dayjs";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import React, {
@@ -74,25 +75,20 @@ const AddNewAppointmentModal = ({
   const [showVehicleForm, setshowVehicleForm] = useState(false);
   const [vehicleOptions, setVehicleOptions] = useState<Vehicle[]>([]);
   const [customerOptions, setCustomerOptions] = useState<any[]>([]);
-  //   const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  // const [isNewAppointment, setIsNewAppointment] = useState(false);
+  const [selectedColor, setSelectedColor] = useState("");
+  const [startDateTime, setStartDateTime] = useState<Date | null>(selectedEvent?.start ? new Date(selectedEvent.start) : null);
+  const [endDateTime, setEndDateTime] = useState<Date | null>(selectedEvent?.end ? new Date(selectedEvent.end) : null);
+  
+
 
   const dispatch = useAppDispatch();
-  const filterData = useAppSelector((state) => state.list.customerFilterData);
-  const { pageIndex, pageSize, sort, query, total } = useAppSelector(
-    (state) => state.dealer.tableData
-  );
+  
 
   useEffect(() => {
     if (customerSelected && customerSelected !== false) {
     }
   }, [customerSelected]);
 
-  const filteredVehicleOptions = customerSelected
-    ? vehicleOptions.filter(
-        (vehicle) => vehicle.customerId === customerSelected._id
-      )
-    : allVehicles;
 
   const validationSchema = Yup.object().shape({
     title: Yup.string().required("Title is required"),
@@ -102,7 +98,6 @@ const AddNewAppointmentModal = ({
     appointmentEndtDate: Yup.string().required("End Date & Time is required"),
     customer: Yup.string().required("Customer is required"),
     vehicle: Yup.string().required("Vehicle is required"),
-    // order: Yup.string().required("Order is required"),
   });
 
   const handleAddAppointment = async (values: any) => {
@@ -131,7 +126,7 @@ const AddNewAppointmentModal = ({
       note: values.note,
       sendConfirmation: values.sendConfirmation,
       sendReminder: values.sendReminder,
-      eventColor: "orange",
+      eventColor: values.color,
       status: values.status,
     };
 
@@ -140,8 +135,6 @@ const AddNewAppointmentModal = ({
     // console.log("Appointment Data for update : ", newEventData);
     await apiAddNewAppointment(newEventData);
     fetch();
-    // debugger;
-    // setModalOpen(false);
   };
 
   const handleUpdateAppointment = async (id: string, values: any) => {
@@ -158,34 +151,30 @@ const AddNewAppointmentModal = ({
     endDateTime.setMilliseconds(0);
 
     const updatedEventData = {
-      id, // Ensure the ID is retained for the update
       title: values.title,
       start: startDateTime,
       end: endDateTime,
       note: values.note,
       sendConfirmation: values.sendConfirmation,
       sendReminder: values.sendReminder,
-      eventColor: "orange", // You can set or update the color as needed
+      eventColor: values.color,
       status: values.status,
     };
 
-    // Update the event in the state
+    console.log("Updated Appointment Data: ", updatedEventData);
+
     setEventsData((prevEvents: any) =>
       prevEvents.map((event: any) =>
         event.id === id ? updatedEventData : event
       )
     );
 
-    // console.log("Updated Appointment Data: ", updatedEventData);
-
-    // Call the API to persist the updated data
     await apiUpdateAppointment(id, updatedEventData);
     fetch();
     setModalOpen(false);
   };
 
   const selectedCustomerId = customerSelected?._id || null;
-  console.log(selectedCustomerId);
 
   const onSwitcherToggle = (val: boolean, e: ChangeEvent) => {};
   const ConfirmationContent = ({
@@ -287,20 +276,17 @@ const AddNewAppointmentModal = ({
           );
           return vehicle;
         });
-      } 
+      }
       setVehicleOptions(labelValArr);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
       return []; // Return an empty array in case of error
     }
-    
   };
 
-  const fetchVehiclesbycus = async (id:any) => {
-    
+  const fetchVehiclesbycus = async (id: any) => {
     let vehicles = await getAllVehicles(id);
 
-    // console.log("All Vehicles : ", vehicles);
     let labelValArr = [];
     if (vehicles.allVehicles && vehicles.allVehicles.length) {
       labelValArr = vehicles.allVehicles.map((vehicle: any) => {
@@ -332,13 +318,10 @@ const AddNewAppointmentModal = ({
   const fetch = async () => {
     try {
       const allCustomers = await createCustomerOptions();
-      // console.log("All customers in fetch : ",allCustomers);
       setallCustomers(allCustomers);
 
       const allVehicles = await createVehicleOptions();
 
-      // console.log("All vehicle in fetch : ",allVehicles);
-      // setallVehicles(allVehicles);
       setallEstimates(allEstimates);
     } catch (error) {
       console.error("Error in fetch:", error);
@@ -346,17 +329,17 @@ const AddNewAppointmentModal = ({
   };
 
   const handleButtonClick = () => {
-    setShowCustomerForm(!showCustomerForm); // Toggle form visibility
+    setShowCustomerForm(!showCustomerForm); 
   };
 
   const handleVehicleFormClose = () => {
-    setshowVehicleForm(!showVehicleForm); // Toggle form visibility
+    setshowVehicleForm(!showVehicleForm); 
   };
 
   useEffect(() => {
     const fetchVehicleOptions = async () => {
       const options = await createVehicleOptions();
-      // setVehicleOptions(options);
+      
     };
 
     const fetchCustomerOptions = async () => {
@@ -390,16 +373,17 @@ const AddNewAppointmentModal = ({
       customerDetails = `${metchedCustomer.firstName} ${metchedCustomer.lastName}`;
     }
   }
-  // console.log("customer details : ", customerDetails);
-  // console.log("Vehicle details : ", vehicleDetails);
+  
 
-  const appointmentEndDate = selectedEvent?.end
-    ? new Date(selectedEvent.end)
-    : null;
+  const handleStartDateTimeChange = (val: Date | null) => {
+    console.log('Selected date time: ', val)
+    setStartDateTime(val)
+}
+const handleEndDateTimeChange = (val: Date | null) => {
+  console.log('Selected end date time: ', val)
+  setEndDateTime(val)
+}
 
-  const [AddBrandModelOpen, setAddBrandModelOpen] = useState(false);
-  const [AddVendorModelOpen, setAddVendorModelOpen] = useState(false);
-  const [AddCategoryModelOpen, setAddCategoryModelOpen] = useState(false);
 
   useEffect(() => {
     if (!showCustomerForm) {
@@ -415,13 +399,13 @@ const AddNewAppointmentModal = ({
     }
   }, [showVehicleForm]);
 
-  useEffect(()=>{
+  useEffect(() => {
     createVehicleOptions();
-  },[])
+  }, []);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white w-[650px] h-[600px] rounded-lg shadow-lg relative border border-gray-200">
+      <div className="bg-white w-[650px] h-[680px] rounded-lg shadow-lg relative border border-gray-200">
         <div className="flex justify-between items-center p-3 border-b">
           {!isNewAppointment ? (
             <h3 className="text-base font-semibold">Edit Appointment</h3>
@@ -435,7 +419,7 @@ const AddNewAppointmentModal = ({
             ✕
           </button>
         </div>
-        <div className="overflow-hidden p-4 flex h-6/6">
+        <div className=" p-4 flex h-6/6">
           <div className="w-full">
             <Formik
               initialValues={{
@@ -447,23 +431,33 @@ const AddNewAppointmentModal = ({
                 note: selectedEvent?.note || "",
                 sendConfirmation: selectedEvent?.sendConfirmation || false,
                 sendReminder: selectedEvent?.sendReminder || false,
-                status: selectedEvent?.status || "",
+                status: selectedEvent?.status || "shifted",
+                color: selectedEvent?.color || "",
               }}
               validationSchema={validationSchema}
               onSubmit={(values, { setSubmitting }) => {
                 if (selectedEvent) {
-                  // Update logic
+                  console.log(selectedEvent)
                   handleUpdateAppointment(selectedEvent.id, values);
                 } else {
-                  // Add new appointment logic
                   handleAddAppointment(values);
                 }
                 // fetchData();
+                toast.push(
+                  <Notification
+                      title="Success"
+                      type="success"
+                  >
+                      New Appointment Saved Successfully
+                  </Notification>,
+              )
                 fetch();
                 setSubmitting(false);
                 dispatch(fetchAllCustomers());
                 dispatch(fetchAllVehicles());
+                setModalOpen(false)
               }}
+              
             >
               {({ touched, errors, handleSubmit, setFieldValue }) => (
                 <Form>
@@ -482,13 +476,16 @@ const AddNewAppointmentModal = ({
                   </div>
 
                   <div className="mb-4">
-                    <DateTimepicker
+                    <DatePicker.DateTimepicker
                       disableDate={disablePastDates}
                       name="appointmentStartDate"
                       placeholder="Pick start date & time"
-                      onChange={(value) =>
+                      value={startDateTime}
+                      onChange={(value) =>{
                         setFieldValue("appointmentStartDate", value)
-                      }
+                        handleStartDateTimeChange(value);
+                      }}
+                      
                     />
                     <ErrorMessage
                       name="appointmentStartDate"
@@ -501,9 +498,11 @@ const AddNewAppointmentModal = ({
                       disableDate={disablePastDates}
                       name="appointmentEndtDate"
                       placeholder="Pick end date & time"
+                      value={endDateTime}
                       onChange={
-                        (value) => setFieldValue("appointmentEndtDate", value) // Set the value when it changes
-                      }
+                        (value) => {setFieldValue("appointmentEndtDate", value) 
+                          handleEndDateTimeChange(value)
+                      }}
                     />
                     <ErrorMessage
                       name="appointmentEndtDate"
@@ -534,21 +533,20 @@ const AddNewAppointmentModal = ({
                       options={allCustomers}
                       addNewButtonLabel="Add New Customer"
                       onChange={(value: any) => {
-                        
                         setFieldValue("customer", value._id);
                         setCustomerSelected(value);
-                        fetchVehiclesbycus(value._id)
+                        fetchVehiclesbycus(value._id);
                       }}
                       placeholder="Select or Add Customer"
                       addNewClick={() => setShowCustomerForm(true)}
                       className="mb-4"
-                      styles={{
-                        menu: (base) => ({
-                          ...base,
-                          maxHeight: "150px", // Limit the height of the dropdown
-                          overflowY: "auto", // Add vertical scrolling
-                        }),
-                      }}
+                      // styles={{
+                      //   menu: (base) => ({
+                      //     ...base,
+                      //     maxHeight: "150px", 
+                      //     overflowY: "auto", 
+                      //   }),
+                      // }}
                     />
                   )}
                   <ErrorMessage
@@ -576,21 +574,17 @@ const AddNewAppointmentModal = ({
                     <SelectAndButton
                       options={vehicleOptions}
                       addNewButtonLabel="Add New Vehicle"
-                      
-                      onChange={(value: any) =>
-                      {
-                        setFieldValue("vehicle", value._id)
-                        
-                      }
-                      }
+                      onChange={(value: any) => {
+                        setFieldValue("vehicle", value._id);
+                      }}
                       addNewClick={() => setshowVehicleForm(true)}
                       placeholder="Select or Add Vehicle"
                       className="mb-4"
                       styles={{
                         menu: (base) => ({
                           ...base,
-                          maxHeight: "150px", // Limit the height of the dropdown
-                          overflowY: "auto", // Add vertical scrolling
+                          maxHeight: "150px", 
+                          overflowY: "auto", 
                         }),
                       }}
                     />
@@ -600,6 +594,48 @@ const AddNewAppointmentModal = ({
                     component="div"
                     className="text-red-500 text-sm mb-2"
                   />
+
+                  <div className="mb-4">
+                    <label className="block text-gray-400 text-sm mb-2">
+                      Select Color
+                    </label>
+                    <div className="flex gap-2">
+                      {[
+                        "blue",
+                        "green",
+                        "red",
+                        "yellow",
+                        "purple",
+                        "orange",
+                      ].map((color) => (
+                        <label
+                          key={color}
+                          className={`w-10 h-10 rounded cursor-pointer border-2 flex items-center justify-center transition-all ${
+                            selectedColor === color
+                              ? "border-black scale-110"
+                              : "border-gray-300"
+                          }`}
+                          style={{ backgroundColor: color }}
+                          onClick={() => {
+                            setFieldValue("color", color);
+                            setSelectedColor(color);
+                          }}
+                        >
+                          <Field
+                            type="radio"
+                            name="color"
+                            value={color}
+                            className="hidden"
+                          />
+                        </label>
+                      ))}
+                    </div>
+                    <ErrorMessage
+                      name="color"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
 
                   <div className="mb-4">
                     <Field
@@ -657,6 +693,7 @@ const AddNewAppointmentModal = ({
                         variant="solid"
                         type="submit"
                         className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5"
+                       
                       >
                         Save
                       </Button>

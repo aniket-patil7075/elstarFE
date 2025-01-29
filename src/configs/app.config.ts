@@ -7,6 +7,7 @@ export type AppConfig = {
     enableMock: boolean
     superAdminEntryPath: string
     dealerEntryPath: string
+    API_BASE_URL : string
 }
 
 const appConfig: AppConfig = {
@@ -18,6 +19,8 @@ const appConfig: AppConfig = {
     enableMock: false,
     superAdminEntryPath: '/super-admin/home',
     dealerEntryPath: '/dealer/home',
+    API_BASE_URL : 'https://testapi.247automotive.services',
+    // API_BASE_URL : 'http://localhost:1024',
 }
 
 export default appConfig

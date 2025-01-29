@@ -41,9 +41,8 @@ const NotificationButton = () => {
     try {
       // Await the response from the API call
       const response = await apiAddNewEstimate({});
-      setEstimateId(`${response.estimateId}-${response.estimateOrderNo}`); // Set the estimateId for reference if needed
+      setEstimateId(`${response.estimateId}-${response.estimateOrderNo}`); 
 
-      // Redirect the user to the new estimate page after successful creation
       navigate(
         `/dealer/workflow/order/${response.estimateId}-${response.estimateOrderNo}`
       );

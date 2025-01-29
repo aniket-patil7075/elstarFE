@@ -4,9 +4,9 @@ import { error } from "console";
 // Set the base URL to point to your backend API
 // const API_BASE_URL = 'http://localhost:1024'; 
 // const API_BASE_URL = 'https://api.247automotive.services'; 
-const API_BASE_URL = 'https://testapi.247automotive.services';
+// const API_BASE_URL = 'https://testapi.247automotive.services';
 const { apiPrefix } = appConfig; // If you have an API prefix like '/api'
-
+const {API_BASE_URL} = appConfig;
 
 export async function getAllPartsByPage(filterData: any) {
     try {

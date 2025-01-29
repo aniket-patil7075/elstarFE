@@ -4,8 +4,9 @@ import appConfig from '@/configs/app.config'; // Assuming you have this config f
 // Set the base URL to point to your backend API
 // const API_BASE_URL = 'http://localhost:1024'; // Replace with your backend URL
 // const API_BASE_URL = 'https://api.247automotive.services'; // Assuming backend is running on localhost:8080
-const API_BASE_URL = 'https://testapi.247automotive.services'; // Assuming backend is running on localhost:8080
+// const API_BASE_URL = 'https://testapi.247automotive.services'; // Assuming backend is running on localhost:8080
 const { apiPrefix } = appConfig; // If you have an API prefix like '/api'
+const {API_BASE_URL} = appConfig;
 
 // Get All Estimates API Call
 export async function getAllEstimatesByPage(params: any) {

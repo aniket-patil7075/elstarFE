@@ -14,22 +14,23 @@ const DealerCalendar = () => {
 
   console.log("Appointment in Calender : ", eventsData);
 
-
-   const fetchAppointments = async () => {
+  const fetchAppointments = async () => {
     try {
       const response = await apiGetAllAppointment();
       const appointments = response.allAppointment;
 
-      // console.log("All appointment data : ", appointments)
+      console.log("All appointment data : ", appointments);
 
       const transformedData = appointments.map((appointment: any) => ({
         id: appointment._id,
         title: appointment.title,
         start: new Date(appointment.start).toISOString(),
         end: appointment.end ? new Date(appointment.end).toISOString() : null,
-        customer : appointment.customerId,
-          vehicle : appointment.vehicleId,
-        eventColor: appointment.eventColor || "gray",
+        customer: appointment.customerId,
+        vehicle: appointment.vehicleId,
+        status: appointment.status,
+        eventColor: appointment.eventColor,
+          
         note: appointment.note || "",
         sendConfirmation: appointment.sendConfirmation,
         sendReminder: appointment.sendReminder,
@@ -42,13 +43,14 @@ const DealerCalendar = () => {
   };
 
   useEffect(() => {
-   
-
     fetchAppointments();
   }, []);
 
+  
+
   const handleEventClick = (arg: EventClickArg) => {
     // Set the selected event and open the modal
+    
     const clickedEvent = eventsData.find((event) => event.id === arg.event.id);
     setSelectedEvent(clickedEvent);
     setIsNewAppointment(false);
@@ -56,15 +58,23 @@ const DealerCalendar = () => {
   };
 
   const handleNewAppointmentClick = () => {
-    // Open modal for new appointment
-    setSelectedEvent(null); // Reset selected event to null
-    setIsNewAppointment(true); // Indicate this is a new appointment
+    setSelectedEvent(null);
+    setIsNewAppointment(true);
     setModalOpen(true);
   };
 
+   useEffect(() => {
+      if (isModalOpen) {
+        fetchAppointments();
+      }
+    }, [isModalOpen]);
+
   return (
     <div>
-      <div style={{ flexDirection: "column" }} className="flex items-end space-x-2 mb-4">
+      <div
+        style={{ flexDirection: "column" }}
+        className="flex items-end space-x-2 mb-4"
+      >
         <Button
           variant="solid"
           type="button"
@@ -86,15 +96,14 @@ const DealerCalendar = () => {
         eventDrop={(arg) => {}}
       />
 
-
-{isModalOpen && (
+      {isModalOpen && (
         <AddNewAppointmentModal
           eventsData={eventsData}
           setEventsData={setEventsData}
           setModalOpen={setModalOpen}
           isModalOpen={isModalOpen}
-          selectedEvent={selectedEvent} 
-          isNewAppointment={isNewAppointment} 
+          selectedEvent={selectedEvent}
+          isNewAppointment={isNewAppointment}
         />
       )}
     </div>
