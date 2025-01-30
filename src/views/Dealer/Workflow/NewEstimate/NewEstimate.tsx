@@ -95,7 +95,7 @@ const NewEstimate = () => {
   const [isAppointmentModelOpen, setisAppointmentModelOpen]: any =
     useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const timerRef = useRef(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // useEffect(() => {
   //   console.log("selected customer : ", selectedCustomer);
@@ -103,6 +103,10 @@ const NewEstimate = () => {
   // console.log("selected vehicle's customerId : ", vehicleOptions);
 
   // console.log("Customer's Array : ", customersArray);
+
+  useEffect(()=>{
+    console.log("Service Data : ", servicesData);
+  },[])
 
   const dropdownItems = [
     { key: "a", name: "Item A" },
@@ -251,83 +255,15 @@ const NewEstimate = () => {
     fetchCustomers();
   }, []);
 
-  const handleEstimateSave = async (values: any) => {
-    let saveEstimateResp = await apiUpdateEstimate(values, estimateId);
-    setAutoSaving(false);
-  };
+
 
   const getGrandTotal = (total: any) => {
     // setGrandTotal(total)
   };
 
-  useEffect(() => {
-    const handleMouseMove = () => {
-      // Clear any existing timer when the mouse moves
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-      timerRef.current = setTimeout(() => {
-        setAutoSaving(true);
-        //
-        const estimateDataToSave = {
-          orderNo: orderNumber,
-          orderName: orderTitle,
-          customer: selectedCustomer ? selectedCustomer._id : "",
-          vehicle: selectedVehicle ? selectedVehicle._id : "",
-          comments: customerComment,
-          recommendation: customerRecommendations,
-          services: Object.values(servicesData).map(
-            (service: any, idx: number) => {
-              service.grandTotal = Number(grandTotal[idx]);
-              return service;
-            }
-          ),
-          // grandTotal: Number(grandTotal),
-        };
-        handleEstimateSave(estimateDataToSave);
-      }, 5000);
-    };
+  
 
-    // Attach the mousemove event listener
-    window.addEventListener("mousemove", handleMouseMove);
-
-    // Cleanup the event listener and timer on component unmount
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, [
-    orderNumber,
-    orderTitle,
-    selectedCustomer,
-    selectedVehicle,
-    customerComment,
-    customerRecommendations,
-    servicesData,
-    grandTotal,
-  ]);
-
-  // const customerOptions = [
-  //   { value: "Faiz", label: <div className="flex align-center justify-center">
-  //     <p className="mt-2 mr-8">FU</p>
-  //     <div className="flex flex-col">
-  //       <p className="text-black">Faiz</p>
-  //       <p className="text-xs">Mobile: (91) 7974062002</p>
-  //     </div>
-  //   </div>, mob: 7974062002 },
-  // ]
-
-  // const vehicleOptions = [
-  //   { value: "Vehicle1", label: <div className="flex align-center justify-center">
-  //     <p className="mt-2 mr-8">VO</p>
-  //     <div className="flex flex-col">
-  //       <p className="text-black">Vehicle1</p>
-  //       <p className="text-xs">Model: Swift Dezire</p>
-  //     </div>
-  //   </div>, mob: 7974062002 },
-  // ]
+ 
   const fetchEstimate = async () => {
     try {
       const urlSegments = window.location.pathname.split("/");
@@ -528,7 +464,14 @@ const NewEstimate = () => {
               )}
             </TabContent>
 
-            <TabContent value="customer">hi</TabContent>
+            <TabContent value="customer">
+              selected customer
+              <NewEstimateOrderTab
+                servicesData={servicesData}
+                estimate={estimateData}
+                setisAppointmentModelOpen={setisAppointmentModelOpen}
+              />
+            </TabContent>
 
             <TabContent value="vehicle">hi</TabContent>
           </Tabs>
@@ -546,13 +489,68 @@ const NewEstimate = () => {
 
   useEffect(() => {
     if (!addVehicleModalOpen) {
-      console.log("refrsh vehicles....");
       fetchVehicles();
     }
   }, [addVehicleModalOpen]);
 
  
-  // console.log(selectedCustomerId);
+  console.log("Selected Customer in estimate : ",selectedCustomerId);
+
+  const handleEstimateSave = async (values: any) => {
+    let saveEstimateResp = await apiUpdateEstimate(values, estimateId);
+    setAutoSaving(false);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      timerRef.current = setTimeout(() => {
+        setAutoSaving(true);
+        
+        const estimateDataToSave = {
+          orderNo: orderNumber,
+          orderName: orderTitle,
+          customer: selectedCustomer ? selectedCustomer._id : "",
+          vehicle: selectedVehicle ? selectedVehicle._id : "",
+          comments: customerComment,
+          recommendation: customerRecommendations,
+          services: Object.values(servicesData).map(
+            (service: any, idx: number) => {
+              service.grandTotal = Number(grandTotal[idx]);
+              return service;
+            }
+          ),
+          // grandTotal: Number(grandTotal),
+        };
+
+        
+        handleEstimateSave(estimateDataToSave);
+        console.log("Estimate data : ", estimateDataToSave)
+      }, 2000);
+    };
+
+    // Attach the mousemove event listener
+    window.addEventListener("mousemove", handleMouseMove);
+
+    // Cleanup the event listener and timer on component unmount
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [
+    orderNumber,
+    orderTitle,
+    selectedCustomer,
+    selectedVehicle,
+    customerComment,
+    customerRecommendations,
+    servicesData,
+    grandTotal,
+  ]);
 
   return (
     <div className="new-estimate w-full h-full ">
@@ -615,6 +613,8 @@ const NewEstimate = () => {
               <p className="ml-4 w-[70px] flex justify-center items-center">{autoSaving ? <span className="flex justify-start items center">Saving <Spinner className="ml-2 mt-1" size={14} /></span> : <IoCloudDoneOutline size={20} />}</p>
               
             </div> */}
+
+
               <div className="estimate-interaction-buttons flex flex-wrap sm:flex-nowrap justify-start items-center">
                 <div className="button-with-dropdown flex items-center justify-center mb-2 sm:mb-0 sm:w-auto w-full">
                   <Button
@@ -727,13 +727,13 @@ const NewEstimate = () => {
                   setAddCustomerModalOpen(!addCustomerModalOpen)
                 }
                 className="mb-4 mr-12 w-[256px]"
-                styles={{
-                  menu: (base) => ({
-                    ...base,
-                    maxHeight: '200px', // Limit the height of the dropdown
-                    overflowY: 'auto',  // Add vertical scrolling
-                  }),
-                }}
+                // styles={{
+                //   menu: (base) => ({
+                //     ...base,
+                //     maxHeight: '200px', // Limit the height of the dropdown
+                //     overflowY: 'auto',  // Add vertical scrolling
+                //   }),
+                // }}
               />
               {addCustomerModalOpen ? (
                 <AddNewCustomerModal
@@ -799,7 +799,7 @@ const NewEstimate = () => {
                     setGrandTotal={setGrandTotal}
                     grandTotal={grandTotal || {}}
                     prefillServicesData={estimateData.services || []}
-                    storeDataInParent={(data: any) => setServicesData(data)}
+                    storeDataInParent={(data: any) => setServicesData(data)}                    
                     estimateData={estimateData}
                     comment={customerComment}
                     recommendation={customerRecommendations}

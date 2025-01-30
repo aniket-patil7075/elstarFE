@@ -67,7 +67,7 @@ export async function apiAddNewEstimate(data: any) {
 export async function apiUpdateEstimate(data: any, estimateId: any) {
     try {
         const response = await axios.put(`${API_BASE_URL}${apiPrefix}/dealer/workflow/update-estimate/${estimateId}`, data);
-        //  
+        console.log("Response of Estimate : ", response);
         return response.data;
     }
     catch (error: any) {

@@ -7,7 +7,8 @@ import { setPanelExpand, useAppSelector, useAppDispatch } from '@/store'
 import type { CommonProps } from '@/@types/common'
 
 interface LeftSidePanelProps {
-    content: React.ReactNode; // content can be any renderable node (e.g., JSX, string, number, etc.)
+    content: React.ReactNode;
+     // content can be any renderable node (e.g., JSX, string, number, etc.)
   }
   
   const LeftSidePanel: React.FC<LeftSidePanelProps> = ({ content }) => {
