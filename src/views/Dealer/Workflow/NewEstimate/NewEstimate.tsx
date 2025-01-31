@@ -52,6 +52,8 @@ import Activities from "./Activities";
 import PaymentModel from "../../DealerSharedComponent/PaymentModel";
 import AddNewAppointmentModal from "../../DealerSharedComponent/AddNewAppointmentModal";
 import LeftSidePanel from "@/components/template/SidePanel/LeftSidePanel";
+import NewEstimateCustomerTab from "./NewEstimateCustomerTab";
+import NewEstimateVehicleTab from "./newEstimateVehicleTab";
 
 interface Vehicle {
   _id: string;
@@ -97,16 +99,10 @@ const NewEstimate = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // useEffect(() => {
-  //   console.log("selected customer : ", selectedCustomer);
-  // }, [selectedCustomer]);
-  // console.log("selected vehicle's customerId : ", vehicleOptions);
 
-  // console.log("Customer's Array : ", customersArray);
-
-  useEffect(()=>{
+  useEffect(() => {
     console.log("Service Data : ", servicesData);
-  },[])
+  }, []);
 
   const dropdownItems = [
     { key: "a", name: "Item A" },
@@ -173,10 +169,8 @@ const NewEstimate = () => {
     setCustomerOptions(labelValArr);
   };
 
- 
   const selectedCustomerId = selectedCustomer?._id || null;
   const fetchVehicles = async () => {
-    
     let vehicles = await getAllVehicles(selectedCustomer?._id);
 
     // console.log("All Vehicles : ", vehicles);
@@ -208,9 +202,7 @@ const NewEstimate = () => {
     setVehicleOptions(labelValArr);
   };
 
-
-  const fetchVehiclesbycus = async (id:any) => {
-    
+  const fetchVehiclesbycus = async (id: any) => {
     let vehicles = await getAllVehicles(id);
 
     // console.log("All Vehicles : ", vehicles);
@@ -255,15 +247,10 @@ const NewEstimate = () => {
     fetchCustomers();
   }, []);
 
-
-
   const getGrandTotal = (total: any) => {
     // setGrandTotal(total)
   };
 
-  
-
- 
   const fetchEstimate = async () => {
     try {
       const urlSegments = window.location.pathname.split("/");
@@ -493,8 +480,7 @@ const NewEstimate = () => {
     }
   }, [addVehicleModalOpen]);
 
- 
-  console.log("Selected Customer in estimate : ",selectedCustomerId);
+  console.log("Selected Customer in estimate : ", selectedCustomerId);
 
   const handleEstimateSave = async (values: any) => {
     let saveEstimateResp = await apiUpdateEstimate(values, estimateId);
@@ -508,7 +494,7 @@ const NewEstimate = () => {
       }
       timerRef.current = setTimeout(() => {
         setAutoSaving(true);
-        
+
         const estimateDataToSave = {
           orderNo: orderNumber,
           orderName: orderTitle,
@@ -525,9 +511,8 @@ const NewEstimate = () => {
           // grandTotal: Number(grandTotal),
         };
 
-        
         handleEstimateSave(estimateDataToSave);
-        console.log("Estimate data : ", estimateDataToSave)
+        console.log("Estimate data : ", estimateDataToSave);
       }, 2000);
     };
 
@@ -613,7 +598,6 @@ const NewEstimate = () => {
               <p className="ml-4 w-[70px] flex justify-center items-center">{autoSaving ? <span className="flex justify-start items center">Saving <Spinner className="ml-2 mt-1" size={14} /></span> : <IoCloudDoneOutline size={20} />}</p>
               
             </div> */}
-
 
               <div className="estimate-interaction-buttons flex flex-wrap sm:flex-nowrap justify-start items-center">
                 <div className="button-with-dropdown flex items-center justify-center mb-2 sm:mb-0 sm:w-auto w-full">
@@ -719,9 +703,9 @@ const NewEstimate = () => {
                 onChange={async (value: any) => {
                   console.log("Selected Customer:", value._id);
                   await setSelectedCustomer(value);
-                 
-                  fetchVehiclesbycus(value._id)
-              }}
+
+                  fetchVehiclesbycus(value._id);
+                }}
                 placeholder="Add Customer..."
                 addNewClick={() =>
                   setAddCustomerModalOpen(!addCustomerModalOpen)
@@ -754,14 +738,14 @@ const NewEstimate = () => {
                 styles={{
                   menu: (base) => ({
                     ...base,
-                    maxHeight: '150px', // Limit the height of the dropdown
-                    overflowY: 'auto',  // Add vertical scrolling
+                    maxHeight: "150px", // Limit the height of the dropdown
+                    overflowY: "auto", // Add vertical scrolling
                   }),
                 }}
               />
               {addVehicleModalOpen ? (
                 <AddNewVehicleModal
-                customerid={selectedCustomerId}
+                  customerid={selectedCustomerId}
                   handleButtonClick={() =>
                     setAddVehicleModalOpen(!addVehicleModalOpen)
                   }
@@ -799,7 +783,7 @@ const NewEstimate = () => {
                     setGrandTotal={setGrandTotal}
                     grandTotal={grandTotal || {}}
                     prefillServicesData={estimateData.services || []}
-                    storeDataInParent={(data: any) => setServicesData(data)}                    
+                    storeDataInParent={(data: any) => setServicesData(data)}
                     estimateData={estimateData}
                     comment={customerComment}
                     recommendation={customerRecommendations}
@@ -929,9 +913,21 @@ const NewEstimate = () => {
                       )}
                     </TabContent>
 
-                    <TabContent value="customer">hi</TabContent>
+                    <TabContent value="customer">
+                      <NewEstimateCustomerTab
+                        selectedCustomer={selectedCustomer}
+                        estimate={estimateData}
+                        setisAppointmentModelOpen={setisAppointmentModelOpen}
+                      />
+                    </TabContent>
 
-                    <TabContent value="vehicle">hi</TabContent>
+                    <TabContent value="vehicle">
+                    <NewEstimateVehicleTab
+                        selectedVehicle={selectedVehicle}
+                        estimate={estimateData}
+                        setisAppointmentModelOpen={setisAppointmentModelOpen}
+                      />
+                    </TabContent>
                   </Tabs>
                 </div>
               </Menu>

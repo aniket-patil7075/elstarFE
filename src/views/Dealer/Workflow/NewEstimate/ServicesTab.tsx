@@ -91,9 +91,9 @@ const ServicesTab = ({
   const isPreffiledOnce = useRef(false);
   const isFeePreffilled = useRef(false);
   const isDicountPreffilled = useRef(false);
-  const tireTableRefs = useRef<Record<number, any>>({}); 
-  const laborTableRefs = useRef<Record<number, any>>({}); 
-  const partTableRefs = useRef<Record<number, any>>({}); 
+  const tireTableRefs = useRef<Record<number, any>>({});
+  const laborTableRefs = useRef<Record<number, any>>({});
+  const partTableRefs = useRef<Record<number, any>>({});
 
   const handleAddService = () => {
     setServices([
@@ -2066,23 +2066,23 @@ const ServicesTab = ({
   const handleLaborTableMount = () => {
     // Check if labor table has already been mounted to prevent duplicate row additions
     if (laborTableMountedOnce.current) return;
-  
+
     // Ensure that there's prefilled data available
     if (!prefillServicesData || !prefillServicesData.length) return;
     laborTableMountedOnce.current = true;
-  
+
     // Track if rows have been added to avoid adding duplicate rows
     const addedLaborRows = new Set();
-  
+
     prefillServicesData.forEach((service, serviceIndex) => {
       if (service.labors && service.labors.length) {
         let rowIndex = 0; // Track the row index for each service's labor
-  
+
         service.labors.forEach((labor) => {
           // Check if this labor row is already added using a unique identifier (like laborId or _id)
           if (!addedLaborRows.has(labor._id)) {
             addedLaborRows.add(labor._id); // Mark this labor as added
-  
+
             // Ensure the labor ref for each service exists before calling methods
             if (!laborTableRefs.current[serviceIndex]) {
               laborTableRefs.current[serviceIndex] = {
@@ -2090,10 +2090,10 @@ const ServicesTab = ({
                 handleDataChange: () => {},
               };
             }
-  
+
             // Add row for each labor in the labors array
             laborTableRefs.current[serviceIndex].addRowExternally();
-  
+
             // Set data for the labor row
             laborTableRefs.current[serviceIndex].handleDataChange(
               rowIndex,
@@ -2110,22 +2110,32 @@ const ServicesTab = ({
               },
               true
             );
-  
+
             // Handle labor calculations (hours, rate, discount)
-            handleLaborCalculation("hours", labor.hours, serviceIndex + 1, rowIndex);
-            handleLaborCalculation("rate", labor.rate, serviceIndex + 1, rowIndex);
+            handleLaborCalculation(
+              "hours",
+              labor.hours,
+              serviceIndex + 1,
+              rowIndex
+            );
+            handleLaborCalculation(
+              "rate",
+              labor.rate,
+              serviceIndex + 1,
+              rowIndex
+            );
             handleLaborCalculation(
               "discount",
               { type: labor.discount.type, value: labor.discount.value },
               serviceIndex + 1,
               rowIndex
             );
-  
+
             rowIndex++; // Increment row index for each labor within the service
           }
         });
       }
-  
+
       // Handle the service fees (if any)
       if (service.serviceFee && service.serviceFee.length) {
         service.serviceFee.forEach((fee, idx) => {
@@ -2145,7 +2155,7 @@ const ServicesTab = ({
           );
         });
       }
-  
+
       // Handle discounts (if any)
       if (service.discount && service.discount.length) {
         service.discount.forEach((disc, idx) => {
@@ -2158,14 +2168,14 @@ const ServicesTab = ({
           });
         });
       }
-  
+
       // Handle other sections like parts, tires, subcontract, etc.
       if (service.parts && service.parts.length) handleAddPart();
       if (service.tires && service.tires.length) handleAddTire();
-      if (service.subcontract && service.subcontract.length) setShowSubTable(true);
+      if (service.subcontract && service.subcontract.length)
+        setShowSubTable(true);
     });
   };
-  
 
   useEffect(() => {
     console.log(prefillServicesData);
@@ -2181,31 +2191,28 @@ const ServicesTab = ({
     }
   }, [prefillServicesData]);
 
-
-
   const handlePartTableMount = () => {
-    
     if (partTableMountedOnce.current) return;
-  
+
     // Check if there's any data to prefill, and only proceed if there is data
     if (!prefillServicesData || !prefillServicesData.length) return;
     partTableMountedOnce.current = true;
-  
+
     // Maintain a set to track added rows to prevent duplicates
     const addedRows = new Set();
-  
+
     // Loop through the prefillServicesData and only add rows if necessary
-    prefillServicesData.forEach((service:any, serviceIndex:any) => {
+    prefillServicesData.forEach((service: any, serviceIndex: any) => {
       if (service.parts && service.parts.length) {
         let rowIndex = 0; // Track the row index for each service's part
-  
-        service.parts.forEach((part:any) => {
+
+        service.parts.forEach((part: any) => {
           // Ensure part data is valid and non-empty (no blank parts)
           if (part.part && part.partQty > 0 && part.partPrice > 0) {
             // If this part is not already added (check by partId or another unique identifier)
             if (!addedRows.has(part._id)) {
               addedRows.add(part._id); // Mark this part as added
-  
+
               // Ensure the part ref for each service exists before calling methods
               if (!partTableRefs.current[serviceIndex]) {
                 partTableRefs.current[serviceIndex] = {
@@ -2213,10 +2220,10 @@ const ServicesTab = ({
                   handleDataChange: () => {},
                 };
               }
-  
+
               // Add row for this part
               partTableRefs.current[serviceIndex].addRowExternally();
-  
+
               // Set data for the part row
               partTableRefs.current[serviceIndex].handleDataChange(
                 rowIndex,
@@ -2237,36 +2244,43 @@ const ServicesTab = ({
                 },
                 true
               );
-  
+
               // Handle part calculations (quantity, price, discount)
-              handlePartCalculation("qty", part.partQty, serviceIndex + 1, rowIndex);
-              handlePartCalculation("price", part.partPrice, serviceIndex + 1, rowIndex);
+              handlePartCalculation(
+                "qty",
+                part.partQty,
+                serviceIndex + 1,
+                rowIndex
+              );
+              handlePartCalculation(
+                "price",
+                part.partPrice,
+                serviceIndex + 1,
+                rowIndex
+              );
               handlePartCalculation(
                 "discount",
                 { type: part.discount.type, value: part.discount.value },
                 serviceIndex + 1,
                 rowIndex
               );
-  
+
               rowIndex++; // Increment row index for each part within the service
             }
           }
         });
       }
     });
-  
-   
   };
-  
 
   const handleTireTableMount = () => {
     if (tireTableMountedOnce.current) return;
     if (!prefillServicesData || !prefillServicesData.length) return;
     tireTableMountedOnce.current = true;
-  
+
     prefillServicesData.forEach((service: any, serviceIndex: number) => {
       if (!service.tires || !service.tires.length) return;
-  
+
       // Initialize table ref for each service if not exists
       if (!tireTableRefs.current[serviceIndex]) {
         tireTableRefs.current[serviceIndex] = {
@@ -2274,15 +2288,15 @@ const ServicesTab = ({
           handleDataChange: () => {},
         };
       }
-  
+
       let rowIndex = 0; // Maintain rowIndex within each service
-  
+
       service.tires.forEach((tire: any) => {
         if (!tire || !tire.tire || !tire.tirePrice || !tire.tireQty) return;
-  
+
         // Add row to the specific service's table
         tireTableRefs.current[serviceIndex].addRowExternally();
-  
+
         // Populate row data for the specific service
         tireTableRefs.current[serviceIndex].handleDataChange(
           rowIndex,
@@ -2302,17 +2316,22 @@ const ServicesTab = ({
           },
           true
         );
-  
+
         // Handle tire calculations for the specific service
         handleTireCalculation("qty", tire.tireQty, serviceIndex + 1, rowIndex);
-        handleTireCalculation("price", tire.tirePrice, serviceIndex + 1, rowIndex);
+        handleTireCalculation(
+          "price",
+          tire.tirePrice,
+          serviceIndex + 1,
+          rowIndex
+        );
         handleTireCalculation(
           "discount",
           { type: tire.discount.type, value: tire.discount.value },
           serviceIndex + 1,
           rowIndex
         );
-  
+
         rowIndex++; // Increment row index within the service scope
       });
     });
@@ -2356,6 +2375,7 @@ const ServicesTab = ({
   };
 
   console.log("Services in estimate : ", services);
+  
 
   return (
     <div>
@@ -2465,7 +2485,7 @@ const ServicesTab = ({
                           servicesTableData={service.labors || []}
                           setActiveServiceNo={setActiveServiceNo}
                           onTableMount={() => handleLaborTableMount(idx)} // Pass service index
-  ref={(el) => (laborTableRefs.current[idx] = el)}
+                          ref={(el) => (laborTableRefs.current[idx] = el)}
                           className={"mb-4"}
                           serviceNo={idx + 1}
                           tableName={"labors"}
@@ -2484,7 +2504,7 @@ const ServicesTab = ({
                           servicesTableData={service.parts || []}
                           setActiveServiceNo={setActiveServiceNo}
                           onTableMount={() => handlePartTableMount(idx)} // Pass service index
-  ref={(el) => (partTableRefs.current[idx] = el)}
+                          ref={(el) => (partTableRefs.current[idx] = el)}
                           className={"mb-4"}
                           serviceNo={idx + 1}
                           tableName={"parts"}
@@ -2503,7 +2523,7 @@ const ServicesTab = ({
                           servicesTableData={service.tires || []}
                           setActiveServiceNo={setActiveServiceNo}
                           onTableMount={() => handleTireTableMount(idx)} // Pass service index
-  ref={(el) => (tireTableRefs.current[idx] = el)}
+                          ref={(el) => (tireTableRefs.current[idx] = el)}
                           className={"mb-4"}
                           serviceNo={idx + 1}
                           tableName={"tires"}
