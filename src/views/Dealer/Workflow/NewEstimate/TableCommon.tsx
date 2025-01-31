@@ -72,7 +72,7 @@ const TableCommon = forwardRef<unknown, Props>(({ columns, initialData, addRowLa
 
 
   const removeRow = (index: number) => {
-    debugger
+    // debugger
     setActiveServiceNo(serviceNo);
     updateParentData(serviceNo, data.filter((_, i) => i !== index), tableName);
     setData((prev) => prev.filter((_, i) => i !== index));

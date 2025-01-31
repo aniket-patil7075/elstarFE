@@ -78,7 +78,6 @@ const ServicesTab = ({
   const tireSubTotalMap = useRef({});
   const subcontractSubTotalMap = useRef({});
   const feeSubTotalMap = useRef({});
-
   const laborRef: any = useRef();
   const partRef: any = useRef();
   const tireRef: any = useRef();
@@ -92,10 +91,23 @@ const ServicesTab = ({
   const isPreffiledOnce = useRef(false);
   const isFeePreffilled = useRef(false);
   const isDicountPreffilled = useRef(false);
-  
+  const tireTableRefs = useRef<Record<number, any>>({}); 
+  const laborTableRefs = useRef<Record<number, any>>({}); 
+  const partTableRefs = useRef<Record<number, any>>({}); 
 
   const handleAddService = () => {
-    setServices([...services, { serviceTitle: "" }]); // Add a new service with an empty title
+    setServices([
+      ...services,
+      {
+        serviceTitle: "",
+        labors: [],
+        parts: [],
+        tires: [],
+        subcontract: [],
+        discount: [],
+        serviceFee: [],
+      },
+    ]);
   };
 
   const handleRemoveService = (index) => {
@@ -1023,9 +1035,7 @@ const ServicesTab = ({
           className="h-8"
           type="text"
           value={value}
-          onChange={(e) =>
-            handleChange(rowIndex, { part: e.target.value })
-          }
+          onChange={(e) => handleChange(rowIndex, { part: e.target.value })}
           placeholder="Enter part..."
         />
       ),
@@ -1320,9 +1330,7 @@ const ServicesTab = ({
           className="h-8"
           type="text"
           value={value}
-          onChange={(e) =>
-            handleChange(rowIndex, { tire: e.target.value })
-          }
+          onChange={(e) => handleChange(rowIndex, { tire: e.target.value })}
           placeholder="Enter tire..."
         />
       ),
@@ -2055,49 +2063,73 @@ const ServicesTab = ({
     }
   };
 
-
   const handleLaborTableMount = () => {
-    if(laborTableMountedOnce.current) return;
-    if (
-      !prefillServicesData ||
-      !prefillServicesData.length
-    )
-      return;
-
+    // Check if labor table has already been mounted to prevent duplicate row additions
+    if (laborTableMountedOnce.current) return;
+  
+    // Ensure that there's prefilled data available
+    if (!prefillServicesData || !prefillServicesData.length) return;
     laborTableMountedOnce.current = true;
-    
-    prefillServicesData.forEach((service, index) => {
+  
+    // Track if rows have been added to avoid adding duplicate rows
+    const addedLaborRows = new Set();
+  
+    prefillServicesData.forEach((service, serviceIndex) => {
       if (service.labors && service.labors.length) {
-        service.labors.forEach((labor, idx) => {
-          laborRef.current.addRowExternally(true);
-          laborRef.current.handleDataChange(
-            idx,
-            {
-              laborName: labor.laborName,
-              technician: labor.technician,
-              hours: labor.hours,
-              rate: labor.rate,
-              discount: {
-                type: labor.discount.type,
-                value: labor.discount.value,
+        let rowIndex = 0; // Track the row index for each service's labor
+  
+        service.labors.forEach((labor) => {
+          // Check if this labor row is already added using a unique identifier (like laborId or _id)
+          if (!addedLaborRows.has(labor._id)) {
+            addedLaborRows.add(labor._id); // Mark this labor as added
+  
+            // Ensure the labor ref for each service exists before calling methods
+            if (!laborTableRefs.current[serviceIndex]) {
+              laborTableRefs.current[serviceIndex] = {
+                addRowExternally: () => {},
+                handleDataChange: () => {},
+              };
+            }
+  
+            // Add row for each labor in the labors array
+            laborTableRefs.current[serviceIndex].addRowExternally();
+  
+            // Set data for the labor row
+            laborTableRefs.current[serviceIndex].handleDataChange(
+              rowIndex,
+              {
+                laborName: labor.laborName,
+                technician: labor.technician,
+                hours: labor.hours,
+                rate: labor.rate,
+                discount: {
+                  type: labor.discount.type,
+                  value: labor.discount.value,
+                },
+                subTotal: labor.subTotal,
               },
-              subTotal: labor.subTotal,
-            },
-            true
-          );
-          handleLaborCalculation("hours", labor.hours, index + 1, idx);
-          handleLaborCalculation("rate", labor.rate, index + 1, idx);
-          handleLaborCalculation(
-            "discount",
-            { type: labor.discount.type, value: labor.discount.value },
-            index + 1,
-            idx
-          );
+              true
+            );
+  
+            // Handle labor calculations (hours, rate, discount)
+            handleLaborCalculation("hours", labor.hours, serviceIndex + 1, rowIndex);
+            handleLaborCalculation("rate", labor.rate, serviceIndex + 1, rowIndex);
+            handleLaborCalculation(
+              "discount",
+              { type: labor.discount.type, value: labor.discount.value },
+              serviceIndex + 1,
+              rowIndex
+            );
+  
+            rowIndex++; // Increment row index for each labor within the service
+          }
         });
       }
-
+  
+      // Handle the service fees (if any)
       if (service.serviceFee && service.serviceFee.length) {
         service.serviceFee.forEach((fee, idx) => {
+          if (!feeRef.current) return;
           feeRef.current.addRowExternally();
           let feename = fee.fee;
           if (idx === 0) feename = "EPA";
@@ -2111,28 +2143,29 @@ const ServicesTab = ({
             },
             true
           );
-          // handleFeeSubtotal(fee.feeSubtotal, index + 1, idx, fee.feeSubtotalType);
         });
       }
-
+  
+      // Handle discounts (if any)
       if (service.discount && service.discount.length) {
         service.discount.forEach((disc, idx) => {
+          if (!serviceDiscountRef.current) return;
           serviceDiscountRef.current.handleDataChange(idx, {
             discount: {
               type: disc.discount.type || "%",
               value: disc.discount.value,
             },
           });
-          // handleDiscountCalculation({ type: disc.discount.type || "%", value: disc.discount.value });
         });
       }
-
+  
+      // Handle other sections like parts, tires, subcontract, etc.
       if (service.parts && service.parts.length) handleAddPart();
       if (service.tires && service.tires.length) handleAddTire();
-      if (service.subcontract && service.subcontract.length)
-        setShowSubTable(true);
+      if (service.subcontract && service.subcontract.length) setShowSubTable(true);
     });
   };
+  
 
   useEffect(() => {
     console.log(prefillServicesData);
@@ -2148,85 +2181,140 @@ const ServicesTab = ({
     }
   }, [prefillServicesData]);
 
-  const handlePartTableMount = () => {
-    if (partTableMountedOnce.current) return;
 
+
+  const handlePartTableMount = () => {
+    
+    if (partTableMountedOnce.current) return;
+  
+    // Check if there's any data to prefill, and only proceed if there is data
     if (!prefillServicesData || !prefillServicesData.length) return;
     partTableMountedOnce.current = true;
-    prefillServicesData.forEach((service, index) => {
+  
+    // Maintain a set to track added rows to prevent duplicates
+    const addedRows = new Set();
+  
+    // Loop through the prefillServicesData and only add rows if necessary
+    prefillServicesData.forEach((service:any, serviceIndex:any) => {
       if (service.parts && service.parts.length) {
-        service.parts.forEach((part, idx) => {
-          partRef.current.addRowExternally();
-          partRef.current.handleDataChange(
-            idx,
-            {
-              part: part.part,
-              partHash: part.partHash,
-              bin: part.bin,
-              partCost: +part.partCost,
-              partPrice: +part.partPrice,
-              technician: part.technician,
-              partId: part.partId,
-              partQty: part.partQty,
-              discount: {
-                type: part.discount.type,
-                value: part.discount.value,
-              },
-              partSubtotal: part.partSubtotal,
-            },
-            true
-          );
-          handlePartCalculation("qty", part.partQty, index + 1, idx);
-          handlePartCalculation("price", part.partPrice, index + 1, idx);
-          handlePartCalculation(
-            "discount",
-            { type: part.discount.type, value: part.discount.value },
-            index + 1,
-            idx
-          );
+        let rowIndex = 0; // Track the row index for each service's part
+  
+        service.parts.forEach((part:any) => {
+          // Ensure part data is valid and non-empty (no blank parts)
+          if (part.part && part.partQty > 0 && part.partPrice > 0) {
+            // If this part is not already added (check by partId or another unique identifier)
+            if (!addedRows.has(part._id)) {
+              addedRows.add(part._id); // Mark this part as added
+  
+              // Ensure the part ref for each service exists before calling methods
+              if (!partTableRefs.current[serviceIndex]) {
+                partTableRefs.current[serviceIndex] = {
+                  addRowExternally: () => {},
+                  handleDataChange: () => {},
+                };
+              }
+  
+              // Add row for this part
+              partTableRefs.current[serviceIndex].addRowExternally();
+  
+              // Set data for the part row
+              partTableRefs.current[serviceIndex].handleDataChange(
+                rowIndex,
+                {
+                  part: part.part,
+                  partHash: part.partHash,
+                  bin: part.bin,
+                  partCost: +part.partCost,
+                  partPrice: +part.partPrice,
+                  technician: part.technician,
+                  partId: part._id, // Assuming part._id is the unique identifier
+                  partQty: part.partQty,
+                  discount: {
+                    type: part.discount.type,
+                    value: part.discount.value,
+                  },
+                  partSubtotal: part.partSubtotal,
+                },
+                true
+              );
+  
+              // Handle part calculations (quantity, price, discount)
+              handlePartCalculation("qty", part.partQty, serviceIndex + 1, rowIndex);
+              handlePartCalculation("price", part.partPrice, serviceIndex + 1, rowIndex);
+              handlePartCalculation(
+                "discount",
+                { type: part.discount.type, value: part.discount.value },
+                serviceIndex + 1,
+                rowIndex
+              );
+  
+              rowIndex++; // Increment row index for each part within the service
+            }
+          }
         });
       }
     });
+  
+   
   };
+  
 
   const handleTireTableMount = () => {
     if (tireTableMountedOnce.current) return;
-
     if (!prefillServicesData || !prefillServicesData.length) return;
-    tireTableMountedOnce.currrent = true;
-
-    prefillServicesData.forEach((service: any, index: any) => {
-      if (service.tires && service.tires.length) {
-        service.tires.forEach((tire: any, idx: any) => {
-          tireRef.current.addRowExternally();
-          tireRef.current.handleDataChange(
-            idx,
-            {
-              tire: tire.tire,
-              tirehash: tire.tirehash,
-              tireCost: tire.tireCost,
-              tireDisc: tire.tireDisc,
-              tirePrice: +tire.tirePrice,
-              tireQty: +tire.tireQty,
-              tireSubtotal: tire.tireSubtotal,
-              tireId: tire._id,
-              discount: {
-                type: tire.discount.type,
-                value: tire.discount.value,
-              },
-            },
-            true
-          );
-          handleTireCalculation("qty", tire.tireQty, index + 1, idx);
-          handleTireCalculation("price", tire.tirePrice, index + 1, idx);
-          handleTireCalculation(
-            "discount",
-            { type: tire.discount.type, value: tire.discount.value },
-            index + 1,
-            idx
-          );
-        });
+    tireTableMountedOnce.current = true;
+  
+    prefillServicesData.forEach((service: any, serviceIndex: number) => {
+      if (!service.tires || !service.tires.length) return;
+  
+      // Initialize table ref for each service if not exists
+      if (!tireTableRefs.current[serviceIndex]) {
+        tireTableRefs.current[serviceIndex] = {
+          addRowExternally: () => {},
+          handleDataChange: () => {},
+        };
       }
+  
+      let rowIndex = 0; // Maintain rowIndex within each service
+  
+      service.tires.forEach((tire: any) => {
+        if (!tire || !tire.tire || !tire.tirePrice || !tire.tireQty) return;
+  
+        // Add row to the specific service's table
+        tireTableRefs.current[serviceIndex].addRowExternally();
+  
+        // Populate row data for the specific service
+        tireTableRefs.current[serviceIndex].handleDataChange(
+          rowIndex,
+          {
+            tire: tire.tire,
+            tirehash: tire.tirehash,
+            tireCost: tire.tireCost,
+            tireDisc: tire.tireDisc,
+            tirePrice: +tire.tirePrice,
+            tireQty: +tire.tireQty,
+            tireSubtotal: tire.tireSubtotal,
+            tireId: tire._id,
+            discount: {
+              type: tire.discount.type,
+              value: tire.discount.value,
+            },
+          },
+          true
+        );
+  
+        // Handle tire calculations for the specific service
+        handleTireCalculation("qty", tire.tireQty, serviceIndex + 1, rowIndex);
+        handleTireCalculation("price", tire.tirePrice, serviceIndex + 1, rowIndex);
+        handleTireCalculation(
+          "discount",
+          { type: tire.discount.type, value: tire.discount.value },
+          serviceIndex + 1,
+          rowIndex
+        );
+  
+        rowIndex++; // Increment row index within the service scope
+      });
     });
   };
 
@@ -2267,6 +2355,7 @@ const ServicesTab = ({
     });
   };
 
+  console.log("Services in estimate : ", services);
 
   return (
     <div>
@@ -2301,9 +2390,8 @@ const ServicesTab = ({
           <Menu>
             <div>
               {services.map((service, idx) => {
-              
-              console.log(`Rendering row ${idx} `);
-              console.log(servicesTableData);
+                console.log(`Rendering row ${idx} `);
+                console.log(servicesTableData);
                 return (
                   <Card key={idx} className="mb-4">
                     <Menu.MenuCollapseArrowStart
@@ -2369,55 +2457,70 @@ const ServicesTab = ({
                           <>Add Note</>
                         )}
                       </p>
-                     
-                        <TableCommon key={idx}
-                          servicesTableData={servicesTableData}
+
+                      {(service.labors && service.labors.length > 0) ||
+                      showLaborTable ? (
+                        <TableCommon
+                          key={idx}
+                          servicesTableData={service.labors || []}
                           setActiveServiceNo={setActiveServiceNo}
-                          onTableMount={handleLaborTableMount}
-                          ref={laborRef}
+                          onTableMount={() => handleLaborTableMount(idx)} // Pass service index
+  ref={(el) => (laborTableRefs.current[idx] = el)}
                           className={"mb-4"}
                           serviceNo={idx + 1}
                           tableName={"labors"}
                           updateParentData={handleDataUpdate}
                           columns={columns}
-                          initialData={initialData}
+                          initialData={service.labors}
                           addRowLabel="Add Labor"
                         />
-               
+                      ) : null}
 
-                      
-                        <TableCommon key={idx}
-                          servicesTableData={servicesTableData}
+                      {/* Parts Table */}
+                      {(service.parts && service.parts.length > 0) ||
+                      showPartsTable ? (
+                        <TableCommon
+                          key={idx}
+                          servicesTableData={service.parts || []}
                           setActiveServiceNo={setActiveServiceNo}
-                          onTableMount={handlePartTableMount}
-                          ref={partRef}
+                          onTableMount={() => handlePartTableMount(idx)} // Pass service index
+  ref={(el) => (partTableRefs.current[idx] = el)}
                           className={"mb-4"}
                           serviceNo={idx + 1}
                           tableName={"parts"}
                           updateParentData={handleDataUpdate}
                           columns={partColumns}
-                          initialData={initialPartsData}
+                          initialData={service.parts}
                           addRowLabel="Add Parts"
                         />
-                    
-                   
-                        <TableCommon key={idx}
-                          servicesTableData={servicesTableData}
+                      ) : null}
+
+                      {/* Tires Table */}
+                      {(service.tires && service.tires.length > 0) ||
+                      showTiresTable ? (
+                        <TableCommon
+                          key={idx}
+                          servicesTableData={service.tires || []}
                           setActiveServiceNo={setActiveServiceNo}
-                          onTableMount={handleTireTableMount}
-                          ref={tireRef}
+                          onTableMount={() => handleTireTableMount(idx)} // Pass service index
+  ref={(el) => (tireTableRefs.current[idx] = el)}
                           className={"mb-4"}
                           serviceNo={idx + 1}
                           tableName={"tires"}
                           updateParentData={handleDataUpdate}
                           columns={tireColumns}
-                          initialData={initialTiresData}
+                          initialData={service.tires}
                           addRowLabel="Add Tires"
                         />
-                     
-                   
-                        <TableCommon key={idx}
-                          servicesTableData={servicesTableData}
+                      ) : null}
+
+                      {/* Subcontract Table */}
+                      {(service.subcontract &&
+                        service.subcontract.length > 0) ||
+                      showSubTable ? (
+                        <TableCommon
+                          key={idx}
+                          servicesTableData={service.subcontract || []}
                           setActiveServiceNo={setActiveServiceNo}
                           onTableMount={handleAddSubContractMount}
                           ref={subcontractRef}
@@ -2426,13 +2529,17 @@ const ServicesTab = ({
                           tableName={"subcontract"}
                           updateParentData={handleDataUpdate}
                           columns={subcontractColumns}
-                          initialData={initialSubcontractData}
+                          initialData={service.subcontract}
                           addRowLabel="Add Subcontract"
                         />
-                  
-                     
-                        <TableCommon key={idx}
-                          servicesTableData={servicesTableData}
+                      ) : null}
+
+                      {/* Discount Table */}
+                      {(service.discount && service.discount.length > 0) ||
+                      showDiscountTable ? (
+                        <TableCommon
+                          key={idx}
+                          servicesTableData={service.discount || []}
                           setActiveServiceNo={setActiveServiceNo}
                           ref={serviceDiscountRef}
                           className={"mb-4"}
@@ -2440,27 +2547,31 @@ const ServicesTab = ({
                           tableName={"discount"}
                           updateParentData={handleDataUpdate}
                           columns={discountColumns}
-                          initialData={initialDiscountData}
+                          initialData={service.discount}
                         />
-                      
+                      ) : null}
 
-                      <TableCommon
-                        servicesTableData={servicesTableData}
-                        setActiveServiceNo={setActiveServiceNo}
-                        ref={feeRef}
-                        className={"mb-4"}
-                        serviceNo={idx + 1}
-                        tableName={"serviceFee"}
-                        updateParentData={handleDataUpdate}
-                        columns={feeColumns}
-                        initialData={initialFeeData}
-                        addRowLabel="Add Service Fee"
-                      />
+                      {/* Service Fee Table */}
+                      {service.serviceFee && service.serviceFee.length > 0 && (
+                        <TableCommon
+                          key={idx}
+                          servicesTableData={service.serviceFee || []}
+                          setActiveServiceNo={setActiveServiceNo}
+                          ref={feeRef}
+                          className={"mb-4"}
+                          serviceNo={idx + 1}
+                          tableName={"serviceFee"}
+                          updateParentData={handleDataUpdate}
+                          columns={feeColumns}
+                          initialData={service.serviceFee}
+                          addRowLabel="Add Service Fee"
+                        />
+                      )}
                       <div className="toggle-tables flex justify-between items-center mt-3 -mb-3">
                         <div className="flex justify-start items-center">
                           <p className="mr-3">Add</p>
                           <Button
-                          disabled={showLaborTable}
+                            disabled={showLaborTable}
                             onClick={() => {
                               showLaborTable
                                 ? laborRef.current.addRowExternally()
@@ -2478,7 +2589,7 @@ const ServicesTab = ({
                               showPartsTable
                                 ? partRef.current.addRowExternally()
                                 : setShowPartsTable(true);
-                                handleAddPart()
+                              handleAddPart();
                             }}
                             className="text-indigo-600 mr-2 flex items-center"
                             variant="plain"
@@ -2496,7 +2607,7 @@ const ServicesTab = ({
                               showTiresTable
                                 ? tireRef.current.addRowExternally()
                                 : setShowTiresTable(true);
-                                handleAddTire()
+                              handleAddTire();
                             }}
                             className="text-indigo-600 mr-2 flex items-center"
                             variant="plain"
@@ -2509,7 +2620,7 @@ const ServicesTab = ({
                             Tires
                           </Button>
                           <Button
-                          disabled={showSubTable}
+                            disabled={showSubTable}
                             onClick={() => {
                               showSubTable
                                 ? subcontractRef.current.addRowExternally()
@@ -2535,7 +2646,6 @@ const ServicesTab = ({
                             Discount
                           </Button>
                           <Button
-                          
                             onClick={() => feeRef.current.addRowExternally()}
                             className="text-indigo-600 mr-2 flex items-center"
                             variant="plain"
@@ -2584,7 +2694,6 @@ const ServicesTab = ({
               })}
             </div>
           </Menu>
-          
         ) : (
           <div className="bg-white w-full h-[268px] rounded-lg border flex flex-col justify-center align-center text-center">
             <h4 className="text-gray-500">There are no services yet.</h4>
