@@ -540,13 +540,13 @@ const handleEndDateTimeChange = (val: Date | null) => {
                       placeholder="Select or Add Customer"
                       addNewClick={() => setShowCustomerForm(true)}
                       className="mb-4"
-                      // styles={{
-                      //   menu: (base) => ({
-                      //     ...base,
-                      //     maxHeight: "150px", 
-                      //     overflowY: "auto", 
-                      //   }),
-                      // }}
+                      styles={{
+                        menu: (base) => ({
+                          ...base,
+                          maxHeight: "150px", 
+                          overflowY: "auto", 
+                        }),
+                      }}
                     />
                   )}
                   <ErrorMessage

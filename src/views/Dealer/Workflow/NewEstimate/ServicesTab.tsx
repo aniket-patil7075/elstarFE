@@ -223,7 +223,7 @@ const ServicesTab = ({
     }
     // }
     setGrandTotal({
-      ...grandTotal,
+      // ...grandTotal,
       [activeServiceNo - 1]: (
         labor +
         part +
@@ -244,7 +244,6 @@ const ServicesTab = ({
     activeServiceNo,
   ]);
 
-  // console.log("-savedTotal", savedTotal, activeServiceNo, grandTotal);
 
   const technicians = [
     { key: "Faiz", name: "Faiz" },
@@ -1607,7 +1606,6 @@ const ServicesTab = ({
 
     let overallTotal = labor + part + tire + subcontract + fees;
     let discountInDollars = 0;
-    console.log("--fired", value);
     if (value.type && value.value) {
       if (value.type === "$") discountInDollars = value.value;
       else if (value.type === "%")
@@ -1616,7 +1614,7 @@ const ServicesTab = ({
 
     if (savedTotal[serviceNo + 1] == overallTotal - discountInDollars)
       isDicountPreffilled.current = true;
-    console.log("discountInDollars", discountInDollars, overallTotal);
+    
 
     setOverallDiscount({
       ...overallDiscount,
@@ -2178,7 +2176,6 @@ const ServicesTab = ({
   };
 
   useEffect(() => {
-    console.log(prefillServicesData);
     if (prefillServicesData && prefillServicesData.length) {
       //
       prefillServicesData.forEach((service: any) => {
@@ -2374,7 +2371,6 @@ const ServicesTab = ({
     });
   };
 
-  console.log("Services in estimate : ", services);
   
 
   return (
@@ -2410,8 +2406,6 @@ const ServicesTab = ({
           <Menu>
             <div>
               {services.map((service, idx) => {
-                console.log(`Rendering row ${idx} `);
-                console.log(servicesTableData);
                 return (
                   <Card key={idx} className="mb-4">
                     <Menu.MenuCollapseArrowStart

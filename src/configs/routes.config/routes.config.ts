@@ -96,6 +96,18 @@ export const protectedRoutes = [
 
     // Dealer Routes
     {
+        key: 'checkoutForm ',
+        path: '/checkout',
+        component: lazy(() => import('@/views/Dealer/CheckoutForm')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'return',
+        path: '/return',
+        component: lazy(() => import('@/views/Dealer/Return')),
+        authority: ['dealer'],
+    },
+    {
         key: 'dealerDashboard',
         path: '/dealer/dashboard',
         component: lazy(() => import('@/views/Dealer/DealerDashboard')),

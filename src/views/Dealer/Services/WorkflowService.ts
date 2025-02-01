@@ -209,3 +209,17 @@ export async function apiRecordPayment(data: any) {
 
     }
 }
+
+export async function apiStripepayment() {
+    try {
+        const response = await axios.post(`${API_BASE_URL}${apiPrefix}/create-checkout-session`);
+        return response.data;
+    }
+    catch (error) {
+        if (error) {
+            console.log(error)
+        }
+
+    }
+}
+

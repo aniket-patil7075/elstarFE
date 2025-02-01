@@ -92,17 +92,22 @@ const NewEstimate = () => {
   const [servicesData, setServicesData]: any = useState({});
   const [autoSaving, setAutoSaving] = useState(false);
   const [estimateData, setEstimateData]: any = useState({});
-  const [grandTotal, setGrandTotal] = useState({});
+  const [grandTotal, setGrandTotal] = useState<{
+    [key: number]: string | number;
+  }>({});
   const [isPaymentModelOpen, setisPaymentModelOpen]: any = useState(false);
   const [isAppointmentModelOpen, setisAppointmentModelOpen]: any =
     useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const firstKey = Object.keys(grandTotal)[0];
 
-  useEffect(() => {
-    console.log("Service Data : ", servicesData);
-  }, []);
+  const estimateGrandTotal = firstKey
+    ? parseFloat(grandTotal[Number(firstKey)]?.toString() || "0")
+    : 0;
+
+  // console.log("Estimate Grand Total: ", estimateGrandTotal);
 
   const dropdownItems = [
     { key: "a", name: "Item A" },
@@ -253,27 +258,44 @@ const NewEstimate = () => {
 
   const fetchEstimate = async () => {
     try {
+      // Extract the orderId from the URL
       const urlSegments = window.location.pathname.split("/");
       const orderId = urlSegments[urlSegments.length - 1].split("-")[0];
+
+      // Call API to fetch estimate by orderId
       const response = await getEstimateById(orderId);
 
       if (response.estimate) {
         let estimate = response.estimate;
         setEstimateData(estimate);
 
-        let grandTotalMap = {};
+        // Initialize grandTotalMap as an array (instead of object)
+        let grandTotalMap: number[] = [];
+
         if (estimate.services && estimate.services.length) {
-          estimate.services.forEach((service: any, idx: number) => {
-            if (!service.grandTotal) service.grandTotal = 710;
-            grandTotalMap[idx + 1] = Number(service.grandTotal);
+          // Iterate over services and add the dynamic grandTotal to the array
+          estimate.services.forEach((service: any) => {
+            // Check if service.grandTotal exists and push it to the array
+            if (service.grandTotal) {
+              grandTotalMap.push(Number(service.grandTotal));
+            } else {
+              grandTotalMap.push(0); // Fallback to 0 if grandTotal is missing
+            }
           });
 
+          console.log("Grand total map : ", grandTotalMap);
+
+          // Set the grandTotal array
           setGrandTotal(grandTotalMap);
         }
+
+        // Set other properties from estimate
         if (estimate.orderName) setOrderTitle(estimate.orderName);
         if (estimate.comments) setCustomerComment(estimate.comments);
         if (estimate.recommendation)
           setCustomerRecommendations(estimate.recommendation);
+
+        // Set customer and vehicle information
         if (estimate.customer) {
           let selCustomer: any = customerOptions.find(
             (cust: any) => cust._id === estimate.customer._id
@@ -282,6 +304,7 @@ const NewEstimate = () => {
             setSelectedCustomer(selCustomer);
           }
         }
+
         if (estimate.vehicle) {
           let selVehicle: any = vehicleOptions.find(
             (veh: any) => veh._id === estimate.vehicle._id
@@ -427,6 +450,7 @@ const NewEstimate = () => {
                   <Activities />
                 </Menu.MenuCollapse>
               </Menu>
+
               {estimateData &&
                 (estimateData.status === "In Progress" ||
                   estimateData.status === "Invoices") && (
@@ -439,7 +463,7 @@ const NewEstimate = () => {
                   >
                     <div className="flex item-center justify-between">
                       <h6>Grand Total</h6>
-                      <h6>$279.00</h6>
+                      <h6>${estimateGrandTotal}</h6>
                     </div>
                   </Card>
                 )}
@@ -447,6 +471,7 @@ const NewEstimate = () => {
                 <PaymentModel
                   handleClosePaymentModel={setisPaymentModelOpen}
                   estimateData={estimateData}
+                  estimateGrandTotal={estimateGrandTotal}
                 />
               )}
             </TabContent>
@@ -480,7 +505,7 @@ const NewEstimate = () => {
     }
   }, [addVehicleModalOpen]);
 
-  console.log("Selected Customer in estimate : ", selectedCustomerId);
+  // console.log("Selected Customer in estimate : ", selectedCustomerId);
 
   const handleEstimateSave = async (values: any) => {
     let saveEstimateResp = await apiUpdateEstimate(values, estimateId);
@@ -502,17 +527,16 @@ const NewEstimate = () => {
           vehicle: selectedVehicle ? selectedVehicle._id : "",
           comments: customerComment,
           recommendation: customerRecommendations,
-          services: Object.values(servicesData).map(
-            (service: any, idx: number) => {
-              service.grandTotal = Number(grandTotal[idx]);
-              return service;
-            }
-          ),
+          // services: Object.values(servicesData).map(
+          //   (service: any, idx: number) => {
+          //     service.grandTotal = Number(grandTotal[idx]);
+          //     return service;
+          //   }
+          // ),
           // grandTotal: Number(grandTotal),
         };
 
         handleEstimateSave(estimateDataToSave);
-        console.log("Estimate data : ", estimateDataToSave);
       }, 2000);
     };
 
@@ -536,6 +560,8 @@ const NewEstimate = () => {
     servicesData,
     grandTotal,
   ]);
+
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   return (
     <div className="new-estimate w-full h-full ">
@@ -701,7 +727,7 @@ const NewEstimate = () => {
                 addNewButtonLabel="Add New Customer"
                 value={selectedCustomer}
                 onChange={async (value: any) => {
-                  console.log("Selected Customer:", value._id);
+                  // console.log("Selected Customer:", value._id);
                   await setSelectedCustomer(value);
 
                   fetchVehiclesbycus(value._id);
@@ -735,13 +761,13 @@ const NewEstimate = () => {
                 placeholder="Add Vehicle..."
                 addNewClick={() => setAddVehicleModalOpen(!addVehicleModalOpen)}
                 className="mb-4 w-[256px]"
-                styles={{
-                  menu: (base) => ({
-                    ...base,
-                    maxHeight: "150px", // Limit the height of the dropdown
-                    overflowY: "auto", // Add vertical scrolling
-                  }),
-                }}
+                // styles={{
+                //   menu: (base) => ({
+                //     ...base,
+                //     maxHeight: "150px",
+                //     overflowY: "auto",
+                //   }),
+                // }}
               />
               {addVehicleModalOpen ? (
                 <AddNewVehicleModal
@@ -889,6 +915,7 @@ const NewEstimate = () => {
                           <Activities />
                         </Menu.MenuCollapse>
                       </Menu>
+
                       {estimateData &&
                         (estimateData.status === "In Progress" ||
                           estimateData.status === "Invoices") && (
@@ -901,14 +928,25 @@ const NewEstimate = () => {
                           >
                             <div className="flex item-center justify-between">
                               <h6>Grand Total</h6>
-                              <h6>$279.00</h6>
+                              <h6>${estimateGrandTotal}</h6>
                             </div>
                           </Card>
                         )}
+
+                      {paymentSuccess && (
+                        <div>
+                          <Button variant="solid" className="w-full mt-4">
+                            Invoice
+                          </Button>
+                        </div>
+                      )}
+
                       {isPaymentModelOpen && (
                         <PaymentModel
                           handleClosePaymentModel={setisPaymentModelOpen}
                           estimateData={estimateData}
+                          estimateGrandTotal={estimateGrandTotal}
+                          setPaymentSuccess={setPaymentSuccess}
                         />
                       )}
                     </TabContent>
@@ -922,7 +960,7 @@ const NewEstimate = () => {
                     </TabContent>
 
                     <TabContent value="vehicle">
-                    <NewEstimateVehicleTab
+                      <NewEstimateVehicleTab
                         selectedVehicle={selectedVehicle}
                         estimate={estimateData}
                         setisAppointmentModelOpen={setisAppointmentModelOpen}
