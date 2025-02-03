@@ -46,20 +46,11 @@ export async function getAllCountAccToStatus() {
 export async function apiAddNewEstimate(data: any) {
     try {
         const response = await axios.post(`${API_BASE_URL}${apiPrefix}/dealer/workflow/add-new-estimate`, data);
-        //  
+         
         return response.data;
     }
     catch (error: any) {
-        if (error.response) {
-            throw new Error(`Server Error: ${error.response.data.message || 'Error in creating new Estimate'}`);
-
-        } else if (error.request) {
-            // No response was received from the server
-            throw new Error('Network Error: Unable to reach the server');
-        } else {
-            // Some other error
-            throw new Error('Unexpected Error: ' + error.message);
-        }
+       console.log(error)
 
     }
 }
@@ -210,9 +201,9 @@ export async function apiRecordPayment(data: any) {
     }
 }
 
-export async function apiStripepayment() {
+export async function apiStripepayment(data:any) {
     try {
-        const response = await axios.post(`${API_BASE_URL}${apiPrefix}/create-checkout-session`);
+        const response = await axios.post(`${API_BASE_URL}${apiPrefix}/create-checkout-session`,data);
         return response.data;
     }
     catch (error) {
@@ -223,3 +214,11 @@ export async function apiStripepayment() {
     }
 }
 
+export async function getStripePayment(params: any) {
+    try {
+        const response = await axios.get(`${API_BASE_URL}${apiPrefix}/session-status?session_id=${params}`);
+        return response.data; 
+    } catch (error: any) {
+        console.log(error)
+    }
+}

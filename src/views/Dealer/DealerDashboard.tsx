@@ -2,9 +2,9 @@ import { Button } from "@/components/ui";
 import { apiStripepayment } from "./Services/WorkflowService";
 import CheckoutForm from "./CheckoutForm";
 
-const handleStripePayment = async () => {
-    let stripe = await apiStripepayment();
-};
+// const handleStripePayment = async () => {
+//     let stripe = await apiStripepayment();
+// };
 
 const DealerDashboard = () => {
   return (
@@ -14,7 +14,6 @@ const DealerDashboard = () => {
         <Button
           variant="solid"
           className="w-25 mt-4"
-          onClick={handleStripePayment}
         >
           Stripe
         </Button>

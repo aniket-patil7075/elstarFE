@@ -44,7 +44,7 @@ import {
   getEstimateById,
 } from "../../Services/WorkflowService";
 import { IoCloudDoneOutline } from "react-icons/io5";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import SendEstimate from "./SendEstimate";
 import { IoIosCloseCircleOutline } from "react-icons/io";
@@ -102,7 +102,7 @@ const NewEstimate = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const firstKey = Object.keys(grandTotal)[0];
-
+ 
   const estimateGrandTotal = firstKey
     ? parseFloat(grandTotal[Number(firstKey)]?.toString() || "0")
     : 0;
@@ -283,7 +283,6 @@ const NewEstimate = () => {
             }
           });
 
-          console.log("Grand total map : ", grandTotalMap);
 
           // Set the grandTotal array
           setGrandTotal(grandTotalMap);
