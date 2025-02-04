@@ -22,6 +22,7 @@ import { useAppSelector, useAppDispatch, getEstimatesByPage } from "./store";
 import PartsTable from "../DealerInventory/parts/PartsTable";
 import TiresTable from "../DealerInventory/Tires/TireTable";
 import { useLocation } from "react-router-dom";
+import { Button } from "@/components/ui";
 
 interface Estimate {
   id: any;
@@ -211,10 +212,35 @@ const ProductList = () => {
 
   const location = useLocation();
   const { status } = location.state || {};
+  const [showModal, setShowModal] = useState(true);
+
+  const closeModal = () => {
+    setShowModal(false);
+  };
   return (
     <>
-      {status === 'paid' ? (
-        <h4>Payment Successfull</h4>
+      {status === "paid" ? (
+        <div>
+          <h2 className="text-[#4f46e5] text-2xl font-bold flex items-center justify-center mt-10">
+            <svg
+              className="w-8 h-8 text-[#4f46e5] mr-2"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+            Payment Successful!
+          </h2>
+          <p className="text-gray-600 text-center mt-2">
+            Thank you for your payment.
+          </p>
+        </div>
       ) : (
         <AdaptableCard className="h-full" bodyClass="h-full">
           <div className="lg:flex items-center justify-between mb-4">

@@ -63,14 +63,12 @@ const ServicesTab = ({
   const [allFees, setAllFees] = useState([]);
   const [showValueTypeSelection, setShowValueTypeSelection] = useState("");
   // const [ position, setPosition ] = useState({ top: 0, left: 0 });
-
   const [laborSubTotal, setLaborSubTotal] = useState({});
   const [partSubTotal, setPartSubTotal] = useState({});
   const [tireSubTotal, setTireSubTotal] = useState({});
   const [subcontractSubTotal, setSubcontractSubTotal] = useState({});
   const [feesSubTotal, setFeesSubTotal] = useState({});
   const [overallDiscount, setOverallDiscount] = useState({});
-
   const [activeServiceNo, setActiveServiceNo] = useState(0);
 
   const laborSubTotalMap = useRef({});
@@ -95,6 +93,8 @@ const ServicesTab = ({
   const laborTableRefs = useRef<Record<number, any>>({});
   const partTableRefs = useRef<Record<number, any>>({});
 
+  console.log("service data : ", services)
+
   const handleAddService = () => {
     setServices([
       ...services,
@@ -118,9 +118,9 @@ const ServicesTab = ({
   const handleInputChange = (index, value, key, serviceNo) => {
     //
     const updatedServices = services.map(
-      (service, i) => (i === index ? { ...service, [key]: value } : service) // Update the title for the specific service
+      (service, i) => (i === index ? { ...service, [key]: value } : service) 
     );
-    //
+    
     setServices(updatedServices);
     // setServicesTableData({ ...servicesTableData, [serviceNo - 1]: { ...servicesTableData[serviceNo - 1], [key]: value } });
     setServicesTableData({
@@ -671,6 +671,9 @@ const ServicesTab = ({
   ];
 
   const handleDataUpdate = (serviceno, data, tableName) => {
+    console.log("service No in handle data update function : ",serviceno);
+    console.log("Data in handle data update function : ",data);
+    console.log("table name in handle data update function : ",tableName);
     let servicesNewData = {
       ...servicesTableData,
       [serviceno - 1]: {
@@ -2478,7 +2481,7 @@ const ServicesTab = ({
                           key={idx}
                           servicesTableData={service.labors || []}
                           setActiveServiceNo={setActiveServiceNo}
-                          onTableMount={() => handleLaborTableMount(idx)} // Pass service index
+                          onTableMount={() => handleLaborTableMount(idx)} 
                           ref={(el) => (laborTableRefs.current[idx] = el)}
                           className={"mb-4"}
                           serviceNo={idx + 1}

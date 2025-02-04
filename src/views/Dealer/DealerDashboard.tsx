@@ -1,12 +1,10 @@
 import { Button } from "@/components/ui";
 import { apiStripepayment } from "./Services/WorkflowService";
 import CheckoutForm from "./CheckoutForm";
-
-// const handleStripePayment = async () => {
-//     let stripe = await apiStripepayment();
-// };
+import AuthorizeEmail from "../auth/Emails/AuthorizeEmail";
 
 const DealerDashboard = () => {
+  
   return (
     <div>
       DealerDashboard
@@ -19,6 +17,7 @@ const DealerDashboard = () => {
         </Button>
       </div>
       {/* <CheckoutForm/> */}
+      <AuthorizeEmail />
     </div>
   );
 };

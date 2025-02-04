@@ -508,6 +508,7 @@ const NewEstimate = () => {
 
   const handleEstimateSave = async (values: any) => {
     let saveEstimateResp = await apiUpdateEstimate(values, estimateId);
+    console.log(saveEstimateResp)
     setAutoSaving(false);
   };
 
@@ -620,7 +621,8 @@ const NewEstimate = () => {
                 ))}
               </Dropdown>
 
-              <p className="ml-4 w-[70px] flex justify-center items-center">{autoSaving ? <span className="flex justify-start items center">Saving <Spinner className="ml-2 mt-1" size={14} /></span> : <IoCloudDoneOutline size={20} />}</p>
+              <p className="ml-4 w-[70px] flex justify-center items-center">{
+               ? <span className="flex justify-start items center">Saving <Spinner className="ml-2 mt-1" size={14} /></span> : <IoCloudDoneOutline size={20} />}</p>
               
             </div> */}
 
@@ -682,13 +684,20 @@ const NewEstimate = () => {
                   </Dropdown>
 
                   <p className="ml-0 sm:ml-4 w-full sm:w-[70px] flex justify-center items-center text-center">
-                    {autoSaving ? (
+                    {/* {autoSaving ? (
                       <span className="flex justify-start items-center">
                         Saving <Spinner className="ml-2 mt-1" size={14} />
                       </span>
                     ) : (
                       <IoCloudDoneOutline size={20} />
-                    )}
+                    )} */}
+                    <Button
+                    variant="twoTone"
+                  className="flex justify-center items-center ml-0 sm:ml-3 h-[2.4rem] font-medium sm:w-auto w-full mb-2 sm:mb-0"
+                  onClick={handleEstimateSave}
+                    >
+                      Save
+                    </Button>
                   </p>
                   <div className="lg:hidden px-4 py-2">
                     <LeftSidePanel content={PanelContent} />

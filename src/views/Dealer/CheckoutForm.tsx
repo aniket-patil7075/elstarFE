@@ -9,13 +9,13 @@ import { apiStripepayment } from "./Services/WorkflowService";
 
 const stripePromise = loadStripe("pk_test_51QcTfE2LkEUwrBDRFeBHaARCv8plgu5zSL1hldQZbLx6Z525g1xlrrFyzazZ6UJucbspdN0BZiXDJIyX7uT3CORt00nTlihDpS");
 
-const CheckoutForm = ({ amount, orderNo }: { amount: number, orderNo: number }) => {
+const CheckoutForm = ({ amount, orderNo,formattedRemaining }: { amount: number, orderNo: number,formattedRemaining:number }) => {
   const [clientSecret, setClientSecret] = useState<string | null>(null); 
 
 
   const handleStripePayment = async () => {
     try {
-      const response = await apiStripepayment({ amount, orderNo }); 
+      const response = await apiStripepayment({ amount, orderNo,formattedRemaining }); 
       if (response && response.clientSecret) {
         setClientSecret(response.clientSecret); 
       } else {
@@ -29,7 +29,7 @@ const CheckoutForm = ({ amount, orderNo }: { amount: number, orderNo: number }) 
   
   useEffect(() => {
     handleStripePayment();
-  }, [amount, orderNo]);
+  }, [amount, orderNo,formattedRemaining]);
 
   const options = { clientSecret };
 

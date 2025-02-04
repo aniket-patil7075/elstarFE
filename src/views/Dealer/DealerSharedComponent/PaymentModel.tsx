@@ -1,9 +1,30 @@
 import { Button, Card, Input, Radio } from "@/components/ui";
 import React, { useEffect, useState } from "react";
-import { apiRecordPayment, getEstimateById } from "../Services/WorkflowService";
+import {
+  apiRecordPayment,
+  getEstimateById,
+  updateCustomerRemainingAmount,
+} from "../Services/WorkflowService";
 import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import AddNewCardPaymentModal from "./AddNewCardPaymentModal";
+import { getAllCustomers } from "../DealerLists/Services/DealerListServices";
+
+interface Customer {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  customerAddress: object; // Adjust as needed based on the structure
+  email: string[];
+  phoneNumber: object[];
+  remainingAmount: number;
+  updatedAt: string;
+  createdAt: string;
+  fleet: object[];
+  referralSource: object[];
+  vehicle: object[];
+  __v: number;
+}
 
 const PaymentModel = ({
   handleClosePaymentModel,
@@ -14,11 +35,14 @@ const PaymentModel = ({
   const [value, setValue] = useState("");
   const [remainingGrandTotal, setRemainingGrandTotal] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [customerRemaining , setCustomerRemaining] = useState(0)
+
+  const customerId = estimateData.customer._id;
+  console.log(customerId);
 
   const estimateId = estimateData._id;
   const orderNo = estimateData.orderNo;
 
-  console.log(orderNo)
   const handleCloseModal = () => {
     setIsModalVisible(false);
   };
@@ -28,6 +52,7 @@ const PaymentModel = ({
     amount: estimateData.grandTotal,
     date: new Date().toISOString().slice(0, 10),
     remainingAmount: 0,
+    enteredAmount: 0,
     note: "",
     paidAmount: 0,
     paymentMethod: "",
@@ -39,9 +64,6 @@ const PaymentModel = ({
       ...paymentDetails,
       paymentMethod: val,
     });
-    if (val === "card") {
-      setIsModalVisible(true);
-    }
   };
 
   useEffect(() => {
@@ -62,6 +84,7 @@ const PaymentModel = ({
     const enteredAmount = parseFloat(event.target.value);
     setPaymentDetails({
       ...paymentDetails,
+      enteredAmount: enteredAmount,
       paidAmount: isNaN(enteredAmount) ? 0 : enteredAmount,
     });
   };
@@ -72,17 +95,33 @@ const PaymentModel = ({
   );
   const remainingAmount = maintotaldue - paymentDetails.paidAmount;
 
-  // Ensure the remainingAmount is correctly calculated before sending
+  const handleUpdateRemainingAmount = async () => {
+    try {
+      const response = await updateCustomerRemainingAmount(
+        customerId,
+        formattedRemaining
+      );
+      if (response && response.success) {
+        console.log("Customer remaining amount updated successfully");
+      } else {
+        console.error("Failed to update customer remaining amount");
+      }
+    } catch (error) {
+      console.error("Error while updating customer remaining amount:", error);
+    }
+  };
+
   const recordPayment = async () => {
     try {
       const paymentData = {
         ...paymentDetails,
-        remainingAmount: remainingAmount, // Use the calculated remainingAmount here
+        remainingAmount: remainingAmount,
       };
-
 
       const response = await apiRecordPayment(paymentData);
       console.log("Data saved in backend: ", response);
+
+      await handleUpdateRemainingAmount();
 
       toast.push(
         <Notification title="Success" type="success">
@@ -96,6 +135,20 @@ const PaymentModel = ({
     }
   };
 
+  const fetchCustomers = async () => {
+    let customers = await getAllCustomers();
+    const customer = customers.allCustomers.find(
+      (cust: Customer) => cust._id === customerId
+    );
+
+    if (customer) {
+      const customerRemainingAmount = customer.remainingAmount;
+      setCustomerRemaining(customerRemainingAmount);
+      console.log("Remaining Amount:", customerRemainingAmount);
+    } else {
+      console.log("Customer not found");
+    }
+  };
   useEffect(() => {
     const fetchEstimate = async () => {
       try {
@@ -111,11 +164,18 @@ const PaymentModel = ({
     };
 
     fetchEstimate();
+    fetchCustomers();
   }, []);
 
-  console.log("Updated remainingGrandTotal:", remainingGrandTotal);
 
-  
+
+
+const totalDue = (Number(paymentDetails.totalDue) + customerRemaining);
+const remaining = totalDue - Number(paymentDetails.enteredAmount);
+const formattedRemaining = parseFloat(remaining.toFixed(2));
+
+
+
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -166,7 +226,13 @@ const PaymentModel = ({
             <Button
               variant="solid"
               className="w-full mt-4"
-              onClick={recordPayment}
+              onClick={() => {
+                if (value === "cash") {
+                  recordPayment(); // Call recordPayment if cash is selected
+                } else if (value === "card") {
+                  setIsModalVisible(true); // Show modal if card is selected
+                }
+              }}
             >
               Record $
               {paymentDetails.paidAmount &&
@@ -189,9 +255,7 @@ const PaymentModel = ({
               <p className="font-extrabold">Total Due</p>
               <p className="font-extrabold">
                 {" "}
-                {(
-                  Number(paymentDetails.totalDue) + remainingGrandTotal
-                ).toFixed(2)}
+                {totalDue}
               </p>
             </div>
             <div className="flex items-center justify-between mb-2">
@@ -205,7 +269,7 @@ const PaymentModel = ({
             <div className="w-full border-t"></div>
             <div className="flex text-emerald-400 font-extrabold items-center justify-between mt-3 mb-2">
               <p>Remaining</p>
-              <p>{remainingAmount.toFixed(2)}</p>
+              <p>{formattedRemaining}</p>
             </div>
             <div className="flex items-center justify-between mt-5 mb-2">
               <p className="font-semibold">PAYMENTS</p>
@@ -216,7 +280,14 @@ const PaymentModel = ({
           </div>
         </div>
       </div>
-      {isModalVisible ? <AddNewCardPaymentModal amount={paymentDetails.paidAmount} orderNo={orderNo}  closeModal={handleCloseModal} /> : null}
+      {isModalVisible ? (
+        <AddNewCardPaymentModal
+          amount={paymentDetails.paidAmount}
+          orderNo={orderNo}
+          formattedRemaining={formattedRemaining}
+          closeModal={handleCloseModal}
+        />
+      ) : null}
     </div>
   );
 };

@@ -58,7 +58,7 @@ export async function apiAddNewEstimate(data: any) {
 export async function apiUpdateEstimate(data: any, estimateId: any) {
     try {
         const response = await axios.put(`${API_BASE_URL}${apiPrefix}/dealer/workflow/update-estimate/${estimateId}`, data);
-        console.log("Response of Estimate : ", response);
+        // console.log("Response of Estimate : ", response);
         return response.data;
     }
     catch (error: any) {
@@ -220,5 +220,19 @@ export async function getStripePayment(params: any) {
         return response.data; 
     } catch (error: any) {
         console.log(error)
+    }
+}
+
+
+export async function updateCustomerRemainingAmount(customerId: string, remainingAmount: number) {
+    try {
+        const response = await axios.put(`${API_BASE_URL}${apiPrefix}/update-customer-remaining`, {
+            customerId,
+            remainingAmount,
+        });
+        console.log("response in api : ",response)
+        return response.data;
+    } catch (error) {
+        console.error("Error updating customer remaining amount:", error);
     }
 }

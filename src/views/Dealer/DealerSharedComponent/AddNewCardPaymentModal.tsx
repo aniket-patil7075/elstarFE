@@ -6,14 +6,16 @@ interface AddNewCardPaymentModalProps {
   amount: number;
   orderNo: number;
   closeModal: () => void; 
+  formattedRemaining : number;
 }
 
 const AddNewCardPaymentModal: React.FC<AddNewCardPaymentModalProps> = ({
   amount,
   orderNo,
   closeModal,
+  formattedRemaining,
 }) => {
-  console.log(amount);
+  
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   return (
@@ -31,7 +33,7 @@ const AddNewCardPaymentModal: React.FC<AddNewCardPaymentModalProps> = ({
           >✕</button>
         </div>
         <div className="p-3">
-          <CheckoutForm amount={amount} orderNo={orderNo} />
+          <CheckoutForm amount={amount} orderNo={orderNo} formattedRemaining={formattedRemaining} />
         </div>
       </div>
     </div>
