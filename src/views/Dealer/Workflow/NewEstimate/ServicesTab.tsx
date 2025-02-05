@@ -93,7 +93,6 @@ const ServicesTab = ({
   const laborTableRefs = useRef<Record<number, any>>({});
   const partTableRefs = useRef<Record<number, any>>({});
 
-  console.log("service data : ", services)
 
   const handleAddService = () => {
     setServices([
@@ -117,10 +116,11 @@ const ServicesTab = ({
 
   const handleInputChange = (index, value, key, serviceNo) => {
     //
-    const updatedServices = services.map(
-      (service, i) => (i === index ? { ...service, [key]: value } : service) 
+    const updatedServices = services.map((service, i) =>
+      i === index ? { ...service, [key]: value } : service
     );
-    
+
+
     setServices(updatedServices);
     // setServicesTableData({ ...servicesTableData, [serviceNo - 1]: { ...servicesTableData[serviceNo - 1], [key]: value } });
     setServicesTableData({
@@ -243,7 +243,6 @@ const ServicesTab = ({
     prefillServicesData,
     activeServiceNo,
   ]);
-
 
   const technicians = [
     { key: "Faiz", name: "Faiz" },
@@ -505,7 +504,7 @@ const ServicesTab = ({
         value: number,
         rowIndex: number,
         handleChange: (index: number, values: object) => void,
-        serviceNo
+        serviceNo: number
       ) => (
         <div className="w-full flex justify-center align-center">
           <Input
@@ -583,33 +582,38 @@ const ServicesTab = ({
     {
       header: "Subtotal",
       accessor: "subtotal",
-      render: (value: number, rowIndex: number, _, serviceNo) => {
-        let val = 0;
-        if (
-          servicesTableData[serviceNo - 1] &&
-          servicesTableData[serviceNo - 1]["labors"] &&
-          servicesTableData[serviceNo - 1]["labors"][rowIndex]
-        ) {
-          let data = servicesTableData[serviceNo - 1]["labors"][rowIndex];
-          if (data.rate && data.hours) val = data.rate * data.hours;
-          if (data.discount.value) {
-            let discount =
-              data.discount.type === "%"
-                ? val * (data.discount.value / 100)
-                : data.discount.value;
-            val -= discount;
-          }
-        }
+      render: (value:number, rowIndex:number, 
+        handleChange: (index: number, values: Record<string, any>, serviceNo: number) => void,
+        serviceNo:number) => {
+          let val = 0;
 
-        // setLaborSubTotal((laborSubTotal || 0) + (val || 0));
-        return (
-          <span className="block text-center">${(val || 0).toFixed(2)}</span>
-        );
+          if (
+            servicesTableData[serviceNo - 1] &&
+            servicesTableData[serviceNo - 1]["labors"] &&
+            servicesTableData[serviceNo - 1]["labors"][rowIndex]
+          ) {
+            let data = servicesTableData[serviceNo - 1]["labors"][rowIndex];
+            if (data.rate && data.hours) val = data.rate * data.hours;
+            if (data.discount?.value) {
+              let discount =
+                data.discount.type === "%"
+                  ? val * (data.discount.value / 100)
+                  : data.discount.value;
+              val -= discount;
+            }
+          }
+      
+          // console.log("Value of subtotal : ",value)
+          // console.log("Val of subtotal : ",val)
+          if (val !== value) {
+            handleChange(rowIndex, { subtotal: val }, serviceNo);
+          }
+  
+        return <span className="block text-center">${val.toFixed(2)}</span>;
       },
     },
   ];
 
-  // console.log("---this", laborSubTotal);
 
   const initialData = [
     {
@@ -671,9 +675,9 @@ const ServicesTab = ({
   ];
 
   const handleDataUpdate = (serviceno, data, tableName) => {
-    console.log("service No in handle data update function : ",serviceno);
-    console.log("Data in handle data update function : ",data);
-    console.log("table name in handle data update function : ",tableName);
+    // console.log("service No in handle data update function : ", serviceno);
+    // console.log("Data in handle data update function : ", data);
+    // console.log("table name in handle data update function : ", tableName);
     let servicesNewData = {
       ...servicesTableData,
       [serviceno - 1]: {
@@ -690,8 +694,6 @@ const ServicesTab = ({
     });
     if (storeDataInParent) storeDataInParent(servicesNewData);
   };
-
-  // console.log("srvcstbledta", servicesTableData);
 
   const handleFeeSubtotal = (fee, serviceNo, rowIndex, type) => {
     // console.log("feeSubTotalMap.current[rowIndex]", fee);
@@ -1241,8 +1243,11 @@ const ServicesTab = ({
     {
       header: "Subtotal",
       accessor: "partSubtotal",
-      render: (value: number, rowIndex: number, _, serviceNo) => {
-        let val = 0;
+      render: (value:number, rowIndex:number, 
+        handleChange: (index: number, values: Record<string, any>, serviceNo: number) => void,
+        serviceNo:number) => {
+          let val = 0;
+
         if (
           servicesTableData[serviceNo - 1] &&
           servicesTableData[serviceNo - 1]["parts"] &&
@@ -1260,7 +1265,11 @@ const ServicesTab = ({
           }
         }
 
-        // setPartSubTotal((partSubTotal || 0) + (val || 0))
+        // console.log("Value of subtotal : ",value)
+        //   console.log("Val of subtotal : ",val)
+          if (val !== value) {
+            handleChange(rowIndex, { partSubtotal: val }, serviceNo);
+          }
         return (
           <span className="block text-center">${(val || 0).toFixed(2)}</span>
         );
@@ -1512,8 +1521,11 @@ const ServicesTab = ({
     {
       header: "Subtotal",
       accessor: "tireSubtotal",
-      render: (value: number, rowIndex: number, _, serviceNo) => {
-        let val = 0;
+      render: (value:number, rowIndex:number, 
+        handleChange: (index: number, values: Record<string, any>, serviceNo: number) => void,
+        serviceNo:number) => {
+          let val = 0;
+
         if (
           servicesTableData[serviceNo - 1] &&
           servicesTableData[serviceNo - 1]["tires"] &&
@@ -1531,7 +1543,11 @@ const ServicesTab = ({
           }
         }
 
-        // setTireSubTotal((tireSubTotal || 0) + (val || 0))
+        // console.log("Value of subtotal : ",value)
+        //   console.log("Val of subtotal : ",val)
+          if (val !== value) {
+            handleChange(rowIndex, { tireSubtotal: val }, serviceNo);
+          }
         return (
           <span className="block text-center">${(val || 0).toFixed(2)}</span>
         );
@@ -1617,7 +1633,6 @@ const ServicesTab = ({
 
     if (savedTotal[serviceNo + 1] == overallTotal - discountInDollars)
       isDicountPreffilled.current = true;
-    
 
     setOverallDiscount({
       ...overallDiscount,
@@ -1810,8 +1825,11 @@ const ServicesTab = ({
     {
       header: "Subtotal",
       accessor: "subTotal",
-      render: (value: number, rowIndex: number, _, serviceNo) => {
-        let val = 0;
+      render: (value:number, rowIndex:number, 
+        handleChange: (index: number, values: Record<string, any>, serviceNo: number) => void,
+        serviceNo:number) => {
+          let val = 0;
+
         if (
           servicesTableData[serviceNo - 1] &&
           servicesTableData[serviceNo - 1]["subcontract"] &&
@@ -1828,7 +1846,12 @@ const ServicesTab = ({
           }
         }
 
-        // setSubcontractSubTotal((subcontractSubTotal || 0) + (val || 0))
+        // console.log("Value of subtotal : ",value)
+        //   console.log("Val of subtotal : ",val)
+          if (val !== value) {
+            handleChange(rowIndex, { subTotal: val }, serviceNo);
+          }
+
         return (
           <span className="block text-center">${(val || 0).toFixed(2)}</span>
         );
@@ -2107,7 +2130,7 @@ const ServicesTab = ({
                   type: labor.discount.type,
                   value: labor.discount.value,
                 },
-                subTotal: labor.subTotal,
+                subTotal: labor.subtotal,
               },
               true
             );
@@ -2186,6 +2209,8 @@ const ServicesTab = ({
           setShowDiscountTable(true);
         }
       });
+      
+      
       setServices([...prefillServicesData]);
       setServicesTableData([...prefillServicesData]);
     }
@@ -2374,8 +2399,6 @@ const ServicesTab = ({
     });
   };
 
-  
-
   return (
     <div>
       <div className="w-full h-full mt-5">
@@ -2481,7 +2504,7 @@ const ServicesTab = ({
                           key={idx}
                           servicesTableData={service.labors || []}
                           setActiveServiceNo={setActiveServiceNo}
-                          onTableMount={() => handleLaborTableMount(idx)} 
+                          onTableMount={() => handleLaborTableMount(idx)}
                           ref={(el) => (laborTableRefs.current[idx] = el)}
                           className={"mb-4"}
                           serviceNo={idx + 1}

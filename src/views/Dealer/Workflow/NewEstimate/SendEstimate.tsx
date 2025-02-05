@@ -24,6 +24,9 @@ const SendEstimate = ({
         ` || "",
   };
 
+  console.log("order number : ",orderNumber)
+  console.log(estimateId)
+
   const validationSchema = Yup.object().shape({
     reciepent: Yup.string().required("Reciepent is required"),
     template: Yup.string().required("Template is required"),
@@ -99,6 +102,7 @@ const SendEstimate = ({
                   errorMessage={errors.reciepent}
                 >
                   <Field
+                  
                     type="text"
                     name="reciepent"
                     placeholder="Enter Reciepent"

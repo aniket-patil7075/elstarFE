@@ -467,24 +467,30 @@ const NewEstimate = () => {
                   </Card>
                 )}
               {isPaymentModelOpen && (
-                <PaymentModel
-                  handleClosePaymentModel={setisPaymentModelOpen}
-                  estimateData={estimateData}
-                  estimateGrandTotal={estimateGrandTotal}
-                />
-              )}
+                        <PaymentModel
+                          handleClosePaymentModel={setisPaymentModelOpen}
+                          estimateData={estimateData}
+                          estimateGrandTotal={estimateGrandTotal}
+                          // setPaymentSuccess={setPaymentSuccess}
+                        />
+                      )}
             </TabContent>
 
             <TabContent value="customer">
-              selected customer
-              <NewEstimateOrderTab
-                servicesData={servicesData}
-                estimate={estimateData}
-                setisAppointmentModelOpen={setisAppointmentModelOpen}
-              />
-            </TabContent>
+                      <NewEstimateCustomerTab
+                        selectedCustomer={selectedCustomer}
+                        estimate={estimateData}
+                        setisAppointmentModelOpen={setisAppointmentModelOpen}
+                      />
+                    </TabContent>
 
-            <TabContent value="vehicle">hi</TabContent>
+                    <TabContent value="vehicle">
+                      <NewEstimateVehicleTab
+                        selectedVehicle={selectedVehicle}
+                        estimate={estimateData}
+                        setisAppointmentModelOpen={setisAppointmentModelOpen}
+                      />
+                    </TabContent>
           </Tabs>
         </div>
       </Menu>
@@ -621,11 +627,9 @@ const NewEstimate = () => {
                 ))}
               </Dropdown>
 
-              <p className="ml-4 w-[70px] flex justify-center items-center">{
-               ? <span className="flex justify-start items center">Saving <Spinner className="ml-2 mt-1" size={14} /></span> : <IoCloudDoneOutline size={20} />}</p>
+              <p className="ml-4 w-[70px] flex justify-center items-center">{autoSaving ? <span className="flex justify-start items center">Saving <Spinner className="ml-2 mt-1" size={14} /></span> : <IoCloudDoneOutline size={20} />}</p>
               
             </div> */}
-
               <div className="estimate-interaction-buttons flex flex-wrap sm:flex-nowrap justify-start items-center">
                 <div className="button-with-dropdown flex items-center justify-center mb-2 sm:mb-0 sm:w-auto w-full">
                   <Button
@@ -684,20 +688,13 @@ const NewEstimate = () => {
                   </Dropdown>
 
                   <p className="ml-0 sm:ml-4 w-full sm:w-[70px] flex justify-center items-center text-center">
-                    {/* {autoSaving ? (
+                    {autoSaving ? (
                       <span className="flex justify-start items-center">
                         Saving <Spinner className="ml-2 mt-1" size={14} />
                       </span>
                     ) : (
                       <IoCloudDoneOutline size={20} />
-                    )} */}
-                    <Button
-                    variant="twoTone"
-                  className="flex justify-center items-center ml-0 sm:ml-3 h-[2.4rem] font-medium sm:w-auto w-full mb-2 sm:mb-0"
-                  onClick={handleEstimateSave}
-                    >
-                      Save
-                    </Button>
+                    )}
                   </p>
                   <div className="lg:hidden px-4 py-2">
                     <LeftSidePanel content={PanelContent} />
@@ -735,23 +732,23 @@ const NewEstimate = () => {
                 addNewButtonLabel="Add New Customer"
                 value={selectedCustomer}
                 onChange={async (value: any) => {
-                  // console.log("Selected Customer:", value._id);
+                  console.log("Selected Customer:", value._id);
                   await setSelectedCustomer(value);
-
-                  fetchVehiclesbycus(value._id);
-                }}
+                 
+                  fetchVehiclesbycus(value._id)
+              }}
                 placeholder="Add Customer..."
                 addNewClick={() =>
                   setAddCustomerModalOpen(!addCustomerModalOpen)
                 }
                 className="mb-4 mr-12 w-[256px]"
-                // styles={{
-                //   menu: (base) => ({
-                //     ...base,
-                //     maxHeight: '200px', // Limit the height of the dropdown
-                //     overflowY: 'auto',  // Add vertical scrolling
-                //   }),
-                // }}
+                styles={{
+                  menu: (base) => ({
+                    ...base,
+                    maxHeight: '200px', // Limit the height of the dropdown
+                    overflowY: 'auto',  // Add vertical scrolling
+                  }),
+                }}
               />
               {addCustomerModalOpen ? (
                 <AddNewCustomerModal
@@ -769,17 +766,17 @@ const NewEstimate = () => {
                 placeholder="Add Vehicle..."
                 addNewClick={() => setAddVehicleModalOpen(!addVehicleModalOpen)}
                 className="mb-4 w-[256px]"
-                // styles={{
-                //   menu: (base) => ({
-                //     ...base,
-                //     maxHeight: "150px",
-                //     overflowY: "auto",
-                //   }),
-                // }}
+                styles={{
+                  menu: (base) => ({
+                    ...base,
+                    maxHeight: '150px', // Limit the height of the dropdown
+                    overflowY: 'auto',  // Add vertical scrolling
+                  }),
+                }}
               />
               {addVehicleModalOpen ? (
                 <AddNewVehicleModal
-                  customerid={selectedCustomerId}
+                customerid={selectedCustomerId}
                   handleButtonClick={() =>
                     setAddVehicleModalOpen(!addVehicleModalOpen)
                   }
@@ -923,7 +920,6 @@ const NewEstimate = () => {
                           <Activities />
                         </Menu.MenuCollapse>
                       </Menu>
-
                       {estimateData &&
                         (estimateData.status === "In Progress" ||
                           estimateData.status === "Invoices") && (
@@ -936,25 +932,14 @@ const NewEstimate = () => {
                           >
                             <div className="flex item-center justify-between">
                               <h6>Grand Total</h6>
-                              <h6>${estimateGrandTotal}</h6>
+                              <h6>$279.00</h6>
                             </div>
                           </Card>
                         )}
-
-                      {paymentSuccess && (
-                        <div>
-                          <Button variant="solid" className="w-full mt-4">
-                            Invoice
-                          </Button>
-                        </div>
-                      )}
-
                       {isPaymentModelOpen && (
                         <PaymentModel
                           handleClosePaymentModel={setisPaymentModelOpen}
                           estimateData={estimateData}
-                          estimateGrandTotal={estimateGrandTotal}
-                          setPaymentSuccess={setPaymentSuccess}
                         />
                       )}
                     </TabContent>
