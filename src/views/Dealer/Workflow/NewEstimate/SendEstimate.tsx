@@ -24,8 +24,7 @@ const SendEstimate = ({
         ` || "",
   };
 
-  console.log("order number : ",orderNumber)
-  console.log(estimateId)
+  console.log("Estimate Id : ",estimateId)
 
   const validationSchema = Yup.object().shape({
     reciepent: Yup.string().required("Reciepent is required"),

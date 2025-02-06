@@ -8,15 +8,15 @@ const DealerDashboard = () => {
     <div>
       DealerDashboard
       <div>
-        {/* <Button
+        <Button
           variant="solid"
           className="w-25 mt-4"
         >
           Stripe
-        </Button> */}
+        </Button>
       </div>
       {/* <CheckoutForm/> */}
-      {/* <AuthorizeEmail/> */}
+      <AuthorizeEmail/>
     </div>
   );
 };

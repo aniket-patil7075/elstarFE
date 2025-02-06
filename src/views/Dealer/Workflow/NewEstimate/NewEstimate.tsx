@@ -44,7 +44,7 @@ import {
   getEstimateById,
 } from "../../Services/WorkflowService";
 import { IoCloudDoneOutline } from "react-icons/io5";
-import { useLocation, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import SendEstimate from "./SendEstimate";
 import { IoIosCloseCircleOutline } from "react-icons/io";
@@ -85,7 +85,7 @@ const NewEstimate = () => {
   const [selectedVehicle, setSelectedVehicle]: any = useState(null);
   const [customerOptions, setCustomerOptions] = useState([]);
   const [vehicleOptions, setVehicleOptions] = useState<Vehicle[]>([]);
-
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [orderTitle, setOrderTitle] = useState("");
   const [customerComment, setCustomerComment] = useState("");
   const [customerRecommendations, setCustomerRecommendations] = useState("");
@@ -99,7 +99,7 @@ const NewEstimate = () => {
   const [isAppointmentModelOpen, setisAppointmentModelOpen]: any =
     useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef(null);
 
   const firstKey = Object.keys(grandTotal)[0];
  
@@ -107,7 +107,45 @@ const NewEstimate = () => {
     ? parseFloat(grandTotal[Number(firstKey)]?.toString() || "0")
     : 0;
 
-  // console.log("Estimate Grand Total: ", estimateGrandTotal);
+
+
+   const calculateMainSubtotal = (estimateData: { services?: any[] }) => {
+    if (!estimateData?.services || !Array.isArray(estimateData.services)) {
+      // console.error("Error: services is undefined or not an array", estimateData);
+      return []; 
+    }
+  
+    return estimateData.services.map((service: any) => {
+      const laborSubtotal = service.labors?.reduce((acc: number, labor: any) => acc + (labor.subtotal || 0), 0) || 0;
+      const partSubtotal = service.parts?.reduce((acc: number, part: any) => acc + (part.partSubtotal || 0), 0) || 0;
+      const tireSubtotal = service.tires?.reduce((acc: number, tire: any) => acc + (tire.tireSubtotal || 0), 0) || 0;
+      const feeSubtotal = service.serviceFee?.reduce((acc: number, fee: any) => acc + (fee.feeSubtotal || 0), 0) || 0;
+      const subSubtotal = service.subcontract?.reduce((acc: number, sub: any) => acc + (sub.subTotal || 0), 0) || 0;
+  
+      const mainSubtotal = laborSubtotal + partSubtotal + tireSubtotal + feeSubtotal + subSubtotal;
+      // console.log("mainSubtotal : ",mainSubtotal)
+    
+      return {
+        ...service,
+        mainSubtotal,
+      };
+    });
+  };
+  
+
+
+  useEffect(() => {
+    const updatedServices = calculateMainSubtotal(estimateData);
+  },[orderNumber,
+    orderTitle,
+    selectedCustomer,
+    selectedVehicle,
+    customerComment,
+    customerRecommendations,
+    servicesData,
+    grandTotal,]); 
+  
+
 
   const dropdownItems = [
     { key: "a", name: "Item A" },
@@ -174,8 +212,10 @@ const NewEstimate = () => {
     setCustomerOptions(labelValArr);
   };
 
+ 
   const selectedCustomerId = selectedCustomer?._id || null;
   const fetchVehicles = async () => {
+    
     let vehicles = await getAllVehicles(selectedCustomer?._id);
 
     // console.log("All Vehicles : ", vehicles);
@@ -207,7 +247,9 @@ const NewEstimate = () => {
     setVehicleOptions(labelValArr);
   };
 
-  const fetchVehiclesbycus = async (id: any) => {
+
+  const fetchVehiclesbycus = async (id:any) => {
+    
     let vehicles = await getAllVehicles(id);
 
     // console.log("All Vehicles : ", vehicles);
@@ -252,49 +294,122 @@ const NewEstimate = () => {
     fetchCustomers();
   }, []);
 
-  const getGrandTotal = (total: any) => {
-    // setGrandTotal(total)
+  const handleEstimateSave = async (values: any) => {
+    
+    fetchEstimate();
+    let saveEstimateResp = await apiUpdateEstimate(values, estimateId);
+    setAutoSaving(false);
   };
 
+
+  useEffect(() => {
+    const handleMouseMove = () => {
+      // Clear any existing timer when the mouse moves
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      timerRef.current = setTimeout(() => {
+        setAutoSaving(true);
+        
+        const updatedServices = calculateMainSubtotal({ services: Object.values(servicesData) });
+
+      // console.log("Updated Services with mainSubtotal:", updatedServices);
+
+      // Update state with new services having mainSubtotal
+      setEstimateData((prevData: any) => ({
+        ...prevData,
+        services: updatedServices,
+      }));
+
+
+      let estimateDataToSave = {
+        orderNo: orderNumber,
+        orderName: orderTitle,
+        customer: selectedCustomer ? selectedCustomer._id : "",
+        vehicle: selectedVehicle ? selectedVehicle._id : "",
+        comments: customerComment,
+        recommendation: customerRecommendations,
+        services: updatedServices.map((service: any, idx: number) => ({
+          ...service,
+          serviceGrandTotal : service.mainSubtotal, 
+        })),
+      };
+
+      // console.log("Saving estimate data:", estimateDataToSave);
+
+
+        estimateDataToSave.services = calculateMainSubtotal(estimateDataToSave);
+        handleEstimateSave(estimateDataToSave);
+        fetchEstimate();
+        calculateMainSubtotal(estimateData)
+        
+    
+      }, 3000);
+    };
+
+    // Attach the mousemove event listener
+    window.addEventListener("mousemove", handleMouseMove);
+
+    // Cleanup the event listener and timer on component unmount
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [
+    orderNumber,
+    orderTitle,
+    selectedCustomer,
+    selectedVehicle,
+    customerComment,
+    customerRecommendations,
+    servicesData,
+    grandTotal,
+  ]);
+
+  // const customerOptions = [
+  //   { value: "Faiz", label: <div className="flex align-center justify-center">
+  //     <p className="mt-2 mr-8">FU</p>
+  //     <div className="flex flex-col">
+  //       <p className="text-black">Faiz</p>
+  //       <p className="text-xs">Mobile: (91) 7974062002</p>
+  //     </div>
+  //   </div>, mob: 7974062002 },
+  // ]
+
+  // const vehicleOptions = [
+  //   { value: "Vehicle1", label: <div className="flex align-center justify-center">
+  //     <p className="mt-2 mr-8">VO</p>
+  //     <div className="flex flex-col">
+  //       <p className="text-black">Vehicle1</p>
+  //       <p className="text-xs">Model: Swift Dezire</p>
+  //     </div>
+  //   </div>, mob: 7974062002 },
+  // ]
   const fetchEstimate = async () => {
     try {
-      // Extract the orderId from the URL
       const urlSegments = window.location.pathname.split("/");
       const orderId = urlSegments[urlSegments.length - 1].split("-")[0];
-
-      // Call API to fetch estimate by orderId
       const response = await getEstimateById(orderId);
 
       if (response.estimate) {
         let estimate = response.estimate;
         setEstimateData(estimate);
 
-        // Initialize grandTotalMap as an array (instead of object)
-        let grandTotalMap: number[] = [];
-
+        let grandTotalMap = {};
         if (estimate.services && estimate.services.length) {
-          // Iterate over services and add the dynamic grandTotal to the array
-          estimate.services.forEach((service: any) => {
-            // Check if service.grandTotal exists and push it to the array
-            if (service.grandTotal) {
-              grandTotalMap.push(Number(service.grandTotal));
-            } else {
-              grandTotalMap.push(0); // Fallback to 0 if grandTotal is missing
-            }
+          estimate.services.forEach((service: any, idx: number) => {
+            if (!service.grandTotal) service.grandTotal = 710;
+            grandTotalMap[idx + 1] = Number(service.grandTotal);
           });
 
-
-          // Set the grandTotal array
           setGrandTotal(grandTotalMap);
         }
-
-        // Set other properties from estimate
         if (estimate.orderName) setOrderTitle(estimate.orderName);
         if (estimate.comments) setCustomerComment(estimate.comments);
         if (estimate.recommendation)
           setCustomerRecommendations(estimate.recommendation);
-
-        // Set customer and vehicle information
         if (estimate.customer) {
           let selCustomer: any = customerOptions.find(
             (cust: any) => cust._id === estimate.customer._id
@@ -303,7 +418,6 @@ const NewEstimate = () => {
             setSelectedCustomer(selCustomer);
           }
         }
-
         if (estimate.vehicle) {
           let selVehicle: any = vehicleOptions.find(
             (veh: any) => veh._id === estimate.vehicle._id
@@ -449,7 +563,6 @@ const NewEstimate = () => {
                   <Activities />
                 </Menu.MenuCollapse>
               </Menu>
-
               {estimateData &&
                 (estimateData.status === "In Progress" ||
                   estimateData.status === "Invoices") && (
@@ -467,30 +580,16 @@ const NewEstimate = () => {
                   </Card>
                 )}
               {isPaymentModelOpen && (
-                        <PaymentModel
-                          handleClosePaymentModel={setisPaymentModelOpen}
-                          estimateData={estimateData}
-                          estimateGrandTotal={estimateGrandTotal}
-                          // setPaymentSuccess={setPaymentSuccess}
-                        />
-                      )}
+                <PaymentModel
+                  handleClosePaymentModel={setisPaymentModelOpen}
+                  estimateData={estimateData}
+                />
+              )}
             </TabContent>
 
-            <TabContent value="customer">
-                      <NewEstimateCustomerTab
-                        selectedCustomer={selectedCustomer}
-                        estimate={estimateData}
-                        setisAppointmentModelOpen={setisAppointmentModelOpen}
-                      />
-                    </TabContent>
+            <TabContent value="customer">hi</TabContent>
 
-                    <TabContent value="vehicle">
-                      <NewEstimateVehicleTab
-                        selectedVehicle={selectedVehicle}
-                        estimate={estimateData}
-                        setisAppointmentModelOpen={setisAppointmentModelOpen}
-                      />
-                    </TabContent>
+            <TabContent value="vehicle">hi</TabContent>
           </Tabs>
         </div>
       </Menu>
@@ -506,68 +605,13 @@ const NewEstimate = () => {
 
   useEffect(() => {
     if (!addVehicleModalOpen) {
+      
       fetchVehicles();
     }
   }, [addVehicleModalOpen]);
 
-  // console.log("Selected Customer in estimate : ", selectedCustomerId);
-
-  const handleEstimateSave = async (values: any) => {
-    let saveEstimateResp = await apiUpdateEstimate(values, estimateId);
-    console.log(saveEstimateResp)
-    setAutoSaving(false);
-  };
-
-  useEffect(() => {
-    const handleMouseMove = () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-      timerRef.current = setTimeout(() => {
-        setAutoSaving(true);
-
-        const estimateDataToSave = {
-          orderNo: orderNumber,
-          orderName: orderTitle,
-          customer: selectedCustomer ? selectedCustomer._id : "",
-          vehicle: selectedVehicle ? selectedVehicle._id : "",
-          comments: customerComment,
-          recommendation: customerRecommendations,
-          // services: Object.values(servicesData).map(
-          //   (service: any, idx: number) => {
-          //     service.grandTotal = Number(grandTotal[idx]);
-          //     return service;
-          //   }
-          // ),
-          // grandTotal: Number(grandTotal),
-        };
-
-        handleEstimateSave(estimateDataToSave);
-      }, 2000);
-    };
-
-    // Attach the mousemove event listener
-    window.addEventListener("mousemove", handleMouseMove);
-
-    // Cleanup the event listener and timer on component unmount
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, [
-    orderNumber,
-    orderTitle,
-    selectedCustomer,
-    selectedVehicle,
-    customerComment,
-    customerRecommendations,
-    servicesData,
-    grandTotal,
-  ]);
-
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
+ 
+  // console.log(selectedCustomerId);
 
   return (
     <div className="new-estimate w-full h-full ">
@@ -732,7 +776,7 @@ const NewEstimate = () => {
                 addNewButtonLabel="Add New Customer"
                 value={selectedCustomer}
                 onChange={async (value: any) => {
-                  console.log("Selected Customer:", value._id);
+                  
                   await setSelectedCustomer(value);
                  
                   fetchVehiclesbycus(value._id)
@@ -932,14 +976,23 @@ const NewEstimate = () => {
                           >
                             <div className="flex item-center justify-between">
                               <h6>Grand Total</h6>
-                              <h6>$279.00</h6>
+                              <h6>${estimateGrandTotal}</h6>
                             </div>
                           </Card>
                         )}
+                        {paymentSuccess && (
+                        <div>
+                          <Button variant="solid" className="w-full mt-4">
+                            Invoice
+                          </Button>
+                        </div>
+                      )}
                       {isPaymentModelOpen && (
                         <PaymentModel
                           handleClosePaymentModel={setisPaymentModelOpen}
                           estimateData={estimateData}
+                          estimateGrandTotal={estimateGrandTotal}
+                          setPaymentSuccess={setPaymentSuccess}
                         />
                       )}
                     </TabContent>

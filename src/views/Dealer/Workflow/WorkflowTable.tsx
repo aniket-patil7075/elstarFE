@@ -22,7 +22,7 @@ import Tag from '@/components/ui/Tag'
 import Button from '@/components/ui/Button'
 import { HiOutlineInboxIn, HiOutlinePlus } from 'react-icons/hi'
 import { Dropdown } from '@/components/ui'
-import { apiUpdateEstimateStatus } from '../Services/WorkflowService'
+import { apiUpdateEstimateStatus, getAllEstimates } from '../Services/WorkflowService'
 
 const { TabNav, TabList, TabContent } = Tabs
 
@@ -102,11 +102,13 @@ const WorkflowTable = () => {
     const navigate = useNavigate()
 
     const fetchData = useCallback(() => {
+        
         dispatch(getEstimatesByPage({ pageIndex, pageSize, sort, query, filterData }))
         dispatch(getWorkflowTableCount())
     }, [pageIndex, pageSize, sort, query, filterData, dispatch])
 
     useEffect(() => {
+        
         fetchData()
     }, [fetchData, pageIndex, pageSize, sort, filterData])
 
@@ -334,17 +336,22 @@ const WorkflowTable = () => {
             setbtnLoading(false)
         }, 3000)
     }
+    const getFilteredPagingData = (keyword: string) => {
+        const filteredData = filteredDataByWorkflow(data, keyword);
+        
+        return {
+            total: filteredData.length, // Ensure total is updated based on filtered data
+            pageIndex: tableData.pageIndex as number,
+            pageSize: tableData.pageSize as number,
+        };
+    };
+
+    
     return (
         <>
             <Tabs defaultValue="tab1">
                 <TabList>
-                    {/* {allCountAccToStatus.map((elem: any) => <TabNav value={`tab${elem.id}`}>{elem.statusName}
-                    <div className="mr-2 rtl:ml-2">
-                        <Tag className="text-white bg-indigo-600 border-0">{elem.statusCount}</Tag>
-                    </div>
-                </TabNav>)`
-                }
-                    {allCountAccToStatus.map((elem: any) => <TabNav value={`${elem.id}`}>{elem.statusName}</TabNav>)} */}
+                   
                     <TabNav value={`tab${allCountAccToStatus?.all?.id}`}>
                         All
                         <div className="ml-2 rtl:ml-2">{
@@ -412,11 +419,7 @@ const WorkflowTable = () => {
                             skeletonAvatarColumns={[0]}
                             skeletonAvatarProps={{ width: 28, height: 28 }}
                             loading={loading}
-                            pagingData={{
-                                total: tableData.total as number,
-                                pageIndex: tableData.pageIndex as number,
-                                pageSize: tableData.pageSize as number,
-                            }}
+                            pagingData={getFilteredPagingData('Estimates')}
                             onPaginationChange={onPaginationChange}
                             onSelectChange={onSelectChange}
                             onSort={onSort}
@@ -429,11 +432,7 @@ const WorkflowTable = () => {
                             skeletonAvatarColumns={[0]}
                             skeletonAvatarProps={{ width: 28, height: 28 }}
                             loading={loading}
-                            pagingData={{
-                                total: tableData.total as number,
-                                pageIndex: tableData.pageIndex as number,
-                                pageSize: tableData.pageSize as number,
-                            }}
+                            pagingData={getFilteredPagingData('Dropped Off')}
                             onPaginationChange={onPaginationChange}
                             onSelectChange={onSelectChange}
                             onSort={onSort}
@@ -446,11 +445,7 @@ const WorkflowTable = () => {
                             skeletonAvatarColumns={[0]}
                             skeletonAvatarProps={{ width: 28, height: 28 }}
                             loading={loading}
-                            pagingData={{
-                                total: tableData.total as number,
-                                pageIndex: tableData.pageIndex as number,
-                                pageSize: tableData.pageSize as number,
-                            }}
+                            pagingData={getFilteredPagingData('In Progress')}
                             onPaginationChange={onPaginationChange}
                             onSelectChange={onSelectChange}
                             onSort={onSort}
@@ -463,11 +458,7 @@ const WorkflowTable = () => {
                             skeletonAvatarColumns={[0]}
                             skeletonAvatarProps={{ width: 28, height: 28 }}
                             loading={loading}
-                            pagingData={{
-                                total: tableData.total as number,
-                                pageIndex: tableData.pageIndex as number,
-                                pageSize: tableData.pageSize as number,
-                            }}
+                            pagingData={getFilteredPagingData('Invoices')}
                             onPaginationChange={onPaginationChange}
                             onSelectChange={onSelectChange}
                             onSort={onSort}
@@ -477,7 +468,6 @@ const WorkflowTable = () => {
 
                 </div>
             </Tabs>
-            {/* <DealerEditDialog /> */}
         </>
     )
 }

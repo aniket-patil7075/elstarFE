@@ -93,6 +93,8 @@ const ServicesTab = ({
   const laborTableRefs = useRef<Record<number, any>>({});
   const partTableRefs = useRef<Record<number, any>>({});
 
+  console.log("Service Data in service tab : ", services)
+
 
   const handleAddService = () => {
     setServices([
@@ -2697,7 +2699,7 @@ const ServicesTab = ({
                         <div>
                           <p>
                             $
-                            {(
+                            {/* {(
                               (Object.values(laborSubTotal[idx] || {}).reduce(
                                 (sum, value) => sum + (value ? value : 0),
                                 0
@@ -2724,7 +2726,8 @@ const ServicesTab = ({
                                 (sum, value) => sum + (value ? value : 0),
                                 0
                               ) || 0)
-                            ).toFixed(2)}
+                            ).toFixed(2)} */}
+                            {service.serviceGrandTotal}
                           </p>
                         </div>
                       </div>

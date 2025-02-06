@@ -71,10 +71,11 @@ const initialState: WorkflowState = {
 // Async function to fetch estimates
 export const getEstimatesByPage = (params: any) => async (dispatch: any) => {
     try {
-        dispatch(setLoading(true)); // Set loading to true before the API call
-
-        // Call the API to get estimates
+        console.log("Params passed to getEstimatesByPage:", params);
+        dispatch(setLoading(true)); 
         const response = await getAllEstimatesByPage(params);
+
+        console.log("in slice : ",response);
 
         if (response.status === 'success') {
             const estimates = response.allEstimates.map((estimate: any) => ({

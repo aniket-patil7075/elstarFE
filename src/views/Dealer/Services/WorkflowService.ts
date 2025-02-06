@@ -11,8 +11,9 @@ const {API_BASE_URL} = appConfig;
 // Get All Estimates API Call
 export async function getAllEstimatesByPage(params: any) {
     try {
+        
         const response = await axios.post(`${API_BASE_URL}${apiPrefix}/dealer/workflow/all-estimates-by-page`, params);
-        return response.data; // Handle response (e.g., token, user data)
+        return response.data; 
     } catch (error: any) {
         console.error('Get-All-Estimates error', error);
         throw error.response?.data || 'Error in getting all dealers';
@@ -58,7 +59,7 @@ export async function apiAddNewEstimate(data: any) {
 export async function apiUpdateEstimate(data: any, estimateId: any) {
     try {
         const response = await axios.put(`${API_BASE_URL}${apiPrefix}/dealer/workflow/update-estimate/${estimateId}`, data);
-        console.log("Response of Estimate : ", response);
+        console.log("updated estimate : ",response)
         return response.data;
     }
     catch (error: any) {
