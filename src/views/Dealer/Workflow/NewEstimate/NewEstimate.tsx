@@ -54,6 +54,7 @@ import AddNewAppointmentModal from "../../DealerSharedComponent/AddNewAppointmen
 import LeftSidePanel from "@/components/template/SidePanel/LeftSidePanel";
 import NewEstimateCustomerTab from "./NewEstimateCustomerTab";
 import NewEstimateVehicleTab from "./newEstimateVehicleTab";
+import { useLocation } from "react-router-dom";
 
 interface Vehicle {
   _id: string;
@@ -100,52 +101,73 @@ const NewEstimate = () => {
     useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const timerRef = useRef(null);
-
+  const location = useLocation();
+  const { status } = location.state || {};
+  const [isOpen, setIsOpen] = useState(true);
+  console.log(estimateData)
   const firstKey = Object.keys(grandTotal)[0];
- 
+
   const estimateGrandTotal = firstKey
     ? parseFloat(grandTotal[Number(firstKey)]?.toString() || "0")
     : 0;
 
 
-
-   const calculateMainSubtotal = (estimateData: { services?: any[] }) => {
+  const calculateMainSubtotal = (estimateData: { services?: any[] }) => {
     if (!estimateData?.services || !Array.isArray(estimateData.services)) {
       // console.error("Error: services is undefined or not an array", estimateData);
-      return []; 
+      return [];
     }
-  
+
     return estimateData.services.map((service: any) => {
-      const laborSubtotal = service.labors?.reduce((acc: number, labor: any) => acc + (labor.subtotal || 0), 0) || 0;
-      const partSubtotal = service.parts?.reduce((acc: number, part: any) => acc + (part.partSubtotal || 0), 0) || 0;
-      const tireSubtotal = service.tires?.reduce((acc: number, tire: any) => acc + (tire.tireSubtotal || 0), 0) || 0;
-      const feeSubtotal = service.serviceFee?.reduce((acc: number, fee: any) => acc + (fee.feeSubtotal || 0), 0) || 0;
-      const subSubtotal = service.subcontract?.reduce((acc: number, sub: any) => acc + (sub.subTotal || 0), 0) || 0;
-  
-      const mainSubtotal = laborSubtotal + partSubtotal + tireSubtotal + feeSubtotal + subSubtotal;
+      const laborSubtotal =
+        service.labors?.reduce(
+          (acc: number, labor: any) => acc + (labor.subtotal || 0),
+          0
+        ) || 0;
+      const partSubtotal =
+        service.parts?.reduce(
+          (acc: number, part: any) => acc + (part.partSubtotal || 0),
+          0
+        ) || 0;
+      const tireSubtotal =
+        service.tires?.reduce(
+          (acc: number, tire: any) => acc + (tire.tireSubtotal || 0),
+          0
+        ) || 0;
+      const feeSubtotal =
+        service.serviceFee?.reduce(
+          (acc: number, fee: any) => acc + (fee.feeSubtotal || 0),
+          0
+        ) || 0;
+      const subSubtotal =
+        service.subcontract?.reduce(
+          (acc: number, sub: any) => acc + (sub.subTotal || 0),
+          0
+        ) || 0;
+
+      const mainSubtotal =
+        laborSubtotal + partSubtotal + tireSubtotal + feeSubtotal + subSubtotal;
       // console.log("mainSubtotal : ",mainSubtotal)
-    
+
       return {
         ...service,
         mainSubtotal,
       };
     });
   };
-  
-
 
   useEffect(() => {
     const updatedServices = calculateMainSubtotal(estimateData);
-  },[orderNumber,
+  }, [
+    orderNumber,
     orderTitle,
     selectedCustomer,
     selectedVehicle,
     customerComment,
     customerRecommendations,
     servicesData,
-    grandTotal,]); 
-  
-
+    grandTotal,
+  ]);
 
   const dropdownItems = [
     { key: "a", name: "Item A" },
@@ -212,10 +234,8 @@ const NewEstimate = () => {
     setCustomerOptions(labelValArr);
   };
 
- 
   const selectedCustomerId = selectedCustomer?._id || null;
   const fetchVehicles = async () => {
-    
     let vehicles = await getAllVehicles(selectedCustomer?._id);
 
     // console.log("All Vehicles : ", vehicles);
@@ -247,9 +267,7 @@ const NewEstimate = () => {
     setVehicleOptions(labelValArr);
   };
 
-
-  const fetchVehiclesbycus = async (id:any) => {
-    
+  const fetchVehiclesbycus = async (id: any) => {
     let vehicles = await getAllVehicles(id);
 
     // console.log("All Vehicles : ", vehicles);
@@ -295,12 +313,10 @@ const NewEstimate = () => {
   }, []);
 
   const handleEstimateSave = async (values: any) => {
-    
     fetchEstimate();
     let saveEstimateResp = await apiUpdateEstimate(values, estimateId);
     setAutoSaving(false);
   };
-
 
   useEffect(() => {
     const handleMouseMove = () => {
@@ -310,40 +326,38 @@ const NewEstimate = () => {
       }
       timerRef.current = setTimeout(() => {
         setAutoSaving(true);
-        
-        const updatedServices = calculateMainSubtotal({ services: Object.values(servicesData) });
 
-      // console.log("Updated Services with mainSubtotal:", updatedServices);
+        const updatedServices = calculateMainSubtotal({
+          services: Object.values(servicesData),
+        });
 
-      // Update state with new services having mainSubtotal
-      setEstimateData((prevData: any) => ({
-        ...prevData,
-        services: updatedServices,
-      }));
+        // console.log("Updated Services with mainSubtotal:", updatedServices);
 
+        // Update state with new services having mainSubtotal
+        setEstimateData((prevData: any) => ({
+          ...prevData,
+          services: updatedServices,
+        }));
 
-      let estimateDataToSave = {
-        orderNo: orderNumber,
-        orderName: orderTitle,
-        customer: selectedCustomer ? selectedCustomer._id : "",
-        vehicle: selectedVehicle ? selectedVehicle._id : "",
-        comments: customerComment,
-        recommendation: customerRecommendations,
-        services: updatedServices.map((service: any, idx: number) => ({
-          ...service,
-          serviceGrandTotal : service.mainSubtotal, 
-        })),
-      };
+        let estimateDataToSave = {
+          orderNo: orderNumber,
+          orderName: orderTitle,
+          customer: selectedCustomer ? selectedCustomer._id : "",
+          vehicle: selectedVehicle ? selectedVehicle._id : "",
+          comments: customerComment,
+          recommendation: customerRecommendations,
+          services: updatedServices.map((service: any, idx: number) => ({
+            ...service,
+            serviceGrandTotal: service.mainSubtotal,
+          })),
+        };
 
-      // console.log("Saving estimate data:", estimateDataToSave);
-
+        // console.log("Saving estimate data:", estimateDataToSave);
 
         estimateDataToSave.services = calculateMainSubtotal(estimateDataToSave);
         handleEstimateSave(estimateDataToSave);
         fetchEstimate();
-        calculateMainSubtotal(estimateData)
-        
-    
+        calculateMainSubtotal(estimateData);
       }, 3000);
     };
 
@@ -579,6 +593,43 @@ const NewEstimate = () => {
                     </div>
                   </Card>
                 )}
+
+              {estimateData && estimateData.status === " Dropped Off" && (
+                <div>
+                  <Button variant="solid" className="w-full mt-4">
+                    Invoice
+                  </Button>
+                </div>
+              )}
+              {/* {estimateData ? (
+                estimateData.status === "In Progress" ||
+                estimateData.status === "Invoices" ? (
+                  <Card
+                    headerClass="font-semibold text-lg text-indigo-600"
+                    bodyClass="text-center"
+                    footerClass="flex justify-end"
+                    footer={cardFooter}
+                  >
+                    <div className="flex items-center justify-between">
+                      <h6>Grand Total</h6>
+                      <h6>${estimateGrandTotal}</h6>
+                    </div>
+                  </Card>
+                ) :  estimateData.status === "Dropped Off" ? (
+                  <div>
+                    <Button variant="solid" className="w-full mt-4">
+                      Invoice
+                    </Button>
+                  </div>
+                ) : (
+                  <div>
+                    <Button variant="solid" className="w-full mt-4">
+                      Invoice
+                    </Button>
+                  </div>
+                )
+              ) : null} */}
+
               {isPaymentModelOpen && (
                 <PaymentModel
                   handleClosePaymentModel={setisPaymentModelOpen}
@@ -605,13 +656,26 @@ const NewEstimate = () => {
 
   useEffect(() => {
     if (!addVehicleModalOpen) {
-      
       fetchVehicles();
     }
   }, [addVehicleModalOpen]);
 
- 
-  // console.log(selectedCustomerId);
+  function calculateTotalPay(estimateData: { services?: { isAuthorized: boolean; serviceGrandTotal: number; }[] }) {
+    let totalPay = 0;
+    
+    if (estimateData.services && Array.isArray(estimateData.services)) {
+        totalPay = estimateData.services.reduce((sum, service) => {
+            return service.isAuthorized ? sum + service.serviceGrandTotal : sum;
+        }, 0);
+    }
+    
+    return totalPay;
+}
+
+// Example usage:
+const totalPay = calculateTotalPay(estimateData);
+console.log("Total Pay:", totalPay);
+
 
   return (
     <div className="new-estimate w-full h-full ">
@@ -776,23 +840,22 @@ const NewEstimate = () => {
                 addNewButtonLabel="Add New Customer"
                 value={selectedCustomer}
                 onChange={async (value: any) => {
-                  
                   await setSelectedCustomer(value);
-                 
-                  fetchVehiclesbycus(value._id)
-              }}
+
+                  fetchVehiclesbycus(value._id);
+                }}
                 placeholder="Add Customer..."
                 addNewClick={() =>
                   setAddCustomerModalOpen(!addCustomerModalOpen)
                 }
                 className="mb-4 mr-12 w-[256px]"
-                styles={{
-                  menu: (base) => ({
-                    ...base,
-                    maxHeight: '200px', // Limit the height of the dropdown
-                    overflowY: 'auto',  // Add vertical scrolling
-                  }),
-                }}
+                // styles={{
+                //   menu: (base) => ({
+                //     ...base,
+                //     maxHeight: "200px", // Limit the height of the dropdown
+                //     overflowY: "auto", // Add vertical scrolling
+                //   }),
+                // }}
               />
               {addCustomerModalOpen ? (
                 <AddNewCustomerModal
@@ -813,14 +876,14 @@ const NewEstimate = () => {
                 styles={{
                   menu: (base) => ({
                     ...base,
-                    maxHeight: '150px', // Limit the height of the dropdown
-                    overflowY: 'auto',  // Add vertical scrolling
+                    maxHeight: "150px", // Limit the height of the dropdown
+                    overflowY: "auto", // Add vertical scrolling
                   }),
                 }}
               />
               {addVehicleModalOpen ? (
                 <AddNewVehicleModal
-                customerid={selectedCustomerId}
+                  customerid={selectedCustomerId}
                   handleButtonClick={() =>
                     setAddVehicleModalOpen(!addVehicleModalOpen)
                   }
@@ -975,23 +1038,32 @@ const NewEstimate = () => {
                             footer={cardFooter}
                           >
                             <div className="flex item-center justify-between">
-                              <h6>Grand Total</h6>
-                              <h6>${estimateGrandTotal}</h6>
+                              <h6> Total Pay</h6>
+                              <h6>${totalPay}</h6>
                             </div>
                           </Card>
                         )}
-                        {paymentSuccess && (
-                        <div>
-                          <Button variant="solid" className="w-full mt-4">
-                            Invoice
-                          </Button>
-                        </div>
-                      )}
+                      {/* {paymentSuccess ||
+                        (status === "paid" && (
+                          <div>
+                            <Button variant="solid" className="w-full mt-4">
+                              Invoice
+                            </Button>
+                          </div>
+                        ))} */}
+                      {estimateData &&
+                        estimateData.status === "Dropped Off" && (
+                          <div>
+                            <Button variant="solid" className="w-full mt-4">
+                              Invoice
+                            </Button>
+                          </div>
+                        )}
                       {isPaymentModelOpen && (
                         <PaymentModel
                           handleClosePaymentModel={setisPaymentModelOpen}
                           estimateData={estimateData}
-                          estimateGrandTotal={estimateGrandTotal}
+                          estimateGrandTotal={totalPay}
                           setPaymentSuccess={setPaymentSuccess}
                         />
                       )}
@@ -1034,6 +1106,44 @@ const NewEstimate = () => {
           handleButtonClick={() => setsendEstimateOpen(!sendEstimateOpen)}
         />
       ) : null}
+      {status === "paid" 
+      // || paymentSuccess === true 
+      ? 
+      (
+        isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 pointer-events-auto">
+            <div className="bg-white rounded-lg shadow-lg p-6 relative w-96">
+              <button
+                className="absolute top-2 right-2 text-gray-600 text-xl"
+                onClick={() => setIsOpen(false)}
+              >
+                ✕
+              </button>
+              <h2 className="text-[#4f46e5] text-2xl font-bold flex items-center justify-center mt-4">
+                <svg
+                  className="w-8 h-8 text-[#4f46e5] mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Payment Successful!
+              </h2>
+              <p className="text-gray-600 text-center mt-2">
+                Thank you for your payment.
+              </p>
+            </div>
+          </div>
+        )
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

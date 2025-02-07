@@ -77,15 +77,11 @@ const AuthorizeEmail = () => {
       ...updatedServices[idx],
       serviceTitle: updatedServices[idx].serviceTitle,
       isAuthorized: value,
+      // isDisabled: value,
     };
-    console.log(updatedServices[idx]);
+    console.log(updatedServices);
     setallSelectedServices(updatedServices);
   };
-  //   const authorizedServiceIds = allSelectedServices
-  //   .filter(service => service.isAuthorized)
-  //   .map(service => service.serviceId);
-
-  // console.log(authorizedServiceIds);
 
   useEffect(() => {
     // Calculate the total amount of selected services
@@ -179,6 +175,11 @@ const AuthorizeEmail = () => {
                                   </span>
                                   <Checkbox
                                     defaultChecked
+                                    // disabled={estimate.services.some(
+                                    //   (service: any) => service.isAuthorized
+                                    // )}
+                                    // checked={service.isAuthorized}
+                                    disabled={service.isAuthorized}
                                     onChange={(e) => onCheck(e, idx)}
                                   />
                                 </div>
@@ -522,26 +523,41 @@ const AuthorizeEmail = () => {
             </span>
           </div>
 
-          {(estimate && estimate.status === "In Progress") ||
-          estimate.status === "Invoices" ? (
-            <>
-              { estimate.status === "Dropped Off" ? (
-                <Step1 />
-              ) : (
-                <></>
-              )}
-            </>
-          ) : (
+          {/* {allSelectedServices.some(
+            (service: { isAuthorized: boolean }) => !service.isAuthorized
+          ) && (
             <button
               className="bg-blue-700 text-white text-xs md:text-sm font-medium py-1.5 md:py-2 rounded-lg w-full mt-2"
-              onClick={() => {
-                setShowPopup(true); 
-                
-              }}
+              onClick={() => setShowPopup(true)}
+            >
+              Authorize Service
+            </button>
+          )} */}
+
+          {estimate.services?.some(
+            (service: { isAuthorized: boolean }) => !service.isAuthorized
+          ) && (
+            <button
+              className="bg-blue-700 text-white text-xs md:text-sm font-medium py-1.5 md:py-2 rounded-lg w-full mt-2"
+              onClick={() => setShowPopup(true)}
             >
               Authorize Service
             </button>
           )}
+
+          {/* {(estimate && estimate.status === "In Progress") ||
+          estimate.status === "Invoices" ? (
+            <>{estimate.status === "Dropped Off" ? <Step1 /> : <></>}</>
+          ) : (
+            <button
+              className="bg-blue-700 text-white text-xs md:text-sm font-medium py-1.5 md:py-2 rounded-lg w-full mt-2"
+              onClick={() => {
+                setShowPopup(true);
+              }}
+            >
+              Authorize Service
+            </button>
+          )} */}
         </div>
 
         {/* show pop up */}

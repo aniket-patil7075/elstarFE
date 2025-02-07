@@ -213,6 +213,7 @@ const ProductList = () => {
   const location = useLocation();
   const { status } = location.state || {};
   const [showModal, setShowModal] = useState(true);
+  const [isOpen, setIsOpen] = useState(true);
 
   const closeModal = () => {
     setShowModal(false);
@@ -220,27 +221,37 @@ const ProductList = () => {
   return (
     <>
       {status === "paid" ? (
-        <div>
-          <h2 className="text-[#4f46e5] text-2xl font-bold flex items-center justify-center mt-10">
-            <svg
-              className="w-8 h-8 text-[#4f46e5] mr-2"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-            Payment Successful!
-          </h2>
-          <p className="text-gray-600 text-center mt-2">
-            Thank you for your payment.
-          </p>
-        </div>
+        isOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white rounded-lg shadow-lg p-6 relative w-96">
+              <button
+                className="absolute top-2 right-2 text-gray-600 text-xl"
+                onClick={() => setIsOpen(false)}
+              >
+                ✕
+              </button>
+              <h2 className="text-[#4f46e5] text-2xl font-bold flex items-center justify-center mt-4">
+                <svg
+                  className="w-8 h-8 text-[#4f46e5] mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                Payment Successful!
+              </h2>
+              <p className="text-gray-600 text-center mt-2">
+                Thank you for your payment.
+              </p>
+            </div>
+          </div>
+        )
       ) : (
         <AdaptableCard className="h-full" bodyClass="h-full">
           <div className="lg:flex items-center justify-between mb-4">

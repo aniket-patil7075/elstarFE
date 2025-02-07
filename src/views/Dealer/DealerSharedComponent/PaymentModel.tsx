@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/toast";
 import Notification from "@/components/ui/Notification";
 import AddNewCardPaymentModal from "./AddNewCardPaymentModal";
 import { getAllCustomers } from "../DealerLists/Services/DealerListServices";
+import { Navigate } from "react-router-dom";
 
 interface Customer {
   _id: string;
@@ -112,6 +113,7 @@ const PaymentModel = ({
   };
 
   const recordPayment = async () => {
+    
     try {
       const paymentData = {
         ...paymentDetails,
@@ -125,11 +127,16 @@ const PaymentModel = ({
 
       toast.push(
         <Notification title="Success" type="success">
-          Record Saved Successfully
+          Payment Successful
         </Notification>
       );
+      // const status = "paid"
       setPaymentSuccess(true);
       handleClosePaymentModel(false);
+      <Navigate
+              to={`/dealer/workflow/order/${estimateId}-${orderNo}`}
+              // state={{status}}
+            />
     } catch (error) {
       console.log("Error saving payment: ", error);
     }
@@ -228,9 +235,10 @@ const formattedRemaining = parseFloat(remaining.toFixed(2));
               className="w-full mt-4"
               onClick={() => {
                 if (value === "cash") {
-                  recordPayment(); // Call recordPayment if cash is selected
+                  recordPayment();
+                   
                 } else if (value === "card") {
-                  setIsModalVisible(true); // Show modal if card is selected
+                  setIsModalVisible(true); 
                 }
               }}
             >

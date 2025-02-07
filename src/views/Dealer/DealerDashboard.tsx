@@ -5,6 +5,7 @@ import AuthorizeEmail from "../auth/Emails/AuthorizeEmail";
 const DealerDashboard = () => {
   
   return (
+    
     <div>
       DealerDashboard
       <div>
@@ -12,11 +13,11 @@ const DealerDashboard = () => {
           variant="solid"
           className="w-25 mt-4"
         >
-          Stripe
+          Download
         </Button>
       </div>
       {/* <CheckoutForm/> */}
-      <AuthorizeEmail/>
+      {/* <AuthorizeEmail/> */}
     </div>
   );
 };
