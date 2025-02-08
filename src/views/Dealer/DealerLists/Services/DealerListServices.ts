@@ -132,6 +132,7 @@ export async function apiNewVendor (data:any){
 export async function apiAddNewVehicle (data:any){
     try{
         const response = await axios.post(`${API_BASE_URL}${apiPrefix}/dealer/add-new-vehicle`,data);
+        console.log("vehicle add response : ", response)
         return response.data;
     }
     catch(error:any){

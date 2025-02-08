@@ -49,6 +49,24 @@ const ActionColumn = ({ row }: { row: Estimate }) => {
         </div>
     )
 }
+const DeleteAction = ({ row }: { row: Estimate }) => {
+    const { textTheme } = useThemeClass()
+    const dispatch = useAppDispatch()
+
+    const onEdit = () => {
+        dispatch(setDrawerOpen())
+        dispatch(setSelectedDealer(row))
+    }
+
+    return (
+        <div
+            className={`${textTheme} cursor-pointer select-none font-semibold`}
+            onClick={onEdit}
+        >
+            Delete
+        </div>
+    )
+}
 
 const OrderNumberColumn = ({ row }: { row: Estimate }) => {
     const { textTheme } = useThemeClass()
@@ -291,9 +309,14 @@ const WorkflowTable = () => {
                 },
             },
             {
-                header: '',
+                header: 'Edit ',
                 id: 'action',
                 cell: (props) => <ActionColumn row={props.row.original} />,
+            },
+            {
+                header: 'Delete ',
+                id: 'action',
+                cell: (props) => <DeleteAction row={props.row.original} />,
             },
         ],
         []

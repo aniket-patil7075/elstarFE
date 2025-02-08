@@ -58,6 +58,8 @@ const AddNewVehicleModal = ({ handleButtonClick,customerid }: any) => {
         customerId: customerid,
     }
 
+    
+
     const [isFormVisible, setIsFormVisible] = useState(false) // Toggle form visibility
     const [searchQuery, setSearchQuery] = useState('') // Search query state
     const [isSearchVisible, setIsSearchVisible] = useState(true) // Toggle search visibility
@@ -66,9 +68,7 @@ const AddNewVehicleModal = ({ handleButtonClick,customerid }: any) => {
     const [selectedVehicle, setSelectedVehicle]: any = useState(null)
     const [isFormOpen, setIsFormOpen] = useState(true)
 
-    
 
-    
 
     const dispatch = useAppDispatch()
     const fetchData = useCallback(() => {
@@ -164,6 +164,7 @@ const AddNewVehicleModal = ({ handleButtonClick,customerid }: any) => {
         }
     }
 
+    
     const handleBackToSearch = () => {
         setIsFormVisible(false)
         setIsSearchVisible(true)
@@ -208,6 +209,7 @@ const AddNewVehicleModal = ({ handleButtonClick,customerid }: any) => {
                         >
                             <Formik
                                 initialValues={selectedVehicle || initialValues}
+                                
                                 validationSchema={validationSchema}
                                 onSubmit={async (values, { resetForm }) => {
                                     try {

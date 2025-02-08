@@ -36,7 +36,7 @@ const PaymentModel = ({
   const [value, setValue] = useState("");
   const [remainingGrandTotal, setRemainingGrandTotal] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [customerRemaining , setCustomerRemaining] = useState(0)
+  const [customerRemaining, setCustomerRemaining] = useState(0);
 
   const customerId = estimateData.customer._id;
   console.log(customerId);
@@ -113,7 +113,6 @@ const PaymentModel = ({
   };
 
   const recordPayment = async () => {
-    
     try {
       const paymentData = {
         ...paymentDetails,
@@ -126,17 +125,38 @@ const PaymentModel = ({
       await handleUpdateRemainingAmount();
 
       toast.push(
-        <Notification title="Success" type="success">
-          Payment Successful
+        <Notification type="success" className="w-[700px]  mx-auto">
+          <div className=" rounded-lg p-6 relative w-full">
+            <h2 className="text-[#4f46e5] text-2xl font-bold flex items-center justify-center mt-4">
+              <svg
+                className="w-8 h-8 text-[#4f46e5] mr-2"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              Payment Successful!
+            </h2>
+            <p className="text-gray-600 text-center mt-2">
+              Thank you for your payment.
+            </p>
+          </div>
         </Notification>
       );
+
       // const status = "paid"
       setPaymentSuccess(true);
       handleClosePaymentModel(false);
       <Navigate
-              to={`/dealer/workflow/order/${estimateId}-${orderNo}`}
-              // state={{status}}
-            />
+        to={`/dealer/workflow/order/${estimateId}-${orderNo}`}
+        // state={{status}}
+      />;
     } catch (error) {
       console.log("Error saving payment: ", error);
     }
@@ -174,15 +194,9 @@ const PaymentModel = ({
     fetchCustomers();
   }, []);
 
-
-
-
-const totalDue = (Number(paymentDetails.totalDue) + customerRemaining);
-const remaining = totalDue - Number(paymentDetails.enteredAmount);
-const formattedRemaining = parseFloat(remaining.toFixed(2));
-
-
-
+  const totalDue = Number(paymentDetails.totalDue) + customerRemaining;
+  const remaining = totalDue - Number(paymentDetails.enteredAmount);
+  const formattedRemaining = parseFloat(remaining.toFixed(2));
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -236,9 +250,8 @@ const formattedRemaining = parseFloat(remaining.toFixed(2));
               onClick={() => {
                 if (value === "cash") {
                   recordPayment();
-                   
                 } else if (value === "card") {
-                  setIsModalVisible(true); 
+                  setIsModalVisible(true);
                 }
               }}
             >
@@ -261,10 +274,7 @@ const formattedRemaining = parseFloat(remaining.toFixed(2));
             <div className="w-full border-t"></div>
             <div className="flex items-center justify-between mt-3 mb-2">
               <p className="font-extrabold">Total Due</p>
-              <p className="font-extrabold">
-                {" "}
-                {totalDue}
-              </p>
+              <p className="font-extrabold"> {totalDue}</p>
             </div>
             <div className="flex items-center justify-between mb-2">
               <p>Paid To Date</p>

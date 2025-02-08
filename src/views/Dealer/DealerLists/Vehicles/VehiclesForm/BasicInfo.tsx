@@ -38,8 +38,8 @@ type FormFieldsName = {
   //     noVehicleOdometer?: boolean
   // }
   licencePlate: Array<{
-    regionCode: string;
-    plateNumber: string;
+    licenceType: string;
+    licenceNumber: string;
   }>;
   unit?: string;
   vin?: string;
@@ -186,6 +186,7 @@ const BasicInfo = (props: BasicInfo) => {
     mileage: vehicle.mileage,
     licenceType: vehicle.licenceType,
     licenceNumber: vehicle.licenceNumber,
+    licencePlate : vehicle.licenceType,
     unit: vehicle.unit,
     vin: vehicle.vin,
     color: vehicle.color,

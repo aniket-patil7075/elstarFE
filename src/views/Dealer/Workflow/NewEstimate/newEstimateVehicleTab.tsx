@@ -18,6 +18,8 @@ import {
 const NewEstimateVehicleTab = (props: any) => {
   const { selectedVehicle, estimate, setisAppointmentModelOpen } = props;
 
+  console.log(selectedVehicle);
+
   if (!selectedVehicle) {
     return <p>Error: Vehicle not found!</p>;
   }
@@ -232,8 +234,6 @@ const NewEstimateVehicleTab = (props: any) => {
 
   return (
     <div className="new-estimate-order-tab">
-      
-
       <div className="order-details mt-4 text-black text-sm">
         <div className="flex justify-between mt-3 relative">
           <p> Make </p>
@@ -295,7 +295,23 @@ const NewEstimateVehicleTab = (props: any) => {
             {selectedVehicle.type}
           </p>
         </div>
-        
+
+        <div className="flex justify-between mt-3 relative">
+          <p> Vin</p>
+          <p className="text-indigo-600 cursor-pointer">
+            {selectedVehicle.vin}
+          </p>
+        </div>
+
+        <div className="flex justify-between mt-3 relative">
+          <p> Licence Plate</p>
+          <p className="text-indigo-600 cursor-pointer">
+            {selectedVehicle.licencePlate &&
+            selectedVehicle.licencePlate.length > 0
+              ? selectedVehicle.licencePlate.join(", ")
+              : "No Licence Plate Available"}
+          </p>
+        </div>
       </div>
     </div>
   );

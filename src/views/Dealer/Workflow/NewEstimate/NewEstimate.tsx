@@ -40,6 +40,7 @@ import {
 } from "../../DealerLists/Services/DealerListServices";
 import {
   apiAddNewEstimate,
+  apiDeleteEstimate,
   apiUpdateEstimate,
   getEstimateById,
 } from "../../Services/WorkflowService";
@@ -104,13 +105,11 @@ const NewEstimate = () => {
   const location = useLocation();
   const { status } = location.state || {};
   const [isOpen, setIsOpen] = useState(true);
-  console.log(estimateData)
   const firstKey = Object.keys(grandTotal)[0];
 
   const estimateGrandTotal = firstKey
     ? parseFloat(grandTotal[Number(firstKey)]?.toString() || "0")
     : 0;
-
 
   const calculateMainSubtotal = (estimateData: { services?: any[] }) => {
     if (!estimateData?.services || !Array.isArray(estimateData.services)) {
@@ -176,10 +175,7 @@ const NewEstimate = () => {
     { key: "d", name: "Item D" },
   ];
 
-  const otherItems = [
-    { key: "a", name: "Archive" },
-    { key: "b", name: "Delete" },
-  ];
+  const otherItems = [{ key: "b", name: "Delete" }];
 
   const dropdownBtn = (
     <Button
@@ -660,22 +656,28 @@ const NewEstimate = () => {
     }
   }, [addVehicleModalOpen]);
 
-  function calculateTotalPay(estimateData: { services?: { isAuthorized: boolean; serviceGrandTotal: number; }[] }) {
+  function calculateTotalPay(estimateData: {
+    services?: { isAuthorized: boolean; serviceGrandTotal: number }[];
+  }) {
     let totalPay = 0;
-    
+
     if (estimateData.services && Array.isArray(estimateData.services)) {
-        totalPay = estimateData.services.reduce((sum, service) => {
-            return service.isAuthorized ? sum + service.serviceGrandTotal : sum;
-        }, 0);
+      totalPay = estimateData.services.reduce((sum, service) => {
+        return service.isAuthorized ? sum + service.serviceGrandTotal : sum;
+      }, 0);
     }
-    
+
     return totalPay;
-}
+  }
 
-// Example usage:
-const totalPay = calculateTotalPay(estimateData);
-console.log("Total Pay:", totalPay);
+  // Example usage:
+  const totalPay = calculateTotalPay(estimateData);
 
+  const handleDeleteFunction = () => {
+    console.log("delete functionality");
+    console.log(estimateId);
+    apiDeleteEstimate(estimateId);
+  };
 
   return (
     <div className="new-estimate w-full h-full ">
@@ -789,7 +791,11 @@ console.log("Total Pay:", totalPay);
                     renderTitle={otherOptionsBtn}
                   >
                     {otherItems.map((item) => (
-                      <Dropdown.Item key={item.key} eventKey={item.key}>
+                      <Dropdown.Item
+                        key={item.key}
+                        eventKey={item.key}
+                        onClick={handleDeleteFunction}
+                      >
                         {item.name}
                       </Dropdown.Item>
                     ))}
@@ -1014,7 +1020,7 @@ console.log("Total Pay:", totalPay);
                       </Menu>
                       <br />
                       <div className="w-full border-t"></div>
-                      <Menu className="p-0">
+                      {/* <Menu className="p-0">
                         <Menu.MenuCollapse
                           labelClass="w-full"
                           label={
@@ -1026,10 +1032,10 @@ console.log("Total Pay:", totalPay);
                         >
                           <Activities />
                         </Menu.MenuCollapse>
-                      </Menu>
-                      {estimateData &&
-                        (estimateData.status === "In Progress" ||
-                          estimateData.status === "Invoices") && (
+                      </Menu> */}
+                      {/* {estimateData &&
+                        (estimateData.status === "Estimates" || estimateData.status === "In Progress" ||
+                          estimateData.status === "Invoices") && ( */}
                           <Card
                             // className="fixed bottom-0 w-3/12 right-0"
                             headerClass="font-semibold text-lg text-indigo-600"
@@ -1042,7 +1048,7 @@ console.log("Total Pay:", totalPay);
                               <h6>${totalPay}</h6>
                             </div>
                           </Card>
-                        )}
+                        {/* )} */}
                       {/* {paymentSuccess ||
                         (status === "paid" && (
                           <div>
@@ -1106,10 +1112,8 @@ console.log("Total Pay:", totalPay);
           handleButtonClick={() => setsendEstimateOpen(!sendEstimateOpen)}
         />
       ) : null}
-      {status === "paid" 
-      // || paymentSuccess === true 
-      ? 
-      (
+      {status === "paid" ? (
+        // || paymentSuccess === true
         isOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 pointer-events-auto">
             <div className="bg-white rounded-lg shadow-lg p-6 relative w-96">
