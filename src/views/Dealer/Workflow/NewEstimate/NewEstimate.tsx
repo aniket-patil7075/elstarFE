@@ -6,12 +6,13 @@ import {
   Dropdown,
   Input,
   Menu,
+  Notification,
   Select,
   Spinner,
   Tabs,
+  toast,
 } from "@/components/ui";
 import "./styles.css";
-
 import {
   FaCar,
   FaCheck,
@@ -45,8 +46,7 @@ import {
   getEstimateById,
 } from "../../Services/WorkflowService";
 import { IoCloudDoneOutline } from "react-icons/io5";
-import { useParams } from "react-router-dom";
-import { toast } from "react-toastify";
+import { useNavigate, useParams } from "react-router-dom";
 import SendEstimate from "./SendEstimate";
 import { IoIosCloseCircleOutline } from "react-icons/io";
 import Activities from "./Activities";
@@ -101,11 +101,20 @@ const NewEstimate = () => {
   const [isAppointmentModelOpen, setisAppointmentModelOpen]: any =
     useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [totalServiceGrandTotal, setTotalServiceGrandTotal] = useState<number>(0);
   const timerRef = useRef(null);
   const location = useLocation();
   const { status } = location.state || {};
   const [isOpen, setIsOpen] = useState(true);
   const firstKey = Object.keys(grandTotal)[0];
+  const navigate = useNavigate();
+
+//   const totalServiceGrandTotal = Object.values(servicesData).reduce((acc, service:any) => {
+//     return acc + (service.serviceGrandTotal || 0);
+// }, 0);
+
+// console.log("Total Service Grand Total:", totalServiceGrandTotal);
+
 
   const estimateGrandTotal = firstKey
     ? parseFloat(grandTotal[Number(firstKey)]?.toString() || "0")
@@ -308,10 +317,17 @@ const NewEstimate = () => {
     fetchCustomers();
   }, []);
 
+  const calculateTotalServiceGrandTotal = (): number => {
+    return Object.values(servicesData).reduce((acc: number, service: any) => {
+      return acc + (service.serviceGrandTotal || 0);
+    }, 0);
+  };
+
   const handleEstimateSave = async (values: any) => {
     fetchEstimate();
     let saveEstimateResp = await apiUpdateEstimate(values, estimateId);
     setAutoSaving(false);
+    setTotalServiceGrandTotal(calculateTotalServiceGrandTotal());
   };
 
   useEffect(() => {
@@ -378,6 +394,16 @@ const NewEstimate = () => {
     grandTotal,
   ]);
 
+  useEffect(() => {
+    setTotalServiceGrandTotal(calculateTotalServiceGrandTotal()); 
+  }, [servicesData, orderNumber,
+    orderTitle,
+    selectedCustomer,
+    selectedVehicle,
+    customerComment,
+    customerRecommendations,
+    servicesData,
+    grandTotal,]);
   // const customerOptions = [
   //   { value: "Faiz", label: <div className="flex align-center justify-center">
   //     <p className="mt-2 mr-8">FU</p>
@@ -439,7 +465,6 @@ const NewEstimate = () => {
       }
     } catch (error) {
       console.error("Failed to fetch estimate:", error);
-      toast.error("Unable to fetch estimate data.");
     }
   };
 
@@ -673,10 +698,20 @@ const NewEstimate = () => {
   // Example usage:
   const totalPay = calculateTotalPay(estimateData);
 
-  const handleDeleteFunction = () => {
-    console.log("delete functionality");
-    console.log(estimateId);
-    apiDeleteEstimate(estimateId);
+  const handleDeleteFunction = async () => {
+    try {
+      await apiDeleteEstimate(estimateId);
+
+      navigate("/dealer/workflow");
+
+      toast.push(
+        <Notification title="Success" type="success">
+          Estimate Deleted Successfully
+        </Notification>
+      );
+    } catch (error) {
+      console.error("Error deleting estimate:", error);
+    }
   };
 
   return (
@@ -1036,19 +1071,19 @@ const NewEstimate = () => {
                       {/* {estimateData &&
                         (estimateData.status === "Estimates" || estimateData.status === "In Progress" ||
                           estimateData.status === "Invoices") && ( */}
-                          <Card
-                            // className="fixed bottom-0 w-3/12 right-0"
-                            headerClass="font-semibold text-lg text-indigo-600"
-                            bodyClass="text-center"
-                            footerClass="flex justify-end"
-                            footer={cardFooter}
-                          >
-                            <div className="flex item-center justify-between">
-                              <h6> Total Pay</h6>
-                              <h6>${totalPay}</h6>
-                            </div>
-                          </Card>
-                        {/* )} */}
+                      <Card
+                        // className="fixed bottom-0 w-3/12 right-0"
+                        headerClass="font-semibold text-lg text-indigo-600"
+                        bodyClass="text-center"
+                        footerClass="flex justify-end"
+                        footer={cardFooter}
+                      >
+                        <div className="flex item-center justify-between">
+                          <h6> Total Pay</h6>
+                          <h6>${totalServiceGrandTotal}</h6>
+                        </div>
+                      </Card>
+                      {/* )} */}
                       {/* {paymentSuccess ||
                         (status === "paid" && (
                           <div>

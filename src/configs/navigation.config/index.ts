@@ -360,7 +360,68 @@ const navigationConfig: NavigationTree[] = [
                 subMenu: [],
             },
         ]
-    }
+    },
+    {
+        key: 'estimatesInvoices',
+        path: '',
+        title: 'Estimates & Invoices',
+        translateKey: 'nav.estimatesInvoices.estimatesInvoices',
+        icon: 'dealerEstimate',
+        type: NAV_ITEM_TYPE_COLLAPSE,
+        authority: ['dealer'],
+        subMenu: [
+            {
+                key: 'estimatesInvoices.item1',
+                path: '/dealer/estimates/all-orders',
+                title: 'All Orders',
+                translateKey: 'nav.estimatesInvoices.item1',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'estimatesInvoices.item2',
+                path: '/dealer/estimates/all-invoices',
+                title: 'All Invoices',
+                translateKey: 'nav.estimatesInvoices.item2',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'estimatesInvoices.item3',
+                path: '/dealer/estimates/pain-invoices',
+                title: 'Paid Invoices',
+                translateKey: 'nav.estimatesInvoices.item3',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'estimatesInvoices.item4',
+                path: '/dealer/estimates/unpaid-invoices',
+                title: 'Unpaid Invoices',
+                translateKey: 'nav.estimatesInvoices.item4',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'estimatesInvoices.item5',
+                path: '/dealer/estimates/all-estimates',
+                title: 'All Estimates',
+                translateKey: 'nav.estimatesInvoices.item5',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+        ]
+    },
 ]
 
 export default navigationConfig

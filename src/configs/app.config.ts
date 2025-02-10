@@ -19,8 +19,9 @@ const appConfig: AppConfig = {
   enableMock: false,
   superAdminEntryPath: "/super-admin/home",
   dealerEntryPath: "/dealer/home",
-  API_BASE_URL : 'https://testapi.247automotive.services',
-  // API_BASE_URL: "http://localhost:1024",
+  // API_BASE_URL : 'https://testapi.247automotive.services',
+  API_BASE_URL: "http://localhost:1024",
 };
+
 
 export default appConfig;

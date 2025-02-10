@@ -241,6 +241,38 @@ export const protectedRoutes = [
         component: lazy(() => import('@/views/Dealer/DealerLists/Item1')),
         authority: ['dealer'],
     },
+
+    //Estimates & Invoices 
+    {
+        key: 'estimatesInvoices.item1',
+        path: '/dealer/estimates/all-orders',
+        component: lazy(() => import('@/views/Dealer/Workflow/AllOrder')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'estimatesInvoices.item2',
+        path: '/dealer/estimates/all-invoices',
+        component: lazy(() => import('@/views/Dealer/Workflow/AllInvoices')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'estimatesInvoices.item3',
+        path: '/dealer/estimates/pain-invoices',
+        component: lazy(() => import('@/views/Dealer/Workflow/PaidInvoices')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'estimatesInvoices.item4',
+        path: '/dealer/estimates/unpaid-invoices',
+        component: lazy(() => import('@/views/Dealer/Workflow/UnpaidInvoices')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'estimatesInvoices.item5',
+        path: '/dealer/estimates/all-estimates',
+        component: lazy(() => import('@/views/Dealer/Workflow/AllEstimate')),
+        authority: ['dealer'],
+    },
     // ... other routes
 
 ]

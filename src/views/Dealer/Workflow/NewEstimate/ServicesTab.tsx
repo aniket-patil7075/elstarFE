@@ -109,6 +109,7 @@ const ServicesTab = ({
     ]);
   };
 
+
   const handleRemoveService = (index) => {
     const updatedServices = services.filter((_, i) => i !== index);
     setServices(updatedServices);

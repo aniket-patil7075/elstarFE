@@ -308,7 +308,12 @@ const NewEstimateVehicleTab = (props: any) => {
           <p className="text-indigo-600 cursor-pointer">
             {selectedVehicle.licencePlate &&
             selectedVehicle.licencePlate.length > 0
-              ? selectedVehicle.licencePlate.join(", ")
+              ? selectedVehicle.licencePlate
+                  .map(
+                    (plate: any) =>
+                      `${plate.regionCode.toUpperCase()} ${plate.plateNumber}`
+                  )
+                  .join(", ")
               : "No Licence Plate Available"}
           </p>
         </div>

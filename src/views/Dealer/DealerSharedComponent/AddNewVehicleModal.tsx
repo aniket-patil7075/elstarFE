@@ -69,7 +69,6 @@ const AddNewVehicleModal = ({ handleButtonClick,customerid }: any) => {
     const [isFormOpen, setIsFormOpen] = useState(true)
 
 
-
     const dispatch = useAppDispatch()
     const fetchData = useCallback(() => {
         dispatch(getVehicles({}))
@@ -209,35 +208,44 @@ const AddNewVehicleModal = ({ handleButtonClick,customerid }: any) => {
                         >
                             <Formik
                                 initialValues={selectedVehicle || initialValues}
-                                
                                 validationSchema={validationSchema}
                                 onSubmit={async (values, { resetForm }) => {
                                     try {
                                         console.log("in add new vehicle : ",customerid);
-                                        
+                                        console.log("Values before save  : ",values);
                                         const formData = new FormData()
                                         Object.keys(values).forEach((key) => {
                                             if (
                                                 key === 'image' &&
                                                 values.image
-                                            ) {
+                                            )
+                                            
+                                            {
                                                 formData.append(
                                                     key,
                                                     values.image,
-                                                ) // Add file to FormData
+                                                ) 
                                             } 
                                     
                                             else {
                                                 formData.append(
                                                     key,
                                                     values[key],
-                                                ) // Add other fields
+                                                ) 
                                             }
 
                                           
                                         })
 
-                                        console.log(formData)
+                                        const licencePlateArray = [
+                                            { plateNumber: values.licenceNumber || "", regionCode: values.licenceType || "" }
+                                        ];
+                                        
+                                        // Append each field of licencePlate separately
+                                        licencePlateArray.forEach((plate, index) => {
+                                            formData.append(`licencePlate[${index}][plateNumber]`, plate.plateNumber);
+                                            formData.append(`licencePlate[${index}][regionCode]`, plate.regionCode);
+                                        });
 
                                         await apiAddNewVehicle(formData) // Pass FormData to the API
 
@@ -259,7 +267,6 @@ const AddNewVehicleModal = ({ handleButtonClick,customerid }: any) => {
                                             </Notification>,
                                         )
                                         handleButtonClick();
-                                        // Reset form and close modal
                                         resetForm()
                                         handleFormClose()
                                         setIsFormVisible(false)
