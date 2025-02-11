@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { HiDownload, HiPlusCircle } from "react-icons/hi";
 import {
   getEstimatesByPage,
@@ -11,6 +11,8 @@ import { DataTable } from "@/components/shared";
 import { cloneDeep } from "lodash";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { getAllEstimates } from "../Services/WorkflowService";
+import * as XLSX from "xlsx";
 
 type ColumnDef<T> = {
   header: string;
@@ -27,11 +29,12 @@ type Estimate = {
   dueDate: string;
   paymentTerms: string;
   paymentDueDate: string;
-  paymentMethod: string;
+  paidStatus: string;
   workflowStatus: string;
   inspectionStatus: string;
   status: string;
   isAuthorized: string;
+  paymentMethod : string;
   // appointment: string;
   // technician: string;
   // createdDate: number;
@@ -44,8 +47,36 @@ type Estimate = {
 };
 
 const PaidInvoices = () => {
+
+  const [data, setData] = useState<Estimate[]>([]);
+
+  const estimateData = async () => {
+    try {
+      const response = await getAllEstimates();
+      if (response?.status === "success") {
+        // Filter only the paid invoices
+        const paidInvoices = response.allEstimates.filter(
+          (estimate: Estimate) => 
+            estimate.paymentMethod === "cash" || estimate.paymentMethod === "card"
+        );
+        setData(paidInvoices);
+        
+      } else {
+        console.error("Unexpected response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching estimates:", error);
+    }
+  };
+  
+
+useEffect(() => {
+  estimateData(); 
+}, []);
+
+  
   const dispatch = useAppDispatch();
-  const data = useAppSelector((state: any) => state.workflow.estimateList);
+  // const data = useAppSelector((state: any) => state.workflow.estimateList);
   const loading = useAppSelector((state: any) => state.workflow.loading);
   const filterData = useAppSelector((state: any) => state.workflow.filterData);
   const allCountAccToStatus: any = useAppSelector(
@@ -93,7 +124,7 @@ const PaidInvoices = () => {
 
   const generatePDF = () => {
     const doc = new jsPDF();
-    doc.text("All Orders Report", 14, 15);
+    doc.text("Paid Invoices Report", 14, 15);
 
     autoTable(doc, {
       startY: 20,
@@ -113,21 +144,80 @@ const PaidInvoices = () => {
       body: data.map((row: any) => [
         row.orderNo,
         row.orderName,
-        `${row.customer.firstName} ${row.customer.lastName}`,
-        `$${row.total}`,
+        row.firstName,
+        `$${row.grandTotal}`,
         row.dueDate,
-        row.paymentTerms,
-        row.paidStatus,
-        row.workflow,
-        row.workflow,
+        row.paymentNote,
+        row.paymentMethod === "cash" || row.paymentMethod === "card" || row.paidStatus === "Paid"
+        ? "Paid"
+        : "Unpaid",
+        row.status,
+        row.status,
       ]),
       theme: "striped",
       styles: { fontSize: 10 },
-      headStyles: { fillColor: [41, 128, 185] }, // Blue header
+      headStyles: { fillColor: [59, 130, 246] }, 
     });
 
-    doc.save("Paid_Invoice_Report.pdf");
+    doc.save("Paid_Invoices_Report.pdf");
   };
+
+   const handleGenerateExcel = async () => {
+      if (!data || data.length === 0) {
+        alert("No data available to export.");
+        return;
+      }
+  
+      try {
+        // Define the fields to include in Excel
+        const selectedFields = [
+          "orderNo",
+          "orderName",
+          "customer",
+          "grandTotal",
+          "dueDate",
+          "paymentNote",
+          "paymentMethod",
+          "status",
+          "isAuthorized",
+          "paymentDate",
+        ];
+  
+        const filteredData = data.map((item: any) => {
+          let formattedItem: any = {};
+    
+          selectedFields.forEach((key) => {
+            if (key === "customer") {
+              formattedItem["customer"] = item.firstName || (item.customer?.firstName || "N/A");
+            } else if (key === "paymentMethod") {
+              formattedItem["Payment Status"] =
+                item.paymentMethod === "card" || item.paymentMethod === "cash"
+                  ? "Paid"
+                  : "Unpaid";
+            } else if (key === "isAuthorized") {
+              formattedItem["Authorized Status"] =
+                item.isAuthorized === true ? "Authorize" : "Unauthorize";
+            } else if (key === "paymentNote") {
+              formattedItem["Payment Terms"] = item.paymentNote || "N/A";
+            } else {
+              formattedItem[key] = item[key];
+            }
+          });
+    
+          return formattedItem;
+        });
+  
+        const worksheet = XLSX.utils.json_to_sheet(filteredData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+  
+        XLSX.writeFile(workbook, "Paid_Invoices_Report.xlsx");
+      } catch (error) {
+        console.error("Error exporting to Excel:", error);
+        alert("Failed to generate Excel.");
+      }
+    };
+  
 
   const columns: ColumnDef<Estimate>[] = useMemo(
     () => [
@@ -135,21 +225,28 @@ const PaidInvoices = () => {
       { header: "Order Name", accessorKey: "orderName" },
       {
         header: "Customer",
-        accessorFn: (row: any) =>
-          `${row.customer.firstName} ${row.customer.lastName}`,
+        accessorKey: "customer.firstName",
       },
-      {
-        header: "Grand Total",
-        accessorFn: (row:any) => `$${ row.total}`,
-      }
-      ,
+      { header: "Grand Total", accessorKey: "grandTotal" },
+      
       { header: "Due Date", accessorKey: "dueDate" },
-      { header: "Payment Terms", accessorKey: "paymentTerms" },
-      { header: "payment Due Date", accessorKey: "paymentDueDate" },
-      { header: "Paid Status", accessorKey: "paymentMethod" },
-      { header: "Workflow Status", accessorKey: "workflow" },
+      { header: "Payment Terms", accessorKey: "paymentNote" },
+      { header: "payment Due Date", accessorKey: "dueDate" },
+      {
+        header: "Paid Status",
+        accessorKey: "paymentMethod",
+        cell: (props:any) => {
+          const row = props.row.original;
+          return (
+            <div className="flex items-center">
+              {row.paymentMethod === "cash" || row.paymentMethod === "card" ? "Paid" : "Unpaid"}
+            </div>
+          );
+        },
+      },
+      { header: "Workflow Status", accessorKey: "status" },
       { header: "Inspection Status", accessorKey: "inspectionStatus" },
-      { header: "Order Status", accessorKey: "workflow" },
+      { header: "Order Status", accessorKey: "status" },
       {
         header: "Authorized Status",
         accessorKey: "auth",
@@ -158,44 +255,59 @@ const PaidInvoices = () => {
           return <div>{row.isAuthorized ? "Authorized" : "Unauthorized"}</div>;
         },
       },
-     
+      
     ],
     []
   );
+  
+
   return (
     <div>
       <div className="mb-5 ms-2">
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="text-xl font-semibold">Paid Invoices</h2>
-          <Button
-            variant="solid"
-            type="button"
-            size="sm"
-            className="bg-blue-500 hover:bg-blue-600 text-white font-medium flex items-center gap-1 px-3 py-1.5"
-            onClick={generatePDF}
-          >
-            <HiDownload className="h-4 w-4" />
-            Download
-          </Button>
-        </div>
+        <div className="lg:flex items-center justify-between mb-5">
+                  <h3 className="mb-4 lg:mb-0">Paid Invoices</h3>
+                  <div className="flex flex-col lg:flex-row lg:items-center ms-3">
+                    <Button
+                      type="button"
+                      size="sm"
+                      className=" font-medium flex items-center gap-1 px-3 py-1.5 md:mx-3"
+                      onClick={handleGenerateExcel}
+                    >
+                      <HiDownload className="h-4 w-4" />
+                      Export
+                    </Button>
+        
+                    <Button
+                      variant="solid"
+                      type="button"
+                      size="sm"
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-medium flex items-center gap-1 px-3 py-1.5"
+                      onClick={generatePDF}
+                    >
+                      <HiDownload className="h-4 w-4" />
+                      PDF
+                    </Button>
+                  </div>
+                </div>
       </div>
       <div className="mt-5">
         {data && columns ? (
           <DataTable
-            columns={columns}
-            data={data}
-            loading={loading}
-            skeletonAvatarColumns={[0]}
-            skeletonAvatarProps={{ width: 28, height: 28 }}
-            pagingData={{
-              total: tableData.total as number,
-              pageIndex: tableData.pageIndex as number,
-              pageSize: tableData.pageSize as number,
-            }}
-            onPaginationChange={onPaginationChange}
-            onSelectChange={onSelectChange}
-            onSort={onSort}
-          />
+          columns={columns}
+          data={data}  
+          loading={!data.length}
+          skeletonAvatarColumns={[0]}
+          skeletonAvatarProps={{ width: 28, height: 28 }}
+          pagingData={{
+            total: tableData.total as number,
+            pageIndex: tableData.pageIndex as number,
+            pageSize: tableData.pageSize as number,
+          }}
+          onPaginationChange={onPaginationChange}
+          onSelectChange={onSelectChange}
+          onSort={onSort}
+        />
+        
         ) : (
           <div>Loading...</div>
         )}

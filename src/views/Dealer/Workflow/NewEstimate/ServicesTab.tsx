@@ -93,6 +93,8 @@ const ServicesTab = ({
   const laborTableRefs = useRef<Record<number, any>>({});
   const partTableRefs = useRef<Record<number, any>>({});
 
+  
+
 
   const handleAddService = () => {
     setServices([
@@ -289,6 +291,10 @@ const ServicesTab = ({
   //     // })
   //   }
   // }, [prefillServicesData, laborRef])
+
+// const totalServiceGrandTotal = services.reduce((acc, service) => acc + service.serviceGrandTotal, 0);
+
+// console.log("Total Service Grand Total:", totalServiceGrandTotal);
 
   const generateTypeTabForHover = (
     handleChange: any,

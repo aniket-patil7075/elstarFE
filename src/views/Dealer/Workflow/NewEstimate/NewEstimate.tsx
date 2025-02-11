@@ -344,7 +344,7 @@ const NewEstimate = () => {
         });
 
         // console.log("Updated Services with mainSubtotal:", updatedServices);
-
+        setTotalServiceGrandTotal(calculateTotalServiceGrandTotal());
         // Update state with new services having mainSubtotal
         setEstimateData((prevData: any) => ({
           ...prevData,
