@@ -11,7 +11,12 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import saveAs from "file-saver";
-import { HiDownload, HiOutlineSearch } from "react-icons/hi";
+import {
+  HiDownload,
+  HiOutlineSearch,
+  HiOutlineUser,
+  HiTruck,
+} from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "@/store";
 import {
   getEstimatesByPage,
@@ -27,10 +32,21 @@ import Th from "@/components/ui/Table/Th";
 import TBody from "@/components/ui/Table/TBody";
 import Td from "@/components/ui/Table/Td";
 import Tabs from "@/components/ui/Tabs";
-
+import {
+  startOfDay,
+  addDays,
+  startOfWeek,
+  endOfWeek,
+  isSameDay,
+  isWithinInterval,
+  parseISO,
+} from "date-fns";
 import TabList from "@/components/ui/Tabs/TabList";
 import TabNav from "@/components/ui/Tabs/TabNav";
 import TabContent from "@/components/ui/Tabs/TabContent";
+import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
+dayjs.extend(isBetween);
 
 type ColumnDef<T> = {
   header: string;
@@ -56,16 +72,13 @@ type Estimate = {
   remainingAmount: string;
 };
 
+interface Appointment {
+  id: number;
+  date: string;
+}
 const DealerDashboard = () => {
   // ------------------------------Unpaid Table ------------------------------------
   const [data, setData] = useState<Estimate[]>([]);
-  const [appointment, setAppointment] = useState({});
-  const [filteredAppointments, setFilteredAppointments] = useState({
-    today: [],
-    tomorrow: [],
-    thisWeek: [],
-    nextWeek: [],
-  });
 
   const fetchAppointment = async () => {
     try {
@@ -198,31 +211,36 @@ const DealerDashboard = () => {
   });
 
   // -------------------------------------------Appointment ---------------------------------------------
-//   useEffect(() => {
-//     const today = startOfDay(new Date());
-//     const tomorrow = startOfDay(addDays(new Date(), 1));
-//     const weekStart = startOfWeek(new Date());
-//     const weekEnd = endOfWeek(new Date());
-//     const nextWeekStart = startOfWeek(addDays(new Date(), 7));
-//     const nextWeekEnd = endOfWeek(addDays(new Date(), 7));
+  const [appointment, setAppointment] = useState<Appointment[]>([]);
+  
+  console.log("Appointments : ", appointment);
+  const today = dayjs().format("YYYY-MM-DD");
+  const tomorrow = dayjs().add(1, "day").format("YYYY-MM-DD");
+  const weekStart = dayjs().startOf("week").format("YYYY-MM-DD");
+  const weekEnd = dayjs().endOf("week").format("YYYY-MM-DD");
+  const nextWeekStart = dayjs()
+    .add(1, "week")
+    .startOf("week")
+    .format("YYYY-MM-DD");
+  const nextWeekEnd = dayjs().add(1, "week").endOf("week").format("YYYY-MM-DD");
 
-//     const filteredData = {
-//       today: appointment.filter((appt) =>
-//         isSameDay(parseISO(appt.date), today)
-//       ),
-//       tomorrow: appointment.filter((appt) =>
-//         isSameDay(parseISO(appt.date), tomorrow)
-//       ),
-//       thisWeek: appointment.filter((appt) =>
-//         isWithinInterval(parseISO(appt.date), { start: weekStart, end: weekEnd })
-//       ),
-//       nextWeek: appointment.filter((appt) =>
-//         isWithinInterval(parseISO(appt.date), { start: nextWeekStart, end: nextWeekEnd })
-//       ),
-//     };
+  const todayAppointments = appointment.filter(
+    (appt) => dayjs(appt.start).format("YYYY-MM-DD") === today
+  );
+  const tomorrowAppointments = appointment.filter(
+    (appt) => dayjs(appt.start).format("YYYY-MM-DD") === tomorrow
+  );
+  const thisWeekAppointments = appointment.filter((appt) =>
+    dayjs(appt.start).isBetween(weekStart, weekEnd, "day", "[]")
+  );
+  const nextWeekAppointments = appointment.filter((appt) =>
+    dayjs(appt.start).isBetween(nextWeekStart, nextWeekEnd, "day", "[]")
+  );
 
-//     setFilteredAppointments(filteredData);
-// }, [appointment]);
+
+    const vehId = appointment.length > 0 ? appointment[0].vehicleId : null;
+    const custId = appointment.length > 0 ? appointment[0].customerId : null;
+  
 
   return (
     <div>
@@ -312,70 +330,123 @@ const DealerDashboard = () => {
         </div>
       </div>
 
-      {/* <div>
-        <Tabs defaultValue="today" variant="pill">
-          <TabList>
-            <TabNav value="today">
-              Today ({filteredAppointments.today.length})
-            </TabNav>
-            <TabNav value="tomorrow">
-              Tomorrow ({filteredAppointments.tomorrow.length})
-            </TabNav>
-            <TabNav value="thisWeek">
-              This Week ({filteredAppointments.thisWeek.length})
-            </TabNav>
-            <TabNav value="nextWeek">
-              Next Week ({filteredAppointments.nextWeek.length})
-            </TabNav>
-          </TabList>
-          <div className="p-4">
-            <TabContent value="today">
-              {filteredAppointments.today.length > 0 ? (
-                filteredAppointments.today.map((appt) => (
-                  <p key={appt.id}>
-                    {appt.name} - {moment(appt.date).format("DD MMM YYYY")}
-                  </p>
-                ))
-              ) : (
-                <p>No appointments today</p>
-              )}
-            </TabContent>
-            <TabContent value="tomorrow">
-              {filteredAppointments.tomorrow.length > 0 ? (
-                filteredAppointments.tomorrow.map((appt) => (
-                  <p key={appt.id}>
-                    {appt.name} - {moment(appt.date).format("DD MMM YYYY")}
-                  </p>
-                ))
-              ) : (
-                <p>No appointments tomorrow</p>
-              )}
-            </TabContent>
-            <TabContent value="thisWeek">
-              {filteredAppointments.thisWeek.length > 0 ? (
-                filteredAppointments.thisWeek.map((appt) => (
-                  <p key={appt.id}>
-                    {appt.name} - {moment(appt.date).format("DD MMM YYYY")}
-                  </p>
-                ))
-              ) : (
-                <p>No appointments this week</p>
-              )}
-            </TabContent>
-            <TabContent value="nextWeek">
-              {filteredAppointments.nextWeek.length > 0 ? (
-                filteredAppointments.nextWeek.map((appt) => (
-                  <p key={appt.id}>
-                    {appt.name} - {moment(appt.date).format("DD MMM YYYY")}
-                  </p>
-                ))
-              ) : (
-                <p>No appointments next week</p>
-              )}
-            </TabContent>
-          </div>
-        </Tabs>
-      </div> */}
+      <div className="flex flex-col xl:flex-row w-full">
+        <div className="w-full p-4">
+          <p className="mb-4 pb-4 ms-3 text-xl font-semibold">
+            UPCOMING APPOINTMENTS
+          </p>
+          {/* <Tabs defaultValue="tab1">
+            <TabList>
+              <TabNav value="tab1">Today</TabNav>
+              <TabNav value="tab2">Tomorrow</TabNav>
+              <TabNav value="tab3">This Week</TabNav>
+              <TabNav value="tab4">Next Week</TabNav>
+            </TabList>
+            <div className="p-4">
+              <TabContent value="tab1">
+                <div className="flex">
+                  <div className="w-1/4 bg-gray-100 h-20 m-1"></div>
+                  <div className="w-3/4 bg-gray-100 h-20 m-1"></div>
+                </div>
+              </TabContent>
+              <TabContent value="tab2">
+              <div className="flex">
+                  <div className="w-1/4 bg-gray-100 h-20 m-1"></div>
+                  <div className="w-3/4 bg-gray-100 h-20 m-1"></div>
+                </div>
+              </TabContent>
+              <TabContent value="tab3">
+              <div className="flex">
+                  <div className="w-1/4 bg-gray-100 h-20 m-1"></div>
+                  <div className="w-3/4 bg-gray-100 h-20 m-1"></div>
+                </div>
+              </TabContent>
+              <TabContent value="tab4">
+              <div className="flex">
+                  <div className="w-1/4 bg-gray-100 h-20 m-1"></div>
+                  <div className="w-3/4 bg-gray-100 h-20 m-1"></div>
+                </div>
+              </TabContent>
+            </div>
+          </Tabs> */}
+          <Tabs defaultValue="tab1">
+            <TabList>
+              <TabNav value="tab1">Today ({todayAppointments.length})</TabNav>
+              <TabNav value="tab2">
+                Tomorrow ({tomorrowAppointments.length})
+              </TabNav>
+              <TabNav value="tab3">
+                This Week ({thisWeekAppointments.length})
+              </TabNav>
+              <TabNav value="tab4">
+                Next Week ({nextWeekAppointments.length})
+              </TabNav>
+            </TabList>
+            <div className="p-4">
+              {["tab1", "tab2", "tab3", "tab4"].map((tab, index) => {
+                const appts = [
+                  todayAppointments,
+                  tomorrowAppointments,
+                  thisWeekAppointments,
+                  nextWeekAppointments,
+                ][index];
+                return (
+                  <TabContent key={tab} value={tab}>
+                    {appts.length > 0 ? (
+                      appts.map((appt, idx) => (
+                        <div key={idx} className="flex border-b pb-2">
+                          <div className="w-1/4 bg-gray-100 h-20 m-1 flex flex-col items-center justify-center">
+                            <span>{dayjs(appt.start).format("DD MMM")}</span>
+                            <span>{dayjs(appt.start).format("hh:mm A")}</span>
+                          </div>
+
+                          <div className="w-3/4 bg-gray-100 h-20 m-1 flex flex-col items-center justify-center">
+                            <span>{appt.title}</span>
+                            <span className="flex items-center gap-2">
+                              <HiOutlineUser /> {appt.customerId} 
+                            </span>
+                            <span className="flex items-center gap-2">
+                               <HiTruck />{" "}
+                              {appt.vehicleId}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No Appointments</p>
+                    )}
+                  </TabContent>
+                );
+              })}
+            </div>
+          </Tabs>
+        </div>
+
+        <div className="w-full p-4">
+          {/* <p className="mb-4 pb-4 ms-3 text-xl font-semibold">
+            UNPAID INVOICES
+          </p>
+          {data && columns ? (
+            <DataTable
+              columns={columns}
+              data={data}
+              loading={!data.length}
+              skeletonAvatarColumns={[0]}
+              skeletonAvatarProps={{ width: 28, height: 28 }}
+              pagingData={{
+                total: tableData.total,
+                pageIndex: tableData.pageIndex,
+                pageSize: tableData.pageSize,
+              }}
+              onPaginationChange={onPaginationChange}
+              onSelectChange={onSelectChange}
+              onSort={onSort}
+            />
+          ) : (
+            <div>Loading...</div>
+          )} */}
+        </div>
+      </div>
     </div>
   );
 };
