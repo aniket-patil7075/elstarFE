@@ -15,6 +15,7 @@ import autoTable from "jspdf-autotable";
 import { getAllEstimates } from "../Services/WorkflowService";
 import * as XLSX from "xlsx";
 import saveAs from "file-saver";
+import { generatePDF } from "../DealerLists/Services/DealerListServices";
 
 type ColumnDef<T> = {
   header: string;
@@ -37,15 +38,6 @@ type Estimate = {
   status: string;
   isAuthorized: string;
   paymentMethod: string;
-  // appointment: string;
-  // technician: string;
-  // createdDate: number;
-  // authorizedDate: number;
-  // invoiceDate: number;
-  // fullyPaidDate: number;
-  // workflowDate: number;
-  // messagedDate: number;
-  // tags: [];
 };
 
 const AllOrder = () => {
@@ -84,7 +76,7 @@ const AllOrder = () => {
     dispatch(
       getEstimatesByPage({ pageIndex, pageSize, sort, query, filterData })
     );
-      dispatch(getWorkflowTableCount());
+    dispatch(getWorkflowTableCount());
   }, [pageIndex, pageSize, sort, query, filterData, dispatch]);
 
   useEffect(() => {
@@ -115,46 +107,50 @@ const AllOrder = () => {
     dispatch(setTableData(newTableData));
   };
 
-  const generatePDF = () => {
-    const doc = new jsPDF();
-    doc.text("All Orders Report", 14, 15);
+  // const generatePDF = () => {
+  //   const doc = new jsPDF();
+  //   doc.text("All Orders Report", 14, 15);
 
-    autoTable(doc, {
-      startY: 20,
-      head: [
-        [
-          "Order No",
-          "Order Name",
-          "Customer",
-          "Grand Total",
-          "Due Date",
-          "Payment Terms",
-          "Paid Status",
-          "Workflow Status",
-          "Order Status",
-        ],
-      ],
-      body: data.map((row: any) => [
-        row.orderNo,
-        row.orderName,
-        row.firstName,
-        `$${row.grandTotal}`,
-        row.dueDate,
-        row.paymentNote,
-        row.paymentMethod === "cash" ||
-        row.paymentMethod === "card" ||
-        row.paidStatus === "Paid"
-          ? "Paid"
-          : "Unpaid",
-        row.status,
-        row.status,
-      ]),
-      theme: "striped",
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [59, 130, 246] },
-    });
+  //   autoTable(doc, {
+  //     startY: 20,
+  //     head: [
+  //       [
+  //         "Order No",
+  //         "Order Name",
+  //         "Customer",
+  //         "Grand Total",
+  //         "Due Date",
+  //         "Payment Terms",
+  //         "Paid Status",
+  //         "Workflow Status",
+  //         "Order Status",
+  //       ],
+  //     ],
+  //     body: data.map((row: any) => [
+  //       row.orderNo,
+  //       row.orderName,
+  //       row.firstName,
+  //       `$${row.grandTotal}`,
+  //       row.dueDate,
+  //       row.paymentNote,
+  //       row.paymentMethod === "cash" ||
+  //       row.paymentMethod === "card" ||
+  //       row.paidStatus === "Paid"
+  //         ? "Paid"
+  //         : "Unpaid",
+  //       row.status,
+  //       row.status,
+  //     ]),
+  //     theme: "striped",
+  //     styles: { fontSize: 10 },
+  //     headStyles: { fillColor: [59, 130, 246] },
+  //   });
 
-    doc.save("Orders_Report.pdf");
+  //   doc.save("Orders_Report.pdf");
+  // };
+
+  const handleGeneratePDF = () => {
+    generatePDF(data, "All Orders Report");
   };
 
   const handleGenerateExcel = async () => {
@@ -164,7 +160,7 @@ const AllOrder = () => {
     }
 
     try {
-      // Define the fields to include in Excel
+
       const selectedFields = [
         "orderNo",
         "orderName",
@@ -180,10 +176,11 @@ const AllOrder = () => {
 
       const filteredData = data.map((item: any) => {
         let formattedItem: any = {};
-  
+
         selectedFields.forEach((key) => {
           if (key === "customer") {
-            formattedItem["customer"] = item.firstName || (item.customer?.firstName || "N/A");
+            formattedItem["customer"] =
+              item.firstName || item.customer?.firstName || "N/A";
           } else if (key === "paymentMethod") {
             formattedItem["Payment Status"] =
               item.paymentMethod === "card" || item.paymentMethod === "cash"
@@ -198,7 +195,7 @@ const AllOrder = () => {
             formattedItem[key] = item[key];
           }
         });
-  
+
         return formattedItem;
       });
 
@@ -254,7 +251,7 @@ const AllOrder = () => {
     ],
     []
   );
-  console.log(data);
+
 
   return (
     <div>
@@ -277,7 +274,8 @@ const AllOrder = () => {
               type="button"
               size="sm"
               className="bg-blue-500 hover:bg-blue-600 text-white font-medium flex items-center gap-1 px-3 py-1.5"
-              onClick={generatePDF}
+              // onClick={generatePDF}
+              onClick={handleGeneratePDF}
             >
               <HiDownload className="h-4 w-4" />
               PDF
@@ -287,21 +285,25 @@ const AllOrder = () => {
       </div>
       <div className="mt-5">
         {data && columns ? (
-          <DataTable
-            columns={columns}
-            data={data}
-            loading={!data.length}
-            skeletonAvatarColumns={[0]}
-            skeletonAvatarProps={{ width: 28, height: 28 }}
-            pagingData={{
-              total: tableData.total as number,
-              pageIndex: tableData.pageIndex as number,
-              pageSize: tableData.pageSize as number,
-            }}
-            onPaginationChange={onPaginationChange}
-            onSelectChange={onSelectChange}
-            onSort={onSort}
-          />
+          data.length > 0 ? (
+            <DataTable
+              columns={columns}
+              data={data}
+              loading={!data.length}
+              skeletonAvatarColumns={[0]}
+              skeletonAvatarProps={{ width: 28, height: 28 }}
+              pagingData={{
+                total: tableData.total as number,
+                pageIndex: tableData.pageIndex as number,
+                pageSize: tableData.pageSize as number,
+              }}
+              onPaginationChange={onPaginationChange}
+              onSelectChange={onSelectChange}
+              onSort={onSort}
+            />
+          ) : (
+            <div>No Orders</div>
+          )
         ) : (
           <div>Loading...</div>
         )}

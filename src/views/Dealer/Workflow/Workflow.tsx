@@ -23,6 +23,7 @@ import PartsTable from "../DealerInventory/parts/PartsTable";
 import TiresTable from "../DealerInventory/Tires/TireTable";
 import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui";
+import WorkFlowColumn from "./WorkFlowColumn";
 
 interface Estimate {
   id: any;
@@ -53,6 +54,7 @@ const ProductList = () => {
   const handleHeadingChange = (heading: SetStateAction<string>) => {
     setActiveHeading(heading);
   };
+  
 
   // const dispatch = useAppDispatch()
 
@@ -279,65 +281,7 @@ const ProductList = () => {
             </Segment.Item>
           </Segment>
           {selectedValue === "columns" ? (
-            <DragDropContext onDragEnd={(result) => onDragEnd(result)}>
-              <div className="grid grid-cols-4 gap-4 h-[calc(100vh-170px)] overflow-hidden">
-                {Object.keys(estimatesByWorkflow).map((group, index) => {
-                  return (
-                    <Droppable key={index} droppableId="1234" type="ITEM">
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          className="border p-4 bg-gray-100 h-full overflow-auto flex flex-col"
-                        >
-                          <h4 className="text-lg font-semibold mb-4">
-                            {group}
-                          </h4>
-                          {estimatesByWorkflow[group].map(
-                            (estimate: any, index: number) => {
-                              if (
-                                !estimate ||
-                                !estimate.id ||
-                                !estimate.workflow
-                              ) {
-                                console.warn("Invalid Estimate:", estimate);
-                                return null; // Skip invalid entries
-                              }
-
-                              const uniqueId = `${estimate.id}-${estimate.workflow}-${index}`;
-                              console.log("Draggable ID:", uniqueId);
-                              return (
-                                <Draggable
-                                  key={index}
-                                  draggableId="1234"
-                                  index={index}
-                                >
-                                  {(provided) => (
-                                    <div
-                                      ref={provided.innerRef}
-                                      {...provided.draggableProps}
-                                      {...provided.dragHandleProps}
-                                    >
-                                      <EstimateCard
-                                        orderTitle={estimate.orderName}
-                                        vehicleInfo={estimate.inspectionStatus}
-                                        customerName={estimate.customer}
-                                        onMenuAction={handleMenuAction}
-                                      />
-                                    </div>
-                                  )}
-                                </Draggable>
-                              );
-                            }
-                          )}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  );
-                })}
-              </div>
-            </DragDropContext>
+           <WorkFlowColumn/>
           ) : selectedValue === "time" ? (
             <div className="h-[calc(100vh-170px)]">
               <div className="flex space-x-2 mb-2">

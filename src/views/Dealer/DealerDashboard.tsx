@@ -7,6 +7,7 @@ import autoTable from "jspdf-autotable";
 import {
   apiGetAllAppointment,
   getAllCustomers,
+  getAllVehicles,
 } from "./DealerLists/Services/DealerListServices";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
@@ -15,6 +16,7 @@ import {
   HiDownload,
   HiOutlineSearch,
   HiOutlineUser,
+  HiOutlineUserCircle,
   HiTruck,
 } from "react-icons/hi";
 import { useAppDispatch, useAppSelector } from "@/store";
@@ -74,7 +76,11 @@ type Estimate = {
 
 interface Appointment {
   id: number;
+  title: string;
   date: string;
+  start: string;
+  vehicleId: string;
+  customerId: string;
 }
 const DealerDashboard = () => {
   // ------------------------------Unpaid Table ------------------------------------
@@ -202,6 +208,8 @@ const DealerDashboard = () => {
       (order) => !order.isAuthorized
     ).length;
 
+    console.log("authorized count : ", unauthorizedCount);
+
     return {
       status,
       orderCount,
@@ -212,8 +220,10 @@ const DealerDashboard = () => {
 
   // -------------------------------------------Appointment ---------------------------------------------
   const [appointment, setAppointment] = useState<Appointment[]>([]);
-  
-  console.log("Appointments : ", appointment);
+  const [customer, setCustomer] = useState([]);
+  const [vehicle, setVehicle] = useState([]);
+
+  // console.log("Appointments : ", appointment);
   const today = dayjs().format("YYYY-MM-DD");
   const tomorrow = dayjs().add(1, "day").format("YYYY-MM-DD");
   const weekStart = dayjs().startOf("week").format("YYYY-MM-DD");
@@ -237,10 +247,45 @@ const DealerDashboard = () => {
     dayjs(appt.start).isBetween(nextWeekStart, nextWeekEnd, "day", "[]")
   );
 
+  const vehId = appointment.length > 0 ? appointment[0].vehicleId : null;
+  const custId = appointment.length > 0 ? appointment[0].customerId : null;
 
-    const vehId = appointment.length > 0 ? appointment[0].vehicleId : null;
-    const custId = appointment.length > 0 ? appointment[0].customerId : null;
-  
+  const fetchCustomer = async () => {
+    try {
+      const response = await getAllCustomers();
+
+      if (
+        response?.status === "success" &&
+        Array.isArray(response.allCustomers)
+      ) {
+        setCustomer(response.allCustomers);
+      } else {
+        console.error("Invalid response structure:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+    }
+  };
+  const fetchVehicle = async () => {
+    try {
+      const response = await getAllVehicles();
+
+      if (
+        response?.status === "success" &&
+        Array.isArray(response.allVehicles)
+      ) {
+        setVehicle(response.allVehicles);
+      } else {
+        console.error("Invalid response structure:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching vehicle:", error);
+    }
+  };
+  useEffect(() => {
+    fetchCustomer();
+    fetchVehicle();
+  }, []);
 
   return (
     <div>
@@ -309,21 +354,25 @@ const DealerDashboard = () => {
             UNPAID INVOICES
           </p>
           {data && columns ? (
-            <DataTable
-              columns={columns}
-              data={data}
-              loading={!data.length}
-              skeletonAvatarColumns={[0]}
-              skeletonAvatarProps={{ width: 28, height: 28 }}
-              pagingData={{
-                total: tableData.total,
-                pageIndex: tableData.pageIndex,
-                pageSize: tableData.pageSize,
-              }}
-              onPaginationChange={onPaginationChange}
-              onSelectChange={onSelectChange}
-              onSort={onSort}
-            />
+            data.length > 0 ? (
+              <DataTable
+                columns={columns}
+                data={data}
+                loading={!data.length}
+                skeletonAvatarColumns={[0]}
+                skeletonAvatarProps={{ width: 28, height: 28 }}
+                pagingData={{
+                  total: tableData.total,
+                  pageIndex: tableData.pageIndex,
+                  pageSize: tableData.pageSize,
+                }}
+                onPaginationChange={onPaginationChange}
+                onSelectChange={onSelectChange}
+                onSort={onSort}
+              />
+            ) : (
+              <div className="ms-3">No unpaid invoices</div>
+            )
           ) : (
             <div>Loading...</div>
           )}
@@ -335,40 +384,7 @@ const DealerDashboard = () => {
           <p className="mb-4 pb-4 ms-3 text-xl font-semibold">
             UPCOMING APPOINTMENTS
           </p>
-          {/* <Tabs defaultValue="tab1">
-            <TabList>
-              <TabNav value="tab1">Today</TabNav>
-              <TabNav value="tab2">Tomorrow</TabNav>
-              <TabNav value="tab3">This Week</TabNav>
-              <TabNav value="tab4">Next Week</TabNav>
-            </TabList>
-            <div className="p-4">
-              <TabContent value="tab1">
-                <div className="flex">
-                  <div className="w-1/4 bg-gray-100 h-20 m-1"></div>
-                  <div className="w-3/4 bg-gray-100 h-20 m-1"></div>
-                </div>
-              </TabContent>
-              <TabContent value="tab2">
-              <div className="flex">
-                  <div className="w-1/4 bg-gray-100 h-20 m-1"></div>
-                  <div className="w-3/4 bg-gray-100 h-20 m-1"></div>
-                </div>
-              </TabContent>
-              <TabContent value="tab3">
-              <div className="flex">
-                  <div className="w-1/4 bg-gray-100 h-20 m-1"></div>
-                  <div className="w-3/4 bg-gray-100 h-20 m-1"></div>
-                </div>
-              </TabContent>
-              <TabContent value="tab4">
-              <div className="flex">
-                  <div className="w-1/4 bg-gray-100 h-20 m-1"></div>
-                  <div className="w-3/4 bg-gray-100 h-20 m-1"></div>
-                </div>
-              </TabContent>
-            </div>
-          </Tabs> */}
+
           <Tabs defaultValue="tab1">
             <TabList>
               <TabNav value="tab1">Today ({todayAppointments.length})</TabNav>
@@ -393,25 +409,39 @@ const DealerDashboard = () => {
                 return (
                   <TabContent key={tab} value={tab}>
                     {appts.length > 0 ? (
-                      appts.map((appt, idx) => (
-                        <div key={idx} className="flex border-b pb-2">
-                          <div className="w-1/4 bg-gray-100 h-20 m-1 flex flex-col items-center justify-center">
-                            <span>{dayjs(appt.start).format("DD MMM")}</span>
-                            <span>{dayjs(appt.start).format("hh:mm A")}</span>
-                          </div>
+                      appts.map((appt, idx) => {
+                        const matchingCustomer = (customer as any[]).find(
+                          (cust) => cust._id === appt.customerId
+                        );
+                        const matchingVehicle = (vehicle as any[]).find(
+                          (veh) => veh._id === appt.vehicleId
+                        );
 
-                          <div className="w-3/4 bg-gray-100 h-20 m-1 flex flex-col items-center justify-center">
-                            <span>{appt.title}</span>
-                            <span className="flex items-center gap-2">
-                              <HiOutlineUser /> {appt.customerId} 
-                            </span>
-                            <span className="flex items-center gap-2">
-                               <HiTruck />{" "}
-                              {appt.vehicleId}
-                            </span>
+                        return (
+                          <div key={idx} className="flex border-b pb-2">
+                            <div className="w-1/4 bg-gray-100 h-20 m-1 flex flex-col items-center justify-center">
+                              <span>{dayjs(appt.start).format("DD MMM")}</span>
+                              <span>{dayjs(appt.start).format("hh:mm A")}</span>
+                            </div>
+
+                            <div className="w-3/4 bg-gray-100 h-20 m-1 flex flex-col items-center justify-center">
+                              <span>{appt.title}</span>
+                              <span className="flex items-center gap-2">
+                                <HiOutlineUserCircle className="text-xl" />{" "}
+                                {matchingCustomer
+                                  ? `${matchingCustomer.firstName} ${matchingCustomer.lastName}`
+                                  : "Unknown Customer"}
+                              </span>
+                              <span className="flex items-center gap-2">
+                                <HiTruck className="text-xl" />{" "}
+                                {matchingVehicle
+                                  ? `${matchingVehicle.year} ${matchingVehicle.make} ${matchingVehicle.model}`
+                                  : "Unknown Vehicle"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     ) : (
                       <p>No Appointments</p>
                     )}
@@ -423,28 +453,7 @@ const DealerDashboard = () => {
         </div>
 
         <div className="w-full p-4">
-          {/* <p className="mb-4 pb-4 ms-3 text-xl font-semibold">
-            UNPAID INVOICES
-          </p>
-          {data && columns ? (
-            <DataTable
-              columns={columns}
-              data={data}
-              loading={!data.length}
-              skeletonAvatarColumns={[0]}
-              skeletonAvatarProps={{ width: 28, height: 28 }}
-              pagingData={{
-                total: tableData.total,
-                pageIndex: tableData.pageIndex,
-                pageSize: tableData.pageSize,
-              }}
-              onPaginationChange={onPaginationChange}
-              onSelectChange={onSelectChange}
-              onSort={onSort}
-            />
-          ) : (
-            <div>Loading...</div>
-          )} */}
+          
         </div>
       </div>
     </div>

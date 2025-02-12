@@ -1,5 +1,8 @@
 import axios from "axios";
 import appConfig from "@/configs/app.config";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 // Set the base URL to point to your backend API
 // const API_BASE_URL = 'http://localhost:1024'; 
 // const API_BASE_URL = 'https://api.247automotive.services'; 
@@ -209,3 +212,99 @@ export async function apiUpdateAppointment(id: string, data: any) {
     }
   }
   
+  export const generatePDF = (data: any[], title: string = "Report") => {
+    if (!data || data.length === 0) {
+      alert("No data available to export.");
+      return;
+    }
+  
+    const doc = new jsPDF();
+    doc.text(`${title}`, 14, 15);
+  
+    autoTable(doc, {
+      startY: 20,
+      head: [
+        [
+          "Order No",
+          "Order Name",
+          "Customer",
+          "Grand Total",
+          "Due Date",
+          "Payment Terms",
+          "Paid Status",
+          "Workflow Status",
+          "Order Status",
+        ],
+      ],
+      body: data.map((row: any) => [
+        row.orderNo,
+        row.orderName,
+        row.firstName || row.customer?.firstName || "N/A",
+        `$${row.grandTotal}`,
+        row.dueDate,
+        row.paymentNote || "N/A",
+        row.paymentMethod === "cash" || row.paymentMethod === "card" || row.paidStatus === "Paid"
+          ? "Paid"
+          : "Unpaid",
+        row.status,
+        row.status,
+      ]),
+      theme: "striped",
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [59, 130, 246] },
+    });
+  
+    doc.save(`${title.replace(/\s+/g, "_")}.pdf`);
+  };
+
+  export const generateExcel = (data: any[], fileName: string = "Orders_Report") => {
+    if (!data || data.length === 0) {
+      alert("No data available to export.");
+      return;
+    }
+  
+    try {
+      const selectedFields = [
+        "orderNo",
+        "orderName",
+        "customer",
+        "grandTotal",
+        "dueDate",
+        "paymentNote",
+        "paymentMethod",
+        "status",
+        "isAuthorized",
+        "paymentDate",
+      ];
+  
+      const filteredData = data.map((item: any) => {
+        let formattedItem: any = {};
+  
+        selectedFields.forEach((key) => {
+          if (key === "customer") {
+            formattedItem["Customer"] = item.firstName || item.customer?.firstName || "N/A";
+          } else if (key === "paymentMethod") {
+            formattedItem["Payment Status"] =
+              item.paymentMethod === "card" || item.paymentMethod === "cash" ? "Paid" : "Unpaid";
+          } else if (key === "isAuthorized") {
+            formattedItem["Authorized Status"] = item.isAuthorized === true ? "Authorize" : "Unauthorize";
+          } else if (key === "paymentNote") {
+            formattedItem["Payment Terms"] = item.paymentNote || "N/A";
+          } else {
+            formattedItem[key] = item[key];
+          }
+        });
+  
+        return formattedItem;
+      });
+  
+      const worksheet = XLSX.utils.json_to_sheet(filteredData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+  
+      XLSX.writeFile(workbook, `${fileName.replace(/\s+/g, "_")}.xlsx`);
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+      alert("Failed to generate Excel.");
+    }
+  };
