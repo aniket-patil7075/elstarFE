@@ -452,9 +452,7 @@ const DealerDashboard = () => {
           </Tabs>
         </div>
 
-        <div className="w-full p-4">
-          
-        </div>
+        <div className="w-full p-4"></div>
       </div>
     </div>
   );

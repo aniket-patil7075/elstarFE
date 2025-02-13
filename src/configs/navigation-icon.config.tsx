@@ -10,6 +10,7 @@ import {
     HiOutlineClipboardList,
     HiOutlineViewBoards,
     HiOutlineAdjustments,
+    HiOutlineCog,
 } from 'react-icons/hi'
 
 export type NavigationIcons = Record<string, JSX.Element>
@@ -27,6 +28,7 @@ const navigationIcon: NavigationIcons = {
     dealerPurchasing: <HiOutlineTruck />,
     dealerLists: <HiOutlineClipboardList />,
     dealerEstimate : <HiOutlineAdjustments />,
+    dealerSetting : <HiOutlineCog />
 }
 
 export default navigationIcon

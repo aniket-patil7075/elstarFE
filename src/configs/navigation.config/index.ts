@@ -422,6 +422,16 @@ const navigationConfig: NavigationTree[] = [
             },
         ]
     },
+    {
+        key: 'General Setting',
+        path: '/dealer/general-setting',
+        title: 'General Setting',
+        translateKey: 'nav.dealerGeneralSetting',
+        icon: 'dealerSetting',
+        type: NAV_ITEM_TYPE_ITEM,
+        authority: ['dealer'],
+        subMenu: [],
+    }, 
 ]
 
 export default navigationConfig

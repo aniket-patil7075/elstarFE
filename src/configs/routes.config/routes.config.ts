@@ -273,6 +273,13 @@ export const protectedRoutes = [
         component: lazy(() => import('@/views/Dealer/Workflow/AllEstimate')),
         authority: ['dealer'],
     },
+    //General Setting
+    {
+        key: 'generalSetting',
+        path: '/dealer/general-setting',
+        component: lazy(() => import('@/views/Dealer/GeneralSetting')),
+        authority: ['dealer'],
+    },
     // ... other routes
 
 ]
