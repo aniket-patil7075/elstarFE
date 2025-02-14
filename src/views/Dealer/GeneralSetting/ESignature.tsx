@@ -21,7 +21,7 @@ const ESignature = () => {
             will have e-signature enabled by default.
           </p>
           <div>
-            <Switcher defaultChecked onChange={onSwitcherToggle} />
+            <Switcher onChange={onSwitcherToggle} />
           </div>
         </div>
       </div>
@@ -38,7 +38,7 @@ const ESignature = () => {
             customer will have e-signature enabled by default
           </p>
           <div>
-            <Switcher defaultChecked onChange={onSwitcherToggle} />
+            <Switcher onChange={onSwitcherToggle} />
           </div>
         </div>
       </div>

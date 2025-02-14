@@ -308,3 +308,13 @@ export async function apiUpdateAppointment(id: string, data: any) {
       alert("Failed to generate Excel.");
     }
   };
+
+  export async function apiNewGeneralSetting (data:any){
+    try{
+        const response = await axios.post(`${API_BASE_URL}${apiPrefix}/dealer/general-setting`,data);
+        return response.data;
+    }
+    catch(error){
+        console.log(error);
+    }
+}

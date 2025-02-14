@@ -6,7 +6,7 @@ import {
   Segment,
   Switcher,
 } from "@/components/ui";
-import React, { ChangeEvent, SyntheticEvent } from "react";
+import React, { ChangeEvent, SyntheticEvent, useState } from "react";
 import {
   HiClock,
   HiCube,
@@ -22,29 +22,13 @@ import Mileage from "./GeneralSetting/Mileage";
 import EstimateLineItems from "./GeneralSetting/EstimateLineItems";
 
 const GeneralSetting = () => {
-  const dropdownItems = [
-    { key: "a", name: "Inc ($125.00/hrs)" },
-    { key: "b", name: "DEFAULT ($185.00/hrs)" },
-    { key: "c", name: "Body work ($95.00/hrs)" },
-    { key: "d", name: "Electrical ($285.00/hrs)" },
-    { key: "e", name: "Warranty ($188.00/hrs)" },
-    { key: "f", name: "Z W ($105.00/hrs)" },
-    { key: "g", name: "german new rate ($275.00/hrs)" },
-  ];
+  const [data, setData] = useState("");
 
-  const onDropdownItemClick = (eventKey: string, e: SyntheticEvent) => {
-    console.log("Dropdown Item Clicked", eventKey, e);
+  const handleFeesDataChange = (childData:any) => {
+    setData(childData);
   };
 
-  const onDropdownClick = (e: SyntheticEvent) => {
-    console.log("Dropdown Clicked", e);
-  };
-  const onCheck = (value: boolean, e: ChangeEvent<HTMLInputElement>) => {
-    console.log(value, e);
-  };
-  const onSwitcherToggle = (val: boolean, e: ChangeEvent) => {
-    console.log(val, e);
-  };
+console.log("Data in parent : ",data)
 
   return (
     <div>
@@ -83,42 +67,42 @@ const GeneralSetting = () => {
       </div>
       <div className="flex flex-col  xl:flex-row w-full">
         <div className="w-full lg:w-3/4 p-4 border p-5 bg-gray-100">
-          <FeesAndRates/>
+          <FeesAndRates onDataChange={handleFeesDataChange} />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>
 
       <div className="flex flex-col   xl:flex-row w-full mt-7">
         <div className="w-full lg:w-3/4 p-4 p-5 border bg-gray-100">
-          <WorkAssignments/>
+          <WorkAssignments />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>
 
       <div className="flex flex-col   xl:flex-row w-full mt-7">
         <div className="w-full lg:w-3/4 p-4 p-5 border bg-gray-100">
-          <CustomerAuthorization/>
+          <CustomerAuthorization />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>
 
       <div className="flex flex-col   xl:flex-row w-full mt-7">
         <div className="w-full lg:w-3/4 p-4 p-5 border bg-gray-100">
-          <ESignature/>
+          <ESignature />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>
 
       <div className="flex flex-col   xl:flex-row w-full mt-7">
         <div className="w-full lg:w-3/4 p-4 p-5 border bg-gray-100">
-          <Mileage/>
+          <Mileage />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>
 
       <div className="flex flex-col   xl:flex-row w-full mt-7">
         <div className="w-full lg:w-3/4 p-4 p-5 border bg-gray-100">
-          <EstimateLineItems/>
+          <EstimateLineItems />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>

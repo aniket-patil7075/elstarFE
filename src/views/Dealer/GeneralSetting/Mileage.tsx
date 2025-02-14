@@ -18,7 +18,7 @@ const Mileage = () => {
           </p>
 
           <div>
-            <Switcher defaultChecked onChange={onSwitcherToggle} />
+            <Switcher onChange={onSwitcherToggle} />
           </div>
         </div>
       </div>

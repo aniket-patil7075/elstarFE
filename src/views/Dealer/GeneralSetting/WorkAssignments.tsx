@@ -50,7 +50,7 @@ const WorkAssignments = () => {
             to an invoice. This will happen on an order and in Workflow.
           </p>
           <div>
-            <Switcher defaultChecked onChange={onSwitcherToggle} />
+            <Switcher onChange={onSwitcherToggle} />
           </div>
         </div>
       </div>

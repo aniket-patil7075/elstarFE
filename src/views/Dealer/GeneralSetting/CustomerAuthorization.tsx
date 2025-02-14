@@ -22,7 +22,7 @@ const CustomerAuthorization = () => {
             customers.
           </p>
           <div>
-            <Switcher defaultChecked onChange={onSwitcherToggle} />
+            <Switcher onChange={onSwitcherToggle} />
           </div>
         </div>
       </div>
@@ -36,7 +36,7 @@ const CustomerAuthorization = () => {
           </p>
 
           <div>
-            <Switcher defaultChecked onChange={onSwitcherToggle} />
+            <Switcher onChange={onSwitcherToggle} />
           </div>
         </div>
       </div>
@@ -54,7 +54,7 @@ const CustomerAuthorization = () => {
             customers.
           </p>
           <div>
-            <Switcher defaultChecked onChange={onSwitcherToggle} />
+            <Switcher onChange={onSwitcherToggle} />
           </div>
         </div>
       </div>
