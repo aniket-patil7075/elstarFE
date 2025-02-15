@@ -432,6 +432,48 @@ const navigationConfig: NavigationTree[] = [
         authority: ['dealer'],
         subMenu: [],
     }, 
+    {
+        key: 'overview',
+        path: '',
+        title: 'Overview',
+        translateKey: 'nav.overview',
+        icon: 'dealerOverview',
+        type: NAV_ITEM_TYPE_COLLAPSE,
+        authority: ['dealer'],
+        subMenu: [
+            {
+                key: 'overview.item1',
+                path: '/dealer/overview/end-of-day',
+                title: 'End of Day',
+                translateKey: 'nav.overview.item1',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'overview.item2',
+                path: '/dealer/overview/sales-summary',
+                title: 'Sales Summary',
+                translateKey: 'nav.overview.item2',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'overview.item3',
+                path: '/dealer/overview/referal-summary',
+                title: 'Referal Summary',
+                translateKey: 'nav.overview.item3',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+           
+        ]
+    },
 ]
 
 export default navigationConfig

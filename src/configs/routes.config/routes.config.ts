@@ -280,6 +280,25 @@ export const protectedRoutes = [
         component: lazy(() => import('@/views/Dealer/GeneralSetting')),
         authority: ['dealer'],
     },
+    //Overview
+    {
+        key: 'overview.item1',
+        path: '/dealer/overview/end-of-day',
+        component: lazy(() => import('@/views/Dealer/Overview/EndOfDay')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'overview.item2',
+        path: '/dealer/overview/sales-summary',
+        component: lazy(() => import('@/views/Dealer/Overview/SalesSummary')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'overview.item3',
+        path: '/dealer/overview/referal-summary',
+        component: lazy(() => import('@/views/Dealer/Overview/ReferalSummary')),
+        authority: ['dealer'],
+    },
     // ... other routes
 
 ]

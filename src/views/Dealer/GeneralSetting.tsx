@@ -65,14 +65,14 @@ const GeneralSetting = () => {
             <Input
               className="w-full sm:w-52 md:w-60"
               size="sm"
-              placeholder="Search product"
+              placeholder="Search"
               prefix={<HiOutlineSearch className="text-lg" />}
             />
 
             <Button
               type="button"
               size="sm"
-              className="font-medium flex items-center gap-1 px-3 py-1.5"
+              className="font-medium flex items-center gap-1 px-5 py-1.5"
             >
 
               Cancel
@@ -82,7 +82,7 @@ const GeneralSetting = () => {
               variant="solid"
               type="button"
               size="sm"
-              className="bg-blue-500 hover:bg-blue-600 text-white font-medium flex items-center gap-1 px-3 py-1.5"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-medium flex items-center gap-1 px-5 py-1.5"
               onClick={handleGeneralSettings}
             >
 

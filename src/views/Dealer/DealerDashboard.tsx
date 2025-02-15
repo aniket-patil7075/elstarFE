@@ -291,13 +291,13 @@ const DealerDashboard = () => {
     <div>
       <div className="mb-5 ms-2">
         <div className="lg:flex items-center justify-between mb-5">
-          <h3 className="mb-4 lg:mb-0 text-xl font-semibold">Dashboard</h3>
+          <h3 className="mb-4 lg:mb-0 ">Dashboard</h3>
 
           <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
             <Input
               className="w-full sm:w-52 md:w-60"
               size="sm"
-              placeholder="Search product"
+              placeholder="Search "
               prefix={<HiOutlineSearch className="text-lg" />}
             />
 
