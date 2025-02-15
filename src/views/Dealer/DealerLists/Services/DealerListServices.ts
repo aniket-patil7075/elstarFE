@@ -309,9 +309,10 @@ export async function apiUpdateAppointment(id: string, data: any) {
     }
   };
 
-  export async function apiNewGeneralSetting (data:any){
+  export async function apiAddNewGeneralSetting (data:any){
     try{
         const response = await axios.post(`${API_BASE_URL}${apiPrefix}/dealer/general-setting`,data);
+        console.log("General setting in response : ",response)
         return response.data;
     }
     catch(error){

@@ -1,10 +1,23 @@
 import { Switcher } from '@/components/ui'
-import React, { ChangeEvent } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 
-const CustomerAuthorization = () => {
-    const onSwitcherToggle = (val: boolean, e: ChangeEvent) => {
-            console.log(val, e);
-          };
+const CustomerAuthorization = ({onAuthorizationChange}:{onAuthorizationChange:(data:any)=>void}) => {
+    const [authorization, setAuthorization] = useState({
+        inspectionAuthorizationFrist: false,
+        inspectionAuthorizationSecond: false,
+        inspectionAuthorizationThird: false,
+      });
+
+      const handleToggle = (key) => {
+        const updatedAuthorization = {
+          ...authorization,
+          [key]: !authorization[key],
+        };
+        setAuthorization(updatedAuthorization);
+        onAuthorizationChange(updatedAuthorization);
+        return(updatedAuthorization);
+      };
+
   return (
     <div><h4 className="text-xl border-b-2 border-gray-300 pb-2">
     Customer Authorization
@@ -22,7 +35,7 @@ const CustomerAuthorization = () => {
             customers.
           </p>
           <div>
-            <Switcher onChange={onSwitcherToggle} />
+            <Switcher onChange={() => handleToggle('inspectionAuthorizationFrist')} />
           </div>
         </div>
       </div>
@@ -36,7 +49,7 @@ const CustomerAuthorization = () => {
           </p>
 
           <div>
-            <Switcher onChange={onSwitcherToggle} />
+            <Switcher onChange={() => handleToggle('inspectionAuthorizationSecond')} />
           </div>
         </div>
       </div>
@@ -54,7 +67,7 @@ const CustomerAuthorization = () => {
             customers.
           </p>
           <div>
-            <Switcher onChange={onSwitcherToggle} />
+            <Switcher onChange={() => handleToggle('inspectionAuthorizationThird')} />
           </div>
         </div>
       </div>

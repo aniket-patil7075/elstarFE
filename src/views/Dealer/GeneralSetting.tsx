@@ -3,10 +3,12 @@ import {
   Checkbox,
   Dropdown,
   Input,
+  Notification,
   Segment,
   Switcher,
+  toast,
 } from "@/components/ui";
-import React, { ChangeEvent, SyntheticEvent, useState } from "react";
+import React, { ChangeEvent, SyntheticEvent, useEffect, useState } from "react";
 import {
   HiClock,
   HiCube,
@@ -20,15 +22,38 @@ import CustomerAuthorization from "./GeneralSetting/CustomerAuthorization";
 import ESignature from "./GeneralSetting/ESignature";
 import Mileage from "./GeneralSetting/Mileage";
 import EstimateLineItems from "./GeneralSetting/EstimateLineItems";
+import { apiAddNewGeneralSetting } from "./DealerLists/Services/DealerListServices";
 
 const GeneralSetting = () => {
   const [data, setData] = useState("");
 
-  const handleFeesDataChange = (childData:any) => {
-    setData(childData);
+  const handleDataChange = (key: string, value: any) => {
+    setData((prevData: any) => ({
+      ...prevData,
+      [key]: value,
+    }));
   };
 
-console.log("Data in parent : ",data)
+  const handleGeneralSettings = async () => {
+    try {
+      const newSettingsData = { ...data };
+
+      console.log("General Settings Data for API:", newSettingsData);
+
+
+      await apiAddNewGeneralSetting(newSettingsData);
+      toast.push(
+        <Notification title="Success" type="success">
+          General Setting Saved Successfully
+        </Notification>
+      );
+
+    } catch (error) {
+      console.error("Error updating general settings:", error);
+    }
+  };
+
+
 
   return (
     <div>
@@ -49,7 +74,7 @@ console.log("Data in parent : ",data)
               size="sm"
               className="font-medium flex items-center gap-1 px-3 py-1.5"
             >
-              <HiDownload className="h-4 w-4" />
+
               Cancel
             </Button>
 
@@ -58,51 +83,52 @@ console.log("Data in parent : ",data)
               type="button"
               size="sm"
               className="bg-blue-500 hover:bg-blue-600 text-white font-medium flex items-center gap-1 px-3 py-1.5"
+              onClick={handleGeneralSettings}
             >
-              <HiDownload className="h-4 w-4" />
+
               Save
             </Button>
           </div>
         </div>
       </div>
       <div className="flex flex-col  xl:flex-row w-full">
-        <div className="w-full lg:w-3/4 p-4 border p-5 bg-gray-100">
-          <FeesAndRates onDataChange={handleFeesDataChange} />
+        <div className="w-full lg:w-3/4  border p-5 bg-gray-100">
+          <FeesAndRates onDataChange={(data) => handleDataChange("fees", data)} />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>
 
       <div className="flex flex-col   xl:flex-row w-full mt-7">
-        <div className="w-full lg:w-3/4 p-4 p-5 border bg-gray-100">
-          <WorkAssignments />
+        <div className="w-full lg:w-3/4  p-5 border bg-gray-100">
+          <WorkAssignments onAssignmentsChange={(data) => handleDataChange("workAssignments", data)} />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>
 
       <div className="flex flex-col   xl:flex-row w-full mt-7">
-        <div className="w-full lg:w-3/4 p-4 p-5 border bg-gray-100">
-          <CustomerAuthorization />
+        <div className="w-full lg:w-3/4  p-5 border bg-gray-100">
+          <CustomerAuthorization onAuthorizationChange={(data) => handleDataChange("authorization", data)} />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>
 
       <div className="flex flex-col   xl:flex-row w-full mt-7">
-        <div className="w-full lg:w-3/4 p-4 p-5 border bg-gray-100">
-          <ESignature />
+        <div className="w-full lg:w-3/4  p-5 border bg-gray-100">
+          <ESignature onSignatureChange={(data) => handleDataChange("signature", data)} />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>
 
       <div className="flex flex-col   xl:flex-row w-full mt-7">
-        <div className="w-full lg:w-3/4 p-4 p-5 border bg-gray-100">
-          <Mileage />
+        <div className="w-full lg:w-3/4  p-5 border bg-gray-100">
+          <Mileage onMileageChange={(data) => handleDataChange("mileage", data)} />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>
 
       <div className="flex flex-col   xl:flex-row w-full mt-7">
-        <div className="w-full lg:w-3/4 p-4 p-5 border bg-gray-100">
-          <EstimateLineItems />
+        <div className="w-full lg:w-3/4  p-5 border bg-gray-100">
+          <EstimateLineItems onLineItemChange={(data) => handleDataChange("lineItem", data)} />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>

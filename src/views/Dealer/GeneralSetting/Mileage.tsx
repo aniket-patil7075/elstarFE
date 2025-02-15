@@ -1,10 +1,21 @@
 import { Switcher } from '@/components/ui'
-import React, { ChangeEvent } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 
-const Mileage = () => {
-    const onSwitcherToggle = (val: boolean, e: ChangeEvent) => {
-                console.log(val, e);
-              };
+const Mileage = ({onMileageChange}:{onMileageChange:(data:any)=>void}) => {
+    const [mileage, setMileage] = useState({
+        mileage: false,
+      });
+    
+      const handleToggle = (key) => {
+        const updatedMileage = {
+          ...mileage,
+          [key]: !mileage[key],
+        };
+        setMileage(updatedMileage);
+        onMileageChange(updatedMileage);
+        return (updatedMileage);
+      };
+
   return (
     <div><h4 className="text-xl border-b-2 border-gray-300 pb-2">
     Mileage & Engine Hour Requirements
@@ -18,7 +29,7 @@ const Mileage = () => {
           </p>
 
           <div>
-            <Switcher onChange={onSwitcherToggle} />
+            <Switcher onChange={() => handleToggle('mileage')} />
           </div>
         </div>
       </div>
