@@ -26,6 +26,7 @@ import { apiAddNewGeneralSetting } from "./DealerLists/Services/DealerListServic
 
 const GeneralSetting = () => {
   const [data, setData] = useState("");
+  
 
   const handleDataChange = (key: string, value: any) => {
     setData((prevData: any) => ({

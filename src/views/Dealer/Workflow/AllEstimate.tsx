@@ -37,15 +37,7 @@ type Estimate = {
   status: string;
   isAuthorized: string;
   paymentMethod: string;
-  // appointment: string;
-  // technician: string;
-  // createdDate: number;
-  // authorizedDate: number;
-  // invoiceDate: number;
-  // fullyPaidDate: number;
-  // workflowDate: number;
-  // messagedDate: number;
-  // tags: [];
+
 };
 
 const AllEstimate = () => {

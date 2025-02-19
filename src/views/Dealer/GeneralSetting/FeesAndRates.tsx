@@ -11,19 +11,19 @@ const FeesAndRates = ({ onDataChange }: { onDataChange: (data: any) => void }) =
     tax: "",
     selectedDropdown: "Default",
     includeShopSuppliesOn: {
-      parts: true,
-      labor: true
+      parts: false,
+      labor: false
     },
     includeEPAOn: {
-      parts: true,
-      labor: true
+      parts: false,
+      labor: false
     },
     taxLaborRates: {
-      parts: true,
-      labor: true,
-      epa: true,
-      shopSupplies: true,
-      subContract: true
+      parts: false,
+      labor: false,
+      epa: false,
+      shopSupplies: false,
+      subContract: false
     }
   });
 

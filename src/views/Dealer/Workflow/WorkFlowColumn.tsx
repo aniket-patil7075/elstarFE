@@ -211,7 +211,7 @@ const WorkFlowColumn: React.FC = () => {
                                   <HiOutlineUserCircle className="text-xl" />
                                   {order.customer
                                     ? `: ${order.customer.firstName} ${order.customer.lastName}`
-                                    : "Guest"}
+                                    : "Customer Name"}
                                 </p>
 
                                 <p className="flex items-center gap-2 text-gray-700 my-1">
