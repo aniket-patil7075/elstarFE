@@ -101,15 +101,13 @@ const WorkFlowColumn: React.FC = () => {
   console.log("order : ", order);
 
   const orderCounts = {
-    estimate: order.filter((ord:any) => ord.status ==="Estimates").length,
-    droppedOff: order.filter((ord:any) => ord.status === "Dropped Off").length,
-    inProgress: order.filter((ord:any) => ord.status === "In Progress").length,
-    invoice: order.filter((ord:any) => ord.status === "Invoice").length
-};
+    estimate: order.filter((ord: any) => ord.status === "Estimates").length,
+    droppedOff: order.filter((ord: any) => ord.status === "Dropped Off").length,
+    inProgress: order.filter((ord: any) => ord.status === "In Progress").length,
+    invoice: order.filter((ord: any) => ord.status === "Invoice").length,
+  };
 
-console.log("Order Counts:", orderCounts);
-
-
+  console.log("Order Counts:", orderCounts);
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
@@ -144,14 +142,14 @@ console.log("Order Counts:", orderCounts);
       // Move item to a different column
       const sourceItems = Array.from(newColumns[sourceDroppableId]);
       const destItems = Array.from(newColumns[destDroppableId]);
-  
+
       const [movedItem] = sourceItems.splice(source.index, 1);
       destItems.splice(destination.index, 0, movedItem);
-  
+
       newColumns[sourceDroppableId] = sourceItems;
       newColumns[destDroppableId] = destItems;
     }
-  
+
     setColumns(newColumns);
   };
 
@@ -167,7 +165,9 @@ console.log("Order Counts:", orderCounts);
                   className="p-3 border border-gray-300 text-center w-1/4 capitalize"
                 >
                   {col.replace(/([A-Z])/g, " $1").trim()}
-                  <span className="ms-3 border rounded-full bg-blue-700 py-1 px-2 text-white ">{orderCounts[col] ?? 0}</span>
+                  <span className="ms-3 border rounded-full bg-blue-700 py-1 px-2 text-white ">
+                    {orderCounts[col] ?? 0}
+                  </span>
                 </Th>
               ))}
             </Tr>
@@ -204,20 +204,23 @@ console.log("Order Counts:", orderCounts);
                                   #({order.orderNo}) {order.orderName}
                                 </p>
                                 <span className="ps-3 my-2 rounded bg-blue-100 text-blue-900 flex items-center w-1/4">
-                                  Add <HiOutlinePlus className="ms-1"/>
+                                  Add <HiOutlinePlus className="ms-1" />
                                 </span>
-                                
+
                                 <p className="flex items-center gap-2 text-gray-700 my-1">
                                   <HiOutlineUserCircle className="text-xl" />
-                                  {" : "} {order.customer.firstName}{" "}
-                                  {order.customer.lastName}
+                                  {order.customer
+                                    ? `: ${order.customer.firstName} ${order.customer.lastName}`
+                                    : "Guest"}
                                 </p>
-                                
+
                                 <p className="flex items-center gap-2 text-gray-700 my-1">
                                   <HiTruck className="text-xl" />
-                                  {" : "} {order.vehicle.year}{" "}
-                                  {order.vehicle.make}
+                                  {order.vehicle
+                                    ? `: ${order.vehicle.year} ${order.vehicle.make}`
+                                    : "No Vehicle Info"}
                                 </p>
+
                                 <p className="flex items-center gap-2 text-gray-700 my-1">
                                   <HiOutlineCalculator className="text-xl" />
                                   {" : "}
@@ -230,9 +233,9 @@ console.log("Order Counts:", orderCounts);
                                     <HiOutlineMenuAlt2 className="text-xl" />{" "}
                                   </div>
                                   <div className="text-end">
-                                    <p>${order.grandTotal}</p>
+                                    <p>${order?.grandTotal ?? 0}</p>
                                     <p className="text-red-500">
-                                      Due ${order.remainingAmount}
+                                      Due ${order?.remainingAmount ?? 0}
                                     </p>
                                   </div>
                                 </div>
