@@ -8,7 +8,7 @@ import {
 import SalesPerformanceOrder from "./EndOfDay/SalesPerformanceOrder";
 import LineItemSummary from "./EndOfDay/LineItemSummary";
 import PaymentSummary from "./EndOfDay/PaymentSummary";
-import { getAllEstimates } from "../Services/WorkflowService";
+import { getAllEstimates, getEstimates } from "../Services/WorkflowService";
 
 type Estimate = {
   orderNo: number;
@@ -33,7 +33,7 @@ const EndOfDay = () => {
   
     const estimateData = async () => {
       try {
-        const response = await getAllEstimates();
+        const response = await getEstimates();
         if (response?.status === "success") {
           setData(response.allEstimates);
         } else {
@@ -82,8 +82,8 @@ const EndOfDay = () => {
         </div>
       </div>
       <div>
-        <SalesPerformanceOrder  />
-        <LineItemSummary />
+        <SalesPerformanceOrder estimate={data} />
+        <LineItemSummary estimate={data} />
         <PaymentSummary estimate={data} />
       </div>
     </div>

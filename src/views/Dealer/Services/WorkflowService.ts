@@ -34,6 +34,18 @@ export async function getAllEstimates() {
   }
 }
 
+export async function getEstimates() {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}${apiPrefix}/dealer/workflow/estimates`
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Get-All-Estimates error", error);
+    throw error.response?.data || "Error in getting all dealers";
+  }
+}
+
 // Get All Estimates API Call
 export async function getAllCountAccToStatus() {
   try {
