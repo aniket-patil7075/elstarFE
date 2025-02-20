@@ -72,6 +72,23 @@ const totalTiresDiscount = calculateTotal("tires", "tireSubtotal", "value");
 const totalSubcontractDiscount = calculateTotal("subcontract", "subTotal", "value");
 const totalFeesDiscount = calculateTotal("fees", "subTotal", "value");
 
+const totalSubtotal = (
+  Number(totalLaborSubtotal) +
+  Number(totalPartsSubtotal) +
+  Number(totalTiresSubtotal) +
+  Number(totalSubcontractSubtotal) +
+  Number(totalFeesSubtotal)
+).toFixed(2);
+
+const totalDiscount = (
+  Number(totalLaborDiscount) +
+  Number(totalPartsDiscount) +
+  Number(totalTiresDiscount) +
+  Number(totalSubcontractDiscount) +
+  Number(totalFeesDiscount)
+);
+
+
   return (
     <div>
       <div className="flex flex-wrap justify-center my-3">
@@ -157,8 +174,8 @@ const totalFeesDiscount = calculateTotal("fees", "subTotal", "value");
                   <Td>$ 0</Td>
                   <Td>$ 0</Td>
                   <Td>$ 0</Td>
-                  <Td>$ 0</Td> 
-                  <Td>$ 0</Td> 
+                  <Td>$ {totalSubtotal ?? 0 }</Td> 
+                  <Td>$ {totalDiscount ?? 0 }</Td> 
                   <Td>$ 0</Td>
                   <Td>$ 0</Td>
                   <Td>$ 0</Td>
