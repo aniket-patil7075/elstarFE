@@ -261,18 +261,42 @@ const { TabNav, TabList, TabContent } = Tabs;
 const RevenueBreakdown : React.FC<{ estimate: any[]; filters: any }> = ({ estimate, filters }) => {
   console.log("Estimate in pie : ",estimate);
   console.log("Filters in pie : ", filters);
-  const today = new Date().toISOString().split("T")[0]; 
+  const today = new Date();
+  
+  const getStartDate = (filter) => {
+    const startDate = new Date();
+    switch (filter) {
+      case "This Week":
+        startDate.setDate(today.getDate() - today.getDay());
+        break;
+      case "This Month":
+        startDate.setDate(1);
+        break;
+      case "This Year":
+        startDate.setMonth(0, 1);
+        break;
+      case "All Time":
+        return null;
+      default:
+        return today;
+    }
+    return startDate;
+  };
+
+  const startDate = getStartDate(filters);
 
   const filteredEstimates = estimate.filter((order) => {
-    const createdDate = order.createdAt.split("T")[0];
-    const updatedDate = order.updatedAt.split("T")[0];
-    return createdDate === today || updatedDate === today;
+    const createdDate = new Date(order.createdAt);
+    const updatedDate = new Date(order.updatedAt);
+    
+    if (!startDate) return true; 
+    return createdDate >= startDate || updatedDate >= startDate;
   });
 
-  const calculateTotal = (category: any, subtotalKey: any, discountKey = null) => {
+  const calculateTotal = (category, subtotalKey, discountKey = null) => {
     return filteredEstimates.reduce((estTotal, estimate) => {
-      return estTotal + estimate.services.reduce((serviceTotal: any, service: any) => {
-        return serviceTotal + (service[category]?.reduce((total: any, item: any) => {
+      return estTotal + estimate.services.reduce((serviceTotal, service) => {
+        return serviceTotal + (service[category]?.reduce((total, item) => {
           if (discountKey) {
             return total + ((item.discount?.[discountKey] ?? 0));
           }
@@ -282,7 +306,7 @@ const RevenueBreakdown : React.FC<{ estimate: any[]; filters: any }> = ({ estima
     }, 0);
   };
 
-  const calculateTotalWithFixed = (category: any, subtotalKey: any) => {
+  const calculateTotalWithFixed = (category, subtotalKey) => {
     return calculateTotal(category, subtotalKey).toFixed(2);
   };
 
@@ -300,7 +324,7 @@ const RevenueBreakdown : React.FC<{ estimate: any[]; filters: any }> = ({ estima
     totalFeesSubtotal
   ).toFixed(2);
 
-  const getPercentage = (subtotal: number) => {
+  const getPercentage = (subtotal) => {
     return totalSubtotal !== "0.00" ? ((subtotal / parseFloat(totalSubtotal)) * 100).toFixed(2) : "0.00";
   };
 

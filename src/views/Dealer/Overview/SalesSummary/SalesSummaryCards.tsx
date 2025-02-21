@@ -27,6 +27,9 @@ const SalesSummaryCards : React.FC<{ estimate: any[]; filters: any }> = ({ estim
     const filteredPayments = estimate.filter((order) =>
       isWithinFilterRange(order.paymentDate)
     );
+
+    console.log("Filtered Payments: ", filteredPayments);
+
   
 
     const filteredOrders = estimate.filter((order) =>
