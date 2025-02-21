@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import SalesSummaryCards from "./SalesSummary/SalesSummaryCards";
 import RevenueCustomerTrends from "./SalesSummary/RevenueCustomerTrends";
 import RevenueBreakdown from "./SalesSummary/RevenueBreakdown";
@@ -9,11 +9,47 @@ import {
   HiOutlineFilter,
   HiOutlineSearch,
 } from "react-icons/hi";
+import { getEstimates } from "../Services/WorkflowService";
+
+type Estimate = {
+  orderNo: number;
+  orderName: string;
+  customer: string;
+  vehicle: string;
+  grandTotal: string;
+  dueDate: string;
+  paymentTerms: string;
+  paymentDueDate: string;
+  paidStatus: string;
+  workflowStatus: string;
+  inspectionStatus: string;
+  status: string;
+  isAuthorized: string;
+  paymentMethod: string;
+};
 
 const SalesSummary = () => {
-  const [selectedFilter, setSelectedFilter] = useState("This Week");
-
+  const [selectedFilter, setSelectedFilter] = useState("This Month");
   const filters = ["This Week", "This Month", "This Year", "All Time"];
+  const [data, setData] = useState<Estimate[]>([]);
+
+  const estimateData = async () => {
+    try {
+      const response = await getEstimates();
+      if (response?.status === "success") {
+        setData(response.allEstimates);
+      } else {
+        console.error("Unexpected response:", response);
+      }
+    } catch (error) {
+      console.error("Error fetching estimates:", error);
+    }
+  };
+
+  useEffect(() => {
+    estimateData();
+  }, []);
+
   return (
     <div>
       <div>
@@ -34,11 +70,10 @@ const SalesSummary = () => {
                   </option>
                 ))}
               </select>
-              
             </div>
           </div>
           <div className="flex gap-2 items-center mb-4 ">
-            <Button block size="sm" icon={<HiDownload />}>
+            {/* <Button block size="sm" icon={<HiDownload />}>
               Export
             </Button>
             <Button size="sm" className=" flex items-center gap-1">
@@ -51,14 +86,14 @@ const SalesSummary = () => {
               size="sm"
             >
               PDF
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
       <div>
-        <SalesSummaryCards />
-        <RevenueCustomerTrends />
-        <RevenueBreakdown />
+        <SalesSummaryCards estimate={data} filters={selectedFilter} />
+        <RevenueCustomerTrends estimate={data} filters={selectedFilter} />
+        <RevenueBreakdown estimate={data}  filters={selectedFilter} />
       </div>
     </div>
   );

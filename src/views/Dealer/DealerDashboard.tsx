@@ -208,7 +208,7 @@ const DealerDashboard = () => {
       (order) => !order.isAuthorized
     ).length;
 
-    console.log("authorized count : ", unauthorizedCount);
+    
 
     return {
       status,
@@ -324,16 +324,16 @@ const DealerDashboard = () => {
       </div>
       <div className="flex flex-col xl:flex-row w-full">
         <div className="w-full p-4">
-          <p className="mb-4 pb-4 ms-3 text-xl font-semibold">
+          <p className="mb-4 pb-4 ms-3 text-xl font-semibold text-gray-800">
             WORKFLOW STATUS
           </p>
           <Table>
             <THead>
-              <Tr>
-                <Th>Status</Th>
-                <Th>Order Count</Th>
-                <Th>Grand Total</Th>
-                <Th>Unauthorized Orders</Th>
+              <Tr className="!text-black">
+                <Th className="!text-gray-800">Status</Th>
+                <Th className="!text-gray-800">Order Count</Th>
+                <Th className="!text-gray-800">Grand Total</Th>
+                <Th className="!text-gray-800">Unauthorized Orders</Th>
               </Tr>
             </THead>
             <TBody>
@@ -350,7 +350,7 @@ const DealerDashboard = () => {
         </div>
 
         <div className="w-full p-4">
-          <p className="mb-4 pb-4 ms-3 text-xl font-semibold">
+          <p className="mb-4 pb-4 ms-3 text-xl font-semibold text-gray-800">
             UNPAID INVOICES
           </p>
           {data && columns ? (
@@ -381,12 +381,12 @@ const DealerDashboard = () => {
 
       <div className="flex flex-col xl:flex-row w-full">
         <div className="w-full p-4">
-          <p className="mb-4 pb-4 ms-3 text-xl font-semibold">
+          <p className="mb-4 pb-4 ms-3 text-xl font-semibold text-gray-800">
             UPCOMING APPOINTMENTS
           </p>
 
           <Tabs defaultValue="tab1">
-            <TabList>
+            <TabList className="!text-gray-800">
               <TabNav value="tab1">Today ({todayAppointments.length})</TabNav>
               <TabNav value="tab2">
                 Tomorrow ({tomorrowAppointments.length})

@@ -39,7 +39,7 @@ const PaymentModel = ({
   const [customerRemaining, setCustomerRemaining] = useState(0);
 
   const customerId = estimateData.customer._id;
-  console.log(customerId);
+
 
   const estimateId = estimateData._id;
   const orderNo = estimateData.orderNo;
@@ -171,7 +171,7 @@ const PaymentModel = ({
     if (customer) {
       const customerRemainingAmount = customer.remainingAmount;
       setCustomerRemaining(customerRemainingAmount);
-      console.log("Remaining Amount:", customerRemainingAmount);
+      
     } else {
       console.log("Customer not found");
     }
@@ -197,6 +197,8 @@ const PaymentModel = ({
   const totalDue = Number(paymentDetails.totalDue) + customerRemaining;
   const remaining = totalDue - Number(paymentDetails.enteredAmount);
   const formattedRemaining = parseFloat(remaining.toFixed(2));
+
+  // console.log("total : ",totalDue)
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

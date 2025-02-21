@@ -653,8 +653,10 @@ const NewEstimate = () => {
 
               {isPaymentModelOpen && (
                 <PaymentModel
-                  handleClosePaymentModel={setisPaymentModelOpen}
-                  estimateData={estimateData}
+                handleClosePaymentModel={setisPaymentModelOpen}
+                estimateData={estimateData}
+                estimateGrandTotal={totalServiceGrandTotal}
+                setPaymentSuccess={setPaymentSuccess}
                 />
               )}
             </TabContent>
@@ -697,6 +699,8 @@ const NewEstimate = () => {
 
   // Example usage:
   const totalPay = calculateTotalPay(estimateData);
+
+  // console.log("total pay : ",totalPay)
 
   const handleDeleteFunction = async () => {
     try {
@@ -1104,7 +1108,7 @@ const NewEstimate = () => {
                         <PaymentModel
                           handleClosePaymentModel={setisPaymentModelOpen}
                           estimateData={estimateData}
-                          estimateGrandTotal={totalPay}
+                          estimateGrandTotal={totalServiceGrandTotal}
                           setPaymentSuccess={setPaymentSuccess}
                         />
                       )}

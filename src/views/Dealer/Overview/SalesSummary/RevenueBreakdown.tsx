@@ -258,12 +258,57 @@ import { COLORS } from "@/constants/chart.constant";
 const { Tr, Th, Td, THead, TBody } = Table;
 const { TabNav, TabList, TabContent } = Tabs;
 
-const RevenueBreakdown = () => {
+const RevenueBreakdown : React.FC<{ estimate: any[]; filters: any }> = ({ estimate, filters }) => {
+  console.log("Estimate in pie : ",estimate);
+  console.log("Filters in pie : ", filters);
+  const today = new Date().toISOString().split("T")[0]; 
+
+  const filteredEstimates = estimate.filter((order) => {
+    const createdDate = order.createdAt.split("T")[0];
+    const updatedDate = order.updatedAt.split("T")[0];
+    return createdDate === today || updatedDate === today;
+  });
+
+  const calculateTotal = (category: any, subtotalKey: any, discountKey = null) => {
+    return filteredEstimates.reduce((estTotal, estimate) => {
+      return estTotal + estimate.services.reduce((serviceTotal: any, service: any) => {
+        return serviceTotal + (service[category]?.reduce((total: any, item: any) => {
+          if (discountKey) {
+            return total + ((item.discount?.[discountKey] ?? 0));
+          }
+          return total + (item[subtotalKey] ?? 0);
+        }, 0) ?? 0);
+      }, 0);
+    }, 0);
+  };
+
+  const calculateTotalWithFixed = (category: any, subtotalKey: any) => {
+    return calculateTotal(category, subtotalKey).toFixed(2);
+  };
+
+  const totalLaborSubtotal = parseFloat(calculateTotalWithFixed("labors", "subtotal"));
+  const totalPartsSubtotal = parseFloat(calculateTotalWithFixed("parts", "partSubtotal"));
+  const totalTiresSubtotal = parseFloat(calculateTotalWithFixed("tires", "tireSubtotal"));
+  const totalSubcontractSubtotal = parseFloat(calculateTotalWithFixed("subcontract", "subTotal"));
+  const totalFeesSubtotal = parseFloat(calculateTotalWithFixed("fees", "subTotal"));
+
+  const totalSubtotal = (
+    totalLaborSubtotal +
+    totalPartsSubtotal +
+    totalTiresSubtotal +
+    totalSubcontractSubtotal +
+    totalFeesSubtotal
+  ).toFixed(2);
+
+  const getPercentage = (subtotal: number) => {
+    return totalSubtotal !== "0.00" ? ((subtotal / parseFloat(totalSubtotal)) * 100).toFixed(2) : "0.00";
+  };
+
   return (
     <div className="p-4">
       <div className="flex flex-col lg:flex-row my-5 gap-4">
         <div className="w-full lg:w-2/3 border">
-          <div className="bg-gray-200 ">
+          <div className="bg-gray-200">
             <h3 className="text-lg font-semibold py-3 px-4 text-center lg:text-left">
               REVENUE BREAKDOWN
             </h3>
@@ -281,23 +326,30 @@ const RevenueBreakdown = () => {
                       <div className="w-full md:w-2/3 p-2">
                         <Table>
                           <TBody>
-                            {["Labor", "Parts", "Tires", "SubContracts", "Shop Supplies", "EPA", "Fees","SubTotal","Discounts"].map((item) => (
-                              <Tr key={item}>
-                                <Td>{item}</Td>
-                                <Td>0 %</Td>
-                                <Td>$ 0</Td>
+                            {[
+                              { label: "Labor", value: totalLaborSubtotal },
+                              { label: "Parts", value: totalPartsSubtotal },
+                              { label: "Tires", value: totalTiresSubtotal },
+                              { label: "SubContracts", value: totalSubcontractSubtotal },
+                              { label: "Fees", value: totalFeesSubtotal },
+                            ].map(({ label, value }) => (
+                              <Tr key={label}>
+                                <Td>{label}</Td>
+                                <Td>{getPercentage(value)} %</Td>
+                                <Td>$ {value}</Td>
                               </Tr>
                             ))}
                             {[
-                                
+                              { label: "SubTotal", value: totalSubtotal },
+                              { label: "Discounts", value: "0.00" },
                               { label: "Post-Discount SubTotal", bold: true },
                               { label: "Taxes", bold: true },
                               { label: "TOTAL", bold: true, bg: "bg-gray-100" },
-                            ].map(({ label, bold, bg }) => (
+                            ].map(({ label, value, bold, bg }) => (
                               <Tr key={label} className={`${bold ? "text-gray-700 font-semibold" : ""} ${bg || ""}`}>
                                 <Td>{label}</Td>
                                 <Td></Td>
-                                <Td>$ 0</Td>
+                                <Td>$ {value}</Td>
                               </Tr>
                             ))}
                           </TBody>
@@ -307,7 +359,7 @@ const RevenueBreakdown = () => {
                         <Chart
                           options={{
                             colors: COLORS,
-                            labels: ["Team A", "Team B", "Team C", "Team D", "Team E"],
+                            labels: ["Labor", "Parts", "Tires", "SubContracts", "Fees"],
                             legend: { show: false },
                             responsive: [
                               {
@@ -319,7 +371,13 @@ const RevenueBreakdown = () => {
                               },
                             ],
                           }}
-                          series={[44, 55, 13, 43, 99]}
+                          series={[
+                            totalLaborSubtotal,
+                            totalPartsSubtotal,
+                            totalTiresSubtotal,
+                            totalSubcontractSubtotal,
+                            totalFeesSubtotal,
+                          ]}
                           height={300}
                           type="pie"
                         />
@@ -336,6 +394,8 @@ const RevenueBreakdown = () => {
     </div>
   );
 };
+
+
 
 export default RevenueBreakdown;
 
