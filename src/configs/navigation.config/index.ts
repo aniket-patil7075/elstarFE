@@ -474,6 +474,68 @@ const navigationConfig: NavigationTree[] = [
            
         ]
     },
+    {
+        key: 'paymentReports',
+        path: '',
+        title: 'Payment Reports',
+        translateKey: 'nav.paymentReports',
+        icon: 'paymentReports',
+        type: NAV_ITEM_TYPE_COLLAPSE,
+        authority: ['dealer'],
+        subMenu: [
+            {
+                key: 'paymentReports.item1',
+                path: '/dealer/paymentReports/all-payments',
+                title: 'All Payments',
+                translateKey: 'nav.paymentReports.item1',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'paymentReports.item2',
+                path: '/dealer/paymentReports/payment-types',
+                title: 'Payment Types',
+                translateKey: 'nav.paymentReports.item2',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'paymentReports.item3',
+                path: '/dealer/paymentReports/summary-by-customer',
+                title: 'Summary By Customer',
+                translateKey: 'nav.paymentReports.item3',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'paymentReports.item4',
+                path: '/dealer/paymentReports/transactions',
+                title: 'Transactions',
+                translateKey: 'nav.paymentReports.item4',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'paymentReports.item5',
+                path: '/dealer/paymentReports/payouts',
+                title: 'Payouts',
+                translateKey: 'nav.paymentReports.item5',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+           
+        ]
+    },
 ]
 
 export default navigationConfig

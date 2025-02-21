@@ -258,12 +258,15 @@ import { COLORS } from "@/constants/chart.constant";
 const { Tr, Th, Td, THead, TBody } = Table;
 const { TabNav, TabList, TabContent } = Tabs;
 
-const RevenueBreakdown : React.FC<{ estimate: any[]; filters: any }> = ({ estimate, filters }) => {
-  console.log("Estimate in pie : ",estimate);
+const RevenueBreakdown: React.FC<{ estimate: any[]; filters: any }> = ({
+  estimate,
+  filters,
+}) => {
+  console.log("Estimate in pie : ", estimate);
   console.log("Filters in pie : ", filters);
   const today = new Date();
-  
-  const getStartDate = (filter) => {
+
+  const getStartDate = (filter: any) => {
     const startDate = new Date();
     switch (filter) {
       case "This Week":
@@ -288,33 +291,59 @@ const RevenueBreakdown : React.FC<{ estimate: any[]; filters: any }> = ({ estima
   const filteredEstimates = estimate.filter((order) => {
     const createdDate = new Date(order.createdAt);
     const updatedDate = new Date(order.updatedAt);
-    
-    if (!startDate) return true; 
+
+    if (!startDate) return true;
     return createdDate >= startDate || updatedDate >= startDate;
   });
 
-  const calculateTotal = (category, subtotalKey, discountKey = null) => {
+  const calculateTotal = (
+    category: any,
+    subtotalKey: any,
+    discountKey = null
+  ) => {
     return filteredEstimates.reduce((estTotal, estimate) => {
-      return estTotal + estimate.services.reduce((serviceTotal, service) => {
-        return serviceTotal + (service[category]?.reduce((total, item) => {
-          if (discountKey) {
-            return total + ((item.discount?.[discountKey] ?? 0));
-          }
-          return total + (item[subtotalKey] ?? 0);
-        }, 0) ?? 0);
-      }, 0);
+      return (
+        estTotal +
+        estimate.services.reduce((serviceTotal: any, service: any) => {
+          return (
+            serviceTotal +
+            (service[category]?.reduce((total: any, item: any) => {
+              if (discountKey) {
+                return total + (item.discount?.[discountKey] ?? 0);
+              }
+              return total + (item[subtotalKey] ?? 0);
+            }, 0) ?? 0)
+          );
+        }, 0)
+      );
     }, 0);
   };
 
-  const calculateTotalWithFixed = (category, subtotalKey) => {
+  const calculateTotalWithFixed = (category: any, subtotalKey: any) => {
     return calculateTotal(category, subtotalKey).toFixed(2);
   };
 
-  const totalLaborSubtotal = parseFloat(calculateTotalWithFixed("labors", "subtotal"));
-  const totalPartsSubtotal = parseFloat(calculateTotalWithFixed("parts", "partSubtotal"));
-  const totalTiresSubtotal = parseFloat(calculateTotalWithFixed("tires", "tireSubtotal"));
-  const totalSubcontractSubtotal = parseFloat(calculateTotalWithFixed("subcontract", "subTotal"));
-  const totalFeesSubtotal = parseFloat(calculateTotalWithFixed("fees", "subTotal"));
+  const totalLaborSubtotal = parseFloat(
+    calculateTotalWithFixed("labors", "subtotal")
+  );
+  const totalPartsSubtotal = parseFloat(
+    calculateTotalWithFixed("parts", "partSubtotal")
+  );
+  const totalTiresSubtotal = parseFloat(
+    calculateTotalWithFixed("tires", "tireSubtotal")
+  );
+  const totalSubcontractSubtotal = parseFloat(
+    calculateTotalWithFixed("subcontract", "subTotal")
+  );
+  const totalShopSuppliesSubtotal = parseFloat(
+    calculateTotalWithFixed("shopsupplies", "subTotal")
+  );
+  const totalEPASubtotal = parseFloat(
+    calculateTotalWithFixed("epa", "subTotal")
+  );
+  const totalFeesSubtotal = parseFloat(
+    calculateTotalWithFixed("fees", "subTotal")
+  );
 
   const totalSubtotal = (
     totalLaborSubtotal +
@@ -324,10 +353,21 @@ const RevenueBreakdown : React.FC<{ estimate: any[]; filters: any }> = ({ estima
     totalFeesSubtotal
   ).toFixed(2);
 
-  const getPercentage = (subtotal) => {
-    return totalSubtotal !== "0.00" ? ((subtotal / parseFloat(totalSubtotal)) * 100).toFixed(2) : "0.00";
+  const getPercentage = (subtotal: any) => {
+    return totalSubtotal !== "0.00"
+      ? ((subtotal / parseFloat(totalSubtotal)) * 100).toFixed(2)
+      : "0.00";
   };
 
+  const labelColors : Record<string, string> = {
+    Labor: COLORS[0],
+    Parts: COLORS[1],
+    Tires: COLORS[2],
+    SubContracts: COLORS[3],
+    ShopSupplies : COLORS[4],
+    EPA : COLORS[5],
+    Fees: COLORS[6],
+  };
   return (
     <div className="p-4">
       <div className="flex flex-col lg:flex-row my-5 gap-4">
@@ -354,11 +394,23 @@ const RevenueBreakdown : React.FC<{ estimate: any[]; filters: any }> = ({ estima
                               { label: "Labor", value: totalLaborSubtotal },
                               { label: "Parts", value: totalPartsSubtotal },
                               { label: "Tires", value: totalTiresSubtotal },
-                              { label: "SubContracts", value: totalSubcontractSubtotal },
+                              {
+                                label: "SubContracts",
+                                value: totalSubcontractSubtotal,
+                              },
+                              { label: "Shop Supplies", value: totalFeesSubtotal },
+                              { label: "EPA", value: totalFeesSubtotal },
                               { label: "Fees", value: totalFeesSubtotal },
+
                             ].map(({ label, value }) => (
                               <Tr key={label}>
-                                <Td>{label}</Td>
+                                <Td>
+                                  <span
+                                    className="px-2 me-2"
+                                    style={{ backgroundColor: labelColors[label] || "gray" }}
+                                  ></span>
+                                  {label}
+                                </Td>
                                 <Td>{getPercentage(value)} %</Td>
                                 <Td>$ {value}</Td>
                               </Tr>
@@ -370,7 +422,10 @@ const RevenueBreakdown : React.FC<{ estimate: any[]; filters: any }> = ({ estima
                               { label: "Taxes", bold: true },
                               { label: "TOTAL", bold: true, bg: "bg-gray-100" },
                             ].map(({ label, value, bold, bg }) => (
-                              <Tr key={label} className={`${bold ? "text-gray-700 font-semibold" : ""} ${bg || ""}`}>
+                              <Tr
+                                key={label}
+                                className={`${bold ? "text-gray-700 font-semibold" : ""} ${bg || ""}`}
+                              >
                                 <Td>{label}</Td>
                                 <Td></Td>
                                 <Td>$ {value}</Td>
@@ -383,7 +438,13 @@ const RevenueBreakdown : React.FC<{ estimate: any[]; filters: any }> = ({ estima
                         <Chart
                           options={{
                             colors: COLORS,
-                            labels: ["Labor", "Parts", "Tires", "SubContracts", "Fees"],
+                            labels: [
+                              "Labor",
+                              "Parts",
+                              "Tires",
+                              "SubContracts",
+                              "Fees",
+                            ],
                             legend: { show: false },
                             responsive: [
                               {
@@ -419,7 +480,4 @@ const RevenueBreakdown : React.FC<{ estimate: any[]; filters: any }> = ({ estima
   );
 };
 
-
-
 export default RevenueBreakdown;
-

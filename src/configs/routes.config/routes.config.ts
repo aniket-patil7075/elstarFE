@@ -299,6 +299,38 @@ export const protectedRoutes = [
         component: lazy(() => import('@/views/Dealer/Overview/ReferalSummary')),
         authority: ['dealer'],
     },
+    //Payment Terms
+    {
+        key: 'paymentReports.item1',
+        path: '/dealer/paymentReports/all-payments',
+        component: lazy(() => import('@/views/Dealer/PaymentReports/AllPayments')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'paymentReports.item2',
+        path: '/dealer/paymentReports/payment-types',
+        component: lazy(() => import('@/views/Dealer/PaymentReports/PaymentTypes')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'paymentReports.item3',
+        path: '/dealer/paymentReports/summary-by-customer',
+        component: lazy(() => import('@/views/Dealer/PaymentReports/SummaryByCustomer')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'paymentReports.item4',
+        path: '/dealer/paymentReports/transactions',
+        component: lazy(() => import('@/views/Dealer/PaymentReports/Transactions')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'paymentReports.item5',
+        path: '/dealer/paymentReports/payouts',
+        component: lazy(() => import('@/views/Dealer/PaymentReports/Payouts')),
+        authority: ['dealer'],
+    },
+    
     // ... other routes
 
 ]
