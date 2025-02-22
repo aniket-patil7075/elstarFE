@@ -76,7 +76,6 @@ const AllEstimate = () => {
     dispatch(
       getEstimatesByPage({ pageIndex, pageSize, sort, query, filterData })
     );
-    //   dispatch(getWorkflowTableCount());
   }, [pageIndex, pageSize, sort, query, filterData, dispatch]);
 
   useEffect(() => {
@@ -107,47 +106,7 @@ const AllEstimate = () => {
     // dispatch(setTableData(newTableData));
   };
 
-  // const generatePDF = () => {
-  //   const doc = new jsPDF();
-  //   doc.text("All Estimate Report", 14, 15);
 
-  //   autoTable(doc, {
-  //     startY: 20,
-  //     head: [
-  //       [
-  //         "Order No",
-  //         "Order Name",
-  //         "Customer",
-  //         "Grand Total",
-  //         "Due Date",
-  //         "Payment Terms",
-  //         "Paid Status",
-  //         "Workflow Status",
-  //         "Order Status",
-  //       ],
-  //     ],
-  //     body: data.map((row: any) => [
-  //       row.orderNo,
-  //       row.orderName,
-  //       row.firstName,
-  //       `$${row.grandTotal}`,
-  //       row.dueDate,
-  //       row.paymentNote,
-  //       row.paymentMethod === "cash" ||
-  //       row.paymentMethod === "card" ||
-  //       row.paidStatus === "Paid"
-  //         ? "Paid"
-  //         : "Unpaid",
-  //       row.status,
-  //       row.status,
-  //     ]),
-  //     theme: "striped",
-  //     styles: { fontSize: 10 },
-  //     headStyles: { fillColor: [59, 130, 246] },
-  //   });
-
-  //   doc.save("Estimate_Report.pdf");
-  // };
 
   const handleGeneratePDF = () => {
     generatePDF(data, "All Estimates Report");

@@ -1,5 +1,4 @@
 import Table from "@/components/ui/Table";
-
 const { Tr, Th, Td, THead, TBody } = Table;
 
 const PaymentSummary: React.FC<{ estimate: any[] }> = ({ estimate }) => {

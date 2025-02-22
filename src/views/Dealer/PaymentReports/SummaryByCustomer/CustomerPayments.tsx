@@ -1,17 +1,59 @@
 import Chart from "react-apexcharts";
 import { COLORS } from "@/constants/chart.constant";
 
-const CustomerPayments = () => {
-  const data = [
-    {
-      name: "PRODUCT A",
-      data: [44, 55, 41, 67, 22, 43],
-    },
-  ];
+const CustomerPayments: React.FC<{ estimate: any[]; filters: any }> = ({
+  estimate,
+  filters,
+}) => {
+  console.log("Estimate in customer payment:", estimate);
+  console.log("Filters:", filters);
+
+  const filteredData = estimate.filter((item) => {
+    if (!item.paymentDate) return false; 
+    const paymentDate = new Date(item.paymentDate);
+    const now = new Date();
+
+    if (filters === "This Month") {
+      return (
+        paymentDate.getMonth() === now.getMonth() &&
+        paymentDate.getFullYear() === now.getFullYear()
+      );
+    }
+    if (filters === "This Week") {
+      const weekAgo = new Date();
+      weekAgo.setDate(now.getDate() - 7);
+      return paymentDate >= weekAgo;
+    }
+    if (filters === "This Year") {
+      return paymentDate.getFullYear() === now.getFullYear();
+    }
+    return true; 
+  });
+
+  const customerPayments: Record<
+    string,
+    { firstName: string; lastName: string; totalPayment: number }
+  > = {};
+
+  filteredData.forEach((item) => {
+    if (item.customer) {
+      const { firstName, lastName } = item.customer;
+      const key = `${firstName} ${lastName}`;
+
+      if (!customerPayments[key]) {
+        customerPayments[key] = { firstName, lastName, totalPayment: 0 };
+      }
+
+      customerPayments[key].totalPayment += item.grandTotal;
+    }
+  });
+
+  const customerList = Object.values(customerPayments);
+
   return (
     <div className="p-4">
       <div className="flex flex-col lg:flex-row my-4 gap-4">
-        <div className="w-full  border">
+        <div className="w-full border">
           <div className="bg-gray-100">
             <h3 className="text-lg font-semibold py-3 px-4 text-center lg:text-left">
               CUSTOMER PAYMENTS
@@ -22,57 +64,40 @@ const CustomerPayments = () => {
               options={{
                 chart: {
                   stacked: true,
-                  toolbar: {
-                    show: true,
-                  },
-                  zoom: {
-                    enabled: true,
-                  },
+                  toolbar: { show: true },
+                  zoom: { enabled: true },
                 },
                 colors: COLORS,
-                responsive: [
-                  {
-                    breakpoint: 480,
-                    options: {
-                      legend: {
-                        position: "bottom",
-                        offsetX: -10,
-                        offsetY: 0,
-                      },
-                    },
-                  },
-                ],
-                plotOptions: {
-                  bar: {
-                    horizontal: false,
-                  },
-                },
                 xaxis: {
-                  type: "datetime",
-                  categories: [
-                    "01/01/2011 GMT",
-                    "01/02/2011 GMT",
-                    "01/03/2011 GMT",
-                    "01/04/2011 GMT",
-                    "01/05/2011 GMT",
-                    "01/06/2011 GMT",
-                  ],
+                  type: "category",
+                  categories: customerList.map(
+                    (customer) => `${customer.firstName} ${customer.lastName}`
+                  ),
                 },
-                legend: {
-                  position: "right",
-                  offsetY: 40,
+                yaxis: {
+                  labels: {
+                    formatter: (value) => `${value}`, 
+                  },
                 },
-                fill: {
-                  opacity: 1,
+                tooltip: {
+                  y: {
+                    formatter: (value) => `$${value}`, 
+                  },
                 },
+                legend: { position: "right", offsetY: 40 },
+                fill: { opacity: 1 },
               }}
-              series={data}
+              series={[
+                {
+                  name: "Total Payment",
+                  data: customerList.map((customer) => customer.totalPayment),
+                },
+              ]}
               type="bar"
               height={300}
             />
           </div>
         </div>
-        
       </div>
     </div>
   );

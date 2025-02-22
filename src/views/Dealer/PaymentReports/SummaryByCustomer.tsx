@@ -1,11 +1,49 @@
 import { Button } from "@/components/ui";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { HiDownload, HiOutlineAdjustments } from "react-icons/hi";
 import CustomerPayments from "./SummaryByCustomer/CustomerPayments";
+import { getEstimates } from "../Services/WorkflowService";
+import CustPaymentTable from "./SummaryByCustomer/CustPaymentTable";
+
+type Estimate = {
+  orderNo: number;
+  orderName: string;
+  customer: string;
+  vehicle: string;
+  grandTotal: string;
+  dueDate: string;
+  paymentTerms: string;
+  paymentDueDate: string;
+  paidStatus: string;
+  workflowStatus: string;
+  inspectionStatus: string;
+  status: string;
+  isAuthorized: string;
+  paymentMethod: string;
+ 
+};
 
 const SummaryByCustomer = () => {
   const [selectedFilter, setSelectedFilter] = useState("This Month");
   const filters = ["This Week", "This Month", "This Year", "All Time"];
+  const [data, setData] = useState<Estimate[]>([]);
+    
+      const estimateData = async () => {
+        try {
+          const response = await getEstimates();
+          if (response?.status === "success") {
+            setData(response.allEstimates);
+          } else {
+            console.error("Unexpected response:", response);
+          }
+        } catch (error) {
+          console.error("Error fetching estimates:", error);
+        }
+      };
+    
+      useEffect(() => {
+        estimateData();
+      }, []);
   return (
     <div>
       <div className="mx-3">
@@ -47,10 +85,8 @@ const SummaryByCustomer = () => {
         </div>
       </div>
       <div>
-        <CustomerPayments />
-        {/* <SalesSummaryCards estimate={data} filters={selectedFilter} />
-      <RevenueCustomerTrends estimate={data} filters={selectedFilter} />
-      <RevenueBreakdown estimate={data}  filters={selectedFilter} /> */}
+        <CustomerPayments estimate={data} filters={selectedFilter} />
+        <CustPaymentTable estimate={data} filters={selectedFilter} />
       </div>
     </div>
   );
