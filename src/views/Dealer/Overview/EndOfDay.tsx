@@ -25,28 +25,27 @@ type Estimate = {
   status: string;
   isAuthorized: string;
   paymentMethod: string;
- 
 };
 
 const EndOfDay = () => {
-    const [data, setData] = useState<Estimate[]>([]);
-  
-    const estimateData = async () => {
-      try {
-        const response = await getEstimates();
-        if (response?.status === "success") {
-          setData(response.allEstimates);
-        } else {
-          console.error("Unexpected response:", response);
-        }
-      } catch (error) {
-        console.error("Error fetching estimates:", error);
+  const [data, setData] = useState<Estimate[]>([]);
+
+  const estimateData = async () => {
+    try {
+      const response = await getEstimates();
+      if (response?.status === "success") {
+        setData(response.allEstimates);
+      } else {
+        console.error("Unexpected response:", response);
       }
-    };
-  
-    useEffect(() => {
-      estimateData();
-    }, []);
+    } catch (error) {
+      console.error("Error fetching estimates:", error);
+    }
+  };
+
+  useEffect(() => {
+    estimateData();
+  }, []);
 
   return (
     <div>

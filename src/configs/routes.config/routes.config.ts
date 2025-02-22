@@ -273,11 +273,59 @@ export const protectedRoutes = [
         component: lazy(() => import('@/views/Dealer/Workflow/AllEstimate')),
         authority: ['dealer'],
     },
-    //General Setting
+    //Settings
     {
         key: 'generalSetting',
-        path: '/dealer/general-setting',
+        path: '/dealer/settings/general-setting',
         component: lazy(() => import('@/views/Dealer/GeneralSetting')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'pricingMatrix',
+        path: '/dealer/settings/pricing-matrix',
+        component: lazy(() => import('@/views/Dealer/Settings/PricingMatrix')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'laborMatrix',
+        path: '/dealer/settings/labor-matrix',
+        component: lazy(() => import('@/views/Dealer/Settings/LaborMatrix')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'paymentTerms',
+        path: '/dealer/settings/payment-terms',
+        component: lazy(() => import('@/views/Dealer/Settings/PaymentTerms')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'billing',
+        path: '/dealer/settings/billing',
+        component: lazy(() => import('@/views/Dealer/Settings/Billing')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'users',
+        path: '/dealer/settings/users',
+        component: lazy(() => import('@/views/Dealer/Settings/Users')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'deletedItems',
+        path: '/dealer/settings/deleted-items',
+        component: lazy(() => import('@/views/Dealer/Settings/DeletedItems')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'workRequestForms',
+        path: '/dealer/settings/work-request-forms',
+        component: lazy(() => import('@/views/Dealer/Settings/WorkRequestForms')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'payments',
+        path: '/dealer/settings/payments',
+        component: lazy(() => import('@/views/Dealer/Settings/Payments')),
         authority: ['dealer'],
     },
     //Overview

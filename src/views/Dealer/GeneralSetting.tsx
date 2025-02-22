@@ -60,7 +60,7 @@ const GeneralSetting = () => {
     <div>
       <div className="mb-5 ms-2">
         <div className="lg:flex items-center justify-between mb-5">
-          <h3 className="mb-4 lg:mb-0 text-xl font-semibold">General</h3>
+          <h3 className="mb-4 lg:mb-0 ">General</h3>
 
           <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-3">
             <Input
