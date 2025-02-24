@@ -1,7 +1,21 @@
-import { Button } from "@/components/ui";
-import React from "react";
+import { Button, Dropdown } from "@/components/ui";
+import SelectAndButton from "@/components/ui/SelectAndButton";
+import React, { useState } from "react";
+
+const matrixOptions = [
+  { label: "Example Matrix A", value: "example_matrix_a" },
+  { label: "Example Matrix B", value: "example_matrix_b" },
+  { label: "Example Matrix C", value: "example_matrix_c" },
+];
 
 const Matrices = () => {
+  const [selectedMatrix, setSelectedMatrix] = useState(matrixOptions[0].label);
+
+  const onDropdownItemClick = (label: any) => {
+    setSelectedMatrix(label);
+  };
+
+
   return (
     <div>
       <div className="border">
@@ -32,8 +46,17 @@ const Matrices = () => {
           </Button>
         </div>
       </div>
-      <div className="mx-5 my-5 !text-gray-700">
-        <h6>Default Matrix</h6>
+      <div className=" my-5 !text-gray-700">
+        <h6>Default Matrix (for new labor items)</h6>
+        <div className="w-full border bg-white p-1 my-2">
+          <Dropdown title={selectedMatrix} className="bg-white me-5">
+            {matrixOptions.map((option) => (
+              <Dropdown.Item key={option.value} eventKey={option.value} onClick={() => onDropdownItemClick(option.label)}>
+                {option.label}
+              </Dropdown.Item>
+            ))}
+          </Dropdown>
+        </div>
       </div>
     </div>
   );
