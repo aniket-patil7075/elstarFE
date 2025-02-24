@@ -39,6 +39,16 @@ export async function getAllTires(){
     }
 }
 
+export async function getAllDeletedTires(){
+    try{
+        const response = await axios.get(`${API_BASE_URL}${apiPrefix}/dealer/get-all-deleted-tires`);
+        return response;
+    } catch(error:any){
+        console.error('get-all-deleted-tires error', error);
+        throw error.response?.data || "Error in getting all Tires"
+    }
+}
+
 export async function getAllParts(){
     try{
         const response = await axios.get(`${API_BASE_URL}${apiPrefix}/dealer/get-all-parts`);

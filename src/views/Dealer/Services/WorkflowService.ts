@@ -25,7 +25,7 @@ export async function getAllEstimatesByPage(params: any) {
 export async function getAllEstimates() {
   try {
     const response = await axios.get(
-      `${API_BASE_URL}${apiPrefix}/dealer/workflow/all-estimates`
+      `${API_BASE_URL}${apiPrefix}/dealer/workflow/estimates`
     );
     return response.data; // Handle response (e.g., token, user data)
   } catch (error: any) {
