@@ -108,7 +108,7 @@ const PartsStatistics = () => {
     }, [pageIndex, pageSize, sort, query, filterData, dispatch])
 
     const data = useAppSelector((state) => state.inventory.allParts);
-    console.log("Quantity , Value , Cost : ", data);
+    
     const { totalCost, totalValue } = data.reduce(
         (acc: any, part: any) => ({
             totalCost: acc.totalCost + (part.cost || 0),

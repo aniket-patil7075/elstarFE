@@ -17,6 +17,8 @@ export async function getAllPartsByPage(filterData: any) {
         throw error.response?.data || 'Error in getting all parts';
     }
 }
+
+
 export async function getAllTiresByPage(filters: any) {
     try {
         const response = await axios.post(`${API_BASE_URL}${apiPrefix}/dealer/get-all-tires-pagination`, {
@@ -59,12 +61,35 @@ export async function getAllParts(){
     }
 }
 
+
+
+export async function getAllDeletedParts(){
+    try{
+        const response = await axios.get(`${API_BASE_URL}${apiPrefix}/dealer/get-all-deleted-parts`);
+        return response;
+    } catch(error:any){
+        console.error('Get-All-Parts error', error);
+        throw error.response?.data || "Error in getting all Parts"
+    }
+}
+
 export async function getAllFees(filterData: any) {
     try {
         const response: any = await axios.get(`${API_BASE_URL}${apiPrefix}/dealer/get-all-fees`, filterData);
         return response; // Handle response (e.g., token, user data)
     } catch (error: any) {
         console.error('Get-All-Dealers error', error);
+        throw error.response?.data || 'Error in getting all dealers';
+    }
+}
+
+export async function getAllDeletedFees() {
+    try {
+        const response: any = await axios.get(`${API_BASE_URL}${apiPrefix}/dealer/get-all-deleted-fees`);
+        console.log("response in api : ", response)
+        return response; // Handle response (e.g., token, user data)
+    } catch (error: any) {
+        console.error('Get-All-Deleted-fees error', error);
         throw error.response?.data || 'Error in getting all dealers';
     }
 }

@@ -90,15 +90,15 @@ const FeesTable = () => {
         const selectedFee = originalData.find((fee: any) => fee.id === id); // Assuming feeName is unique
          
         if (action === 'edit' && selectedFee) {
-            setIsUpdate(true); // Set isUpdate to true when edit is clicked
+            setIsUpdate(true); 
             setShowForm(true);
-            setSelectedFee(selectedFee);  // Store the selected fee in a state variable
+            setSelectedFee(selectedFee);  
         } else if (action === 'delete') {
             console.log(`Delete action for ID: ${id}`);
-            // Call the delete API
+            
             {
-                apiDeleteFee(id);// API call to delete the fee
-                fetchData();  // Refresh data after deletion
+                apiDeleteFee(id);
+                fetchData();  
             }
         }
         setShowMenu(prev => ({

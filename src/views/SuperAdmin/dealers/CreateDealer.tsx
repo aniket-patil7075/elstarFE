@@ -198,8 +198,8 @@ const CreateDealer = (props: CreateDealerProps) => {
                                     : 'Create Dealer'}
                             </Button>
                             <div className="mt-4 text-center">
-                                <span>{`Want to view all dealers`} </span>
-                                <ActionLink to={viewAllDealerUrl}>Click Here</ActionLink>
+                                {/* <span>{`Want to view all dealers`} </span>
+                                <ActionLink to={viewAllDealerUrl}>Click Here</ActionLink> */}
                             </div>
                         </FormContainer>
                     </Form>

@@ -76,7 +76,7 @@ const DeletedOrders = () => {
         estimateData();
     }, []);
 
-    console.log("Deleted orders : ", data)
+
 
 
     const columns: ColumnDef<Estimate>[] = useMemo(
@@ -87,22 +87,24 @@ const DeletedOrders = () => {
                 header: "Customer",
                 accessorKey: "customer",
                 cell: ({ row }) => {
-                    const { firstName, lastName } = row.original.customer;
-                    return firstName && lastName
-                        ? `${firstName} ${lastName}`
-                        : firstName || lastName || "N/A";
+                    const customer = row.original.customer || {};
+                    const firstName = customer.firstName || "";
+                    const lastName = customer.lastName || "";
+                    return firstName || lastName ? `${firstName} ${lastName}`.trim() : "N/A";
                 },
             },
             {
                 header: "Vehicle",
                 accessorKey: "vehicle",
                 cell: ({ row }) => {
-                    const { make, model, year } = row.original.vehicle;
-                    return make && model && year
-                        ? `${make} ${model} ${year}`
-                        : make || model || year || "N/A";
+                    const vehicle = row.original.vehicle || {};
+                    const make = vehicle.make || "";
+                    const model = vehicle.model || "";
+                    const year = vehicle.year || "";
+                    return make || model || year ? `${make} ${model} ${year}`.trim() : "N/A";
                 },
             },
+            
             {
                 header: "Total",
                 accessorKey: "totalOrderAmount",
