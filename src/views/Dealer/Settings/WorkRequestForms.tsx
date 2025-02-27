@@ -13,8 +13,8 @@ const WorkRequestForms = () => {
         </p>
       </div>
       <div className="flex flex-col lg:flex-row">
-        {/* <div className="w-full lg:w-2/6  m-2"><CompanyForm /></div>
-        <div className="w-full lg:w-4/6  m-2"><WorkRequest /></div> */}
+        <div className="w-full lg:w-2/6  m-2"><CompanyForm /></div>
+        <div className="w-full lg:w-4/6  m-2"><WorkRequest /></div>
       </div>
     </div>
   );

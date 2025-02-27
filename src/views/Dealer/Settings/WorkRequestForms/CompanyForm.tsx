@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import Switcher from "@/components/ui/Switcher";
+import type { ChangeEvent } from "react";
 
 const CompanyForm = () => {
   const [requiredFields, setRequiredFields] = useState({
@@ -12,12 +14,15 @@ const CompanyForm = () => {
     description: true,
   });
 
-  const handleRequirementChange = (field) => {
+  const handleRequirementChange = (field:any) => {
     setRequiredFields((prev) => ({
       ...prev,
       [field]: !prev[field],
     }));
   };
+  const onSwitcherToggle = (val: boolean, e: ChangeEvent) => {
+      console.log(val, e);
+    };
   return (
     <div className="border bg-gray-100">
       <div className="mx-5 my-5">
@@ -25,6 +30,13 @@ const CompanyForm = () => {
       </div>
       <div>
         <form className="mx-5">
+          {/* company logo */}
+          <div className="mb-4 flex justify-between">
+            <p className="text-gray-700 mb-2 mt-1">Show Company Logo</p>
+            <div className=" gap-4">
+            <Switcher defaultChecked onChange={onSwitcherToggle} />
+            </div>
+          </div>
           {/* Form Title */}
           <div className="mb-4">
             <h6 className="text-gray-700 mb-2">Form Title</h6>
