@@ -41,7 +41,7 @@ const Payments = () => {
           </p>
         </div>
       </div>
-      {/* <div>
+      <div>
         <Tabs defaultValue="tab1">
           <TabList>
             <TabNav value="tab1">Transactions</TabNav>
@@ -64,7 +64,7 @@ const Payments = () => {
             </TabContent>
           </div>
         </Tabs>
-      </div> */}
+      </div>
     </div>
   );
 };
