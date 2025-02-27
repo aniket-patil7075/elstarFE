@@ -16,7 +16,7 @@ const PaymentSetting = () => {
           <div className="flex flex-col w-full text-gray-500">
             <div className="flex justify-between py-3 px-5 ">
               <span className="text-start">automotive24777@gmail.com</span>
-              <span className="text-end text-blue-500 border-b border-dashed border-blue-400">
+              <span className="text-end text-blue-500 underline underline-blue-400">
                 Update Account
               </span>
             </div>
@@ -83,14 +83,14 @@ const PaymentSetting = () => {
                 BANK OF AMERICA, N.A. Bank Account ****7534 <br />
                 Scheduled to send daily on a 2-day rolling basis
               </span>
-              <span className="text-end text-blue-500">Update Account</span>
+              <span className="text-end text-blue-500 underline underline-blue-400">Update Account</span>
             </div>
           </div>
           <div className="flex justify-between mb-3 px-5 py-3 ">
             <span className="text-start">
               Send payouts to QuickBooks as deposits - On
             </span>
-            <span className="text-end text-blue-500 border-b border-dashed border-blue-400">
+            <span className="text-end text-blue-500 underline underline-blue-400">
               Go to QuickBooks Settings
             </span>
           </div>
@@ -111,7 +111,7 @@ const PaymentSetting = () => {
                 <br />
                 AUTOMOTIVE 247 LLC
               </span>
-              <span className="text-end text-blue-500 ">Change</span>
+              <span className="text-end text-blue-500 underline underline-blue-400">Change</span>
             </div>
           </div>
         </div>

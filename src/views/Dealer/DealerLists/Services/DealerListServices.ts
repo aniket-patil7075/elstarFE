@@ -319,3 +319,46 @@ export async function apiUpdateAppointment(id: string, data: any) {
         console.log(error);
     }
 }
+
+export async function apiAddPricingMatrix(data: any) {
+    try {
+        const response = await axios.post(`${API_BASE_URL}${apiPrefix}/dealer/pricing-matrix`, data);
+        
+        console.log("Response for matrix save API: ", response);
+        return response.data;
+    } catch (error: any) {
+        console.log(error)
+    }
+}
+
+export async function apiUpdatePricingMatrix(data: any) {
+    try {
+        const { id, ...updatedData } = data; // Extract ID separately
+
+        if (!id) {
+            throw new Error("ID is required for updating the pricing matrix.");
+        }
+
+        const response = await axios.put(
+            `${API_BASE_URL}${apiPrefix}/dealer/update-pricing-matrix/${id}`,
+            updatedData
+        );
+
+        console.log("Response for matrix update API: ", response);
+        return response.data;
+    } catch (error: any) {
+        console.error("API Update Error:", error);
+    }
+}
+
+
+
+export async function getAllPricingMatrix() {
+    try {
+        const response = await axios.get(`${API_BASE_URL}${apiPrefix}/dealer/get-all-pricing-matrix`);
+        return response.data; 
+    } catch (error: any) {
+        console.error('get-all-pricing-matrix error', error);
+        throw error.response?.data || 'Error in getting all pricing matrix';
+    }
+}

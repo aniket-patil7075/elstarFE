@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import Matrices from "./PricingMatrix/Matrices";
 import ExampleMatrix from "./PricingMatrix/ExampleMatrix";
 
 const PricingMatrix = () => {
+  const [selectedMatrix, setSelectedMatrix] = useState(null);
   return (
     <div>
       <div className="mb-5 ms-2">
@@ -15,10 +16,14 @@ const PricingMatrix = () => {
       <div className=" mx-auto py-4 px-2">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="w-full md:w-2/6 ">
-            <Matrices />
+            <Matrices onSelectMatrix={setSelectedMatrix} />
           </div>
           <div className="w-full md:w-4/6 ">
-            <ExampleMatrix />
+            <ExampleMatrix 
+             initialData={selectedMatrix?.rows || [["0", "0", "0"]]} 
+             titleData={selectedMatrix?.title || ""}
+             idData = {selectedMatrix?._id || ""}
+            />
           </div>
         </div>
       </div>
