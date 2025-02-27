@@ -351,8 +351,6 @@ export async function apiUpdatePricingMatrix(data: any) {
     }
 }
 
-
-
 export async function getAllPricingMatrix() {
     try {
         const response = await axios.get(`${API_BASE_URL}${apiPrefix}/dealer/get-all-pricing-matrix`);
@@ -360,5 +358,46 @@ export async function getAllPricingMatrix() {
     } catch (error: any) {
         console.error('get-all-pricing-matrix error', error);
         throw error.response?.data || 'Error in getting all pricing matrix';
+    }
+}
+
+export async function apiAddLaborMatrix(data: any) {
+    try {
+        const response = await axios.post(`${API_BASE_URL}${apiPrefix}/dealer/labor-matrix`, data);
+        
+        console.log("Response for matrix save API: ", response);
+        return response.data;
+    } catch (error: any) {
+        console.log(error)
+    }
+}
+
+export async function apiUpdateLaborMatrix(data: any) {
+    try {
+        const { id, ...updatedData } = data; // Extract ID separately
+
+        if (!id) {
+            throw new Error("ID is required for updating the labor matrix.");
+        }
+
+        const response = await axios.put(
+            `${API_BASE_URL}${apiPrefix}/dealer/update-labor-matrix/${id}`,
+            updatedData
+        );
+
+        console.log("Response for matrix update API: ", response);
+        return response.data;
+    } catch (error: any) {
+        console.error("API Update Error:", error);
+    }
+}
+
+export async function getAllLaborMatrix() {
+    try {
+        const response = await axios.get(`${API_BASE_URL}${apiPrefix}/dealer/get-all-labor-matrix`);
+        return response.data; 
+    } catch (error: any) {
+        console.error('get-all-labor-matrix error', error);
+        throw error.response?.data || 'Error in getting all labor matrix';
     }
 }

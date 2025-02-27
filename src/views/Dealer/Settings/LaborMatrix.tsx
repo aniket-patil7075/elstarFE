@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Matrices from "./PricingMatrix/Matrices";
-import ExampleMatrix from "./PricingMatrix/ExampleMatrix";
+import Matrices from "./LaborMatrix/Matrices";
+import ExampleMatrix from "./LaborMatrix/ExampleMatrix";
 
 const LaborMatrix = () => {
   const [selectedMatrix, setSelectedMatrix] = useState(null);
@@ -22,6 +22,7 @@ const LaborMatrix = () => {
             <ExampleMatrix 
              initialData={selectedMatrix?.rows || [["0", "0", "0"]]} 
              titleData={selectedMatrix?.title || ""}
+             idData = {selectedMatrix?._id || ""}
             />
           </div>
         </div>
