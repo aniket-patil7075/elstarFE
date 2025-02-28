@@ -42,7 +42,7 @@ const Matrices = ({ onSelectMatrix }) => {
 
   return (
     <div>
-      <div className="border">
+      <div className="border bg-gray-100">
         <div className="mx-5 my-5">
           <h5 className="text-gray-700">Matrices</h5>
         </div>
@@ -53,7 +53,7 @@ const Matrices = ({ onSelectMatrix }) => {
             .map((matrix: any) => (
               <div
                 key={matrix._id}
-                className="flex justify-between py-3 px-5 cursor-pointer hover:bg-gray-100"
+                className="flex justify-between py-3 px-5 cursor-pointer hover:bg-gray-300"
                 onClick={() => onSelectMatrix(matrix)}
               >
                 <span className="text-start">{matrix.title}</span>

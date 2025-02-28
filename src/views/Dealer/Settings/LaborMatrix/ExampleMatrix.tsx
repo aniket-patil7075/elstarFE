@@ -37,9 +37,22 @@ const ExampleMatrix = ({ selectedMatrix }) => {
   const handleAddRow = () => {
     setRows([
       ...rows,
-      { _id: crypto.randomUUID(), cost: "0", markup: "0", margin: "0" },
+      { _id: crypto.randomUUID(), cost: "0", markup: "0", margin: "0",rowDeleteFlag: 0, },
     ]);
   };
+  // const handleAddRow = () => {
+  //   setRows([
+  //     ...rows,
+  //     {
+  //       _id: crypto.randomUUID(), // Generate a unique ID for the new row
+  //       cost: "0",
+  //       markup: "0",
+  //       margin: "0",
+  //       rowDeleteFlag: 0,
+  //     },
+  //   ]);
+  // };
+  
 
   const handleChange = (rowIndex, field, value) => {
     setRows((prevRows) =>
