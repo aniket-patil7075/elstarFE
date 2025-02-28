@@ -638,6 +638,100 @@ const navigationConfig: NavigationTree[] = [
            
         ]
     },
+    {
+        key: 'integrations',
+        path: '',
+        title: 'Integrations',
+        translateKey: 'nav.integrations',
+        icon: 'integrations',
+        type: NAV_ITEM_TYPE_COLLAPSE,
+        authority: ['dealer'],
+        subMenu: [
+            {
+                key: 'integrations.item1',
+                path: '/dealer/integrations/api-webhooks',
+                title: 'API & Webhooks',
+                translateKey: 'nav.integrations.item1',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'integrations.item2',
+                path: '/dealer/integrations/carfax',
+                title: 'Carfax',
+                translateKey: 'nav.integrations.item2',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'integrations.item3',
+                path: '/dealer/integrations/quick-books',
+                title: 'QuickBooks',
+                translateKey: 'nav.integrations.item3',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            
+        ]
+    },
+    {
+        key: 'itemSold',
+        path: '',
+        title: 'Parts & Line Items Sold',
+        translateKey: 'nav.itemSold',
+        icon: 'itemSold',
+        type: NAV_ITEM_TYPE_COLLAPSE,
+        authority: ['dealer'],
+        subMenu: [
+            {
+                key: 'itemSold.item1',
+                path: '/dealer/itemSold/sales-tax',
+                title: 'Sales Tax',
+                translateKey: 'nav.itemSold.item1',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'itemSold.item2',
+                path: '/dealer/itemSold/summary-by-type',
+                title: 'Summary By Type',
+                translateKey: 'nav.itemSold.item2',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'itemSold.item3',
+                path: '/dealer/itemSold/summary-by-category',
+                title: 'Summary By Category',
+                translateKey: 'nav.itemSold.item3',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            {
+                key: 'itemSold.item4',
+                path: '/dealer/itemSold/line-item-detail',
+                title: 'Line Item Detail',
+                translateKey: 'nav.itemSold.item4',
+                icon: '',
+                type: NAV_ITEM_TYPE_ITEM,
+                authority: ['dealer'],
+                subMenu: [],
+            },
+            
+        ]
+    },
 ]
 
 export default navigationConfig

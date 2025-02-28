@@ -2,6 +2,8 @@ import React from 'react'
 
 const SalesPerformanceOrder : React.FC<{ estimate: any[] }> = ({ estimate }) => {
 
+  console.log("Estimate in end of day : ", estimate)
+
   // const totalEstimates = estimate.filter((order) => order.estimateFlag === 1).length;
   // const totalInvoices = estimate.filter((order) => order.estimateFlag === 0).length;
   // const totalOrders = estimate.length;
@@ -43,6 +45,8 @@ const unpaidPartialInvoices = filteredEstimates.filter((order) => order.remainin
 const fullyPaidInvoices = filteredEstimates.filter(
   (order) => order.isPaymentReceived === true && order.remainingAmount === 0
 ).length;
+
+console.log("ottal invoice in end of day : ", totalInvoices)
 
 const estimateHours = filteredEstimates.reduce((estTotal, order) => {
   return (

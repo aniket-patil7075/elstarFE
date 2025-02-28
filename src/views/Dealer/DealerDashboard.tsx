@@ -195,10 +195,29 @@ const DealerDashboard = () => {
   );
 
   // ----------------------------------------WORKFLOW STATUS-----------------------------------
+    const [statusData, setStatusData] = useState<Estimate[]>([]);
+      
+        const estimateStatusData = async () => {
+          try {
+            const response = await getAllEstimates();
+            if (response?.status === "success") {
+              setStatusData(response.allEstimates);
+            } else {
+              console.error("Unexpected response:", response);
+            }
+          } catch (error) {
+            console.error("Error fetching estimates:", error);
+          }
+        };
+      
+        useEffect(() => {
+          estimateStatusData();
+        }, []);
   const statuses = ["Estimates", "Dropped Off", "In Progress", "Invoice"];
 
+
   const summary = statuses.map((status) => {
-    const filteredOrders = data.filter((order) => order.status === status);
+    const filteredOrders = statusData.filter((order) => order.status === status);
     const orderCount = filteredOrders.length;
     const grandTotal = filteredOrders.reduce(
       (sum: any, order) => sum + order.grandTotal,
@@ -208,7 +227,6 @@ const DealerDashboard = () => {
       (order) => !order.isAuthorized
     ).length;
 
-    
 
     return {
       status,
@@ -217,6 +235,8 @@ const DealerDashboard = () => {
       unauthorizedCount,
     };
   });
+
+  
 
   // -------------------------------------------Appointment ---------------------------------------------
   const [appointment, setAppointment] = useState<Appointment[]>([]);

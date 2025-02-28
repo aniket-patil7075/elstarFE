@@ -378,7 +378,50 @@ export const protectedRoutes = [
         component: lazy(() => import('@/views/Dealer/PaymentReports/Payouts')),
         authority: ['dealer'],
     },
-    
+    //Integrations
+    {
+        key: 'integrations.item1',
+        path: '/dealer/integrations/api-webhooks',
+        component: lazy(() => import('@/views/Dealer/Integration/APIWebhooks')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'integrations.item2',
+        path: '/dealer/integrations/carfax',
+        component: lazy(() => import('@/views/Dealer/Integration/Carfax')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'integrations.item3',
+        path: '/dealer/integrations/quick-books',
+        component: lazy(() => import('@/views/Dealer/Integration/QuickBooks')),
+        authority: ['dealer'],
+    },
+    //Parts & Line items sold
+    {
+        key: 'itemSold.item1',
+        path: '/dealer/itemSold/sales-tax',
+        component: lazy(() => import('@/views/Dealer/ItemsSold/SalesTax')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'itemSold.item2',
+        path: '/dealer/itemSold/summary-by-type',
+        component: lazy(() => import('@/views/Dealer/ItemsSold/SummaryByType')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'itemSold.item3',
+        path: '/dealer/itemSold/summary-by-category',
+        component: lazy(() => import('@/views/Dealer/ItemsSold/SummaryByCategory')),
+        authority: ['dealer'],
+    },
+    {
+        key: 'itemSold.item4',
+        path: '/dealer/itemSold/line-item-detail',
+        component: lazy(() => import('@/views/Dealer/ItemsSold/LineItemDetail')),
+        authority: ['dealer'],
+    },
     // ... other routes
 
 ]
