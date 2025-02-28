@@ -3,21 +3,19 @@ import SelectAndButton from "@/components/ui/SelectAndButton";
 import React, { useEffect, useState } from "react";
 import { getAllPricingMatrix } from "../../DealerLists/Services/DealerListServices";
 
-
 const Matrices = ({ onSelectMatrix }) => {
-  const [selectedMatrix, setSelectedMatrix] =  useState("");
+  const [selectedMatrix, setSelectedMatrix] = useState("");
   const [pricingMatrices, setPricingMatrices] = useState([]);
 
   const onDropdownItemClick = (label: any) => {
     setSelectedMatrix(label);
   };
 
-
   const fetchMatrices = async () => {
     try {
       let pricingMatrix = await getAllPricingMatrix();
       // console.log("pricing matrix:", pricingMatrix);
-      
+
       if (pricingMatrix?.allPricingMatrix) {
         setPricingMatrices(pricingMatrix.allPricingMatrix);
         setSelectedMatrix(pricingMatrix.allPricingMatrix[0].title);
@@ -27,9 +25,9 @@ const Matrices = ({ onSelectMatrix }) => {
     }
   };
 
-  useEffect(()=>{
-    fetchMatrices()
-  },[])
+  useEffect(() => {
+    fetchMatrices();
+  }, []);
 
   const handleNewMatrix = () => {
     const newMatrix = {
@@ -49,13 +47,22 @@ const Matrices = ({ onSelectMatrix }) => {
           <h5 className="text-gray-700">Matrices</h5>
         </div>
         <div>
-         <div className="flex flex-col w-full text-gray-500">
-            {pricingMatrices.map((matrix:any) => (
-              <div key={matrix._id} className="flex justify-between py-3 px-5 cursor-pointer hover:bg-gray-100"
-              onClick={() => onSelectMatrix(matrix)} 
+          <div className="flex flex-col w-full text-gray-500">
+            {pricingMatrices
+            .filter((matrix: any) => matrix.deleteFlag === 0)
+            .map((matrix: any) => (
+              <div
+                key={matrix._id}
+                className="flex justify-between py-3 px-5 cursor-pointer hover:bg-gray-100"
+                onClick={() => onSelectMatrix(matrix)}
               >
                 <span className="text-start">{matrix.title}</span>
-                <span className="text-end">{matrix.rows.length}</span>
+                <span className="text-end">
+                  {
+                    matrix.rows.filter((row: any) => row.rowDeleteFlag === 0)
+                      .length
+                  }
+                </span>
               </div>
             ))}
           </div>
@@ -69,9 +76,15 @@ const Matrices = ({ onSelectMatrix }) => {
       <div className=" my-5 !text-gray-700">
         <h6>Default Matrix (for new labor items)</h6>
         <div className="w-full border bg-white p-1 my-2">
-        <Dropdown title={selectedMatrix || "Select a Matrix"} className="bg-white me-5">
+          <Dropdown
+            title={selectedMatrix || "Select a Matrix"}
+            className="bg-white me-5"
+          >
             {pricingMatrices.map((matrix) => (
-              <Dropdown.Item key={matrix._id} onClick={() => onDropdownItemClick(matrix.title)}>
+              <Dropdown.Item
+                key={matrix._id}
+                onClick={() => onDropdownItemClick(matrix.title)}
+              >
                 {matrix.title}
               </Dropdown.Item>
             ))}

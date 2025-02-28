@@ -2,87 +2,94 @@ import { useEffect, useState } from "react";
 import { Button, Notification, toast } from "@/components/ui";
 import Table from "@/components/ui/Table";
 import { HiDownload, HiTrash, HiOutlineDotsHorizontal } from "react-icons/hi";
-import { apiAddPricingMatrix, apiUpdatePricingMatrix } from "../../DealerLists/Services/DealerListServices";
+import {
+  apiAddPricingMatrix,
+  apiDeletePricingFlag,
+  apiUpdatePricingMatrix,
+} from "../../DealerLists/Services/DealerListServices";
 
 const { Tr, Th, Td, THead, TBody } = Table;
 
-
-const ExampleMatrix = ({ initialData , titleData,idData }) => {
-  const [rows, setRows] = useState(initialData);
-  const [title, setTitle] = useState(titleData);
-  const [openMenuIndex, setOpenMenuIndex] = useState(null); 
-
-console.log(idData)
+const ExampleMatrix = ({ selectedMatrix }) => {
+  const [rows, setRows] = useState([]);
+  const [title, setTitle] = useState(selectedMatrix?.title || "");
+  const [openMenuIndex, setOpenMenuIndex] = useState(null);
 
   useEffect(() => {
-    if (Array.isArray(initialData)) {
-      const formattedRows = initialData.map(row =>
-        Array.isArray(row) ? row : [row.cost || "0", row.markup || "0", row.margin || "0"]
+    if (Array.isArray(selectedMatrix?.rows)) {
+      setRows(
+        selectedMatrix.rows.map(row => ({
+          _id: row._id || crypto.randomUUID(), // Ensure new rows have unique IDs
+          cost: row.cost || "0",
+          markup: row.markup || "0",
+          margin: row.margin || "0",
+          rowDeleteFlag:row.rowDeleteFlag || 0,
+        }))
       );
-      setRows(formattedRows);
     } else {
       setRows([]);
     }
-  
-    setTitle(titleData || "");
-  }, [initialData, titleData]);
-  
+    setTitle(selectedMatrix?.title || "");
+  }, [selectedMatrix]);
+
+  console.log("Rows Data:", rows);
 
   const handleAddRow = () => {
-    setRows([...rows, ["0", "0", "0"]]);
+    setRows([...rows, { _id: crypto.randomUUID(), cost: "0", markup: "0", margin: "0" }]);
   };
 
-  const handleChange = (rowIndex:any, cellIndex:any, value:any) => {
-    const newRows = [...rows];
-    newRows[rowIndex][cellIndex] = value;
-    setRows(newRows);
+  const handleChange = (rowIndex, field, value) => {
+    setRows(prevRows =>
+      prevRows.map((row, i) => (i === rowIndex ? { ...row, [field]: value } : row))
+    );
   };
 
-  const handleMenuToggle = (index:any) => {
-    setOpenMenuIndex(openMenuIndex === index ? null : index); 
-  };
-
-  const handleEdit = (index:any) => {
-    // console.log(`Editing row ${index}`);
-    setOpenMenuIndex(null);
-  };
-
-  const handleDelete = (index:any) => {
-    setRows(rows.filter((_, i) => i !== index)); 
-    setOpenMenuIndex(null);
-  };
-
-  const handleSaveMatrix = async() =>{
+  const handleDeleteRow = async(rowId) => {
+    console.log("deleted row id : ",rowId)
     try {
-      const formattedRows = rows.map(row => ({
-        cost: row[0], 
-        markup: row[1], 
-        margin: row[2]
-      }));
-  
-      const updatedMatrixData = { 
-        id: idData,  // Keep the existing ID if available
-        title, 
-        rows: formattedRows
+      await apiDeletePricingFlag(rowId)
+      if (rowId === selectedMatrix._id) {
+        // If deleting the entire matrix, reset state
+        setRows([]);
+        setTitle("");
+      } else {
+        // If deleting a specific row, filter it out
+        setRows((prevRows) => prevRows.filter((row) => row._id !== rowId));
+      }
+      toast.push(
+        <Notification title="Success" type="success">
+        {rowId === selectedMatrix._id ? "Matrix Deleted" : "Row Deleted"} Successfully
+      </Notification>
+      );
+    } catch (error) {
+      console.log(error)
+    }
+    setOpenMenuIndex(null);
+  };
+
+  const handleSaveMatrix = async () => {
+    try {
+      const updatedMatrixData = {
+        id: selectedMatrix?._id,
+        title,
+        rows: rows.map(({ _id, ...rest }) => rest), // Exclude _id in the API request
       };
-  
-  
+
       if (!updatedMatrixData.id || updatedMatrixData.id.startsWith("matrix-")) {
-        await apiAddPricingMatrix(updatedMatrixData); 
+        await apiAddPricingMatrix(updatedMatrixData);
       } else {
         await apiUpdatePricingMatrix(updatedMatrixData);
       }
-  
+
       toast.push(
         <Notification title="Success" type="success">
           Matrix {(!updatedMatrixData.id || updatedMatrixData.id.startsWith("matrix-")) ? "Saved" : "Updated"} Successfully
         </Notification>
       );
-  
     } catch (error) {
       console.error("Error saving matrix data:", error);
     }
-  }
+  };
 
   return (
     <div className="border relative">
@@ -96,9 +103,11 @@ console.log(idData)
         />
         <div className="flex gap-2 items-center">
           <Button block size="sm" icon={<HiDownload />} onClick={handleSaveMatrix}>
-            save
+            Save
           </Button>
-          <Button className="flex items-center gap-1 px-5" variant="solid" size="sm">
+          <Button className="flex items-center gap-1 px-5" variant="solid" size="sm"
+          onClick={() => handleDeleteRow(selectedMatrix._id)}
+          >
             <HiTrash className="text-xl" />
           </Button>
         </div>
@@ -110,47 +119,42 @@ console.log(idData)
             <Th className="!text-gray-700">Cost</Th>
             <Th className="!text-gray-700">Markup</Th>
             <Th className="!text-gray-700">Margin</Th>
-            <Th className="!text-gray-700"></Th>
+            <Th className="!text-gray-700">Actions</Th>
           </Tr>
         </THead>
         <TBody className="text-gray-500">
-          {rows.map((row : any, rowIndex: any) => (
-            <Tr key={rowIndex} className="relative">
-              {row.map((cell: any, cellIndex: any) => (
+          {rows
+          .filter((row:any) => row.rowDeleteFlag === 0)
+          .map((row, rowIndex) => (
+            <Tr key={row._id} className="relative">
+              {["cost", "markup", "margin"].map((field, cellIndex) => (
                 <Td key={cellIndex}>
-                  {cellIndex < 3 ? (
-                    <input
-                      type="text"
-                      value={cell}
-                      onChange={(e) => handleChange(rowIndex, cellIndex, e.target.value)}
-                      className="w-16 p-1 border border-gray-300 rounded focus:border-blue-700 focus:ring-1 focus:ring-blue-700 outline-none"
-                    />
-                  ) : (
-                    <div className="relative">
-                      <HiOutlineDotsHorizontal
-                        className="text-xl text-gray-500 cursor-pointer"
-                        onClick={() => handleMenuToggle(rowIndex)}
-                      />
-                      {openMenuIndex === rowIndex && (
-                        <div className="absolute right-0 mt-1 w-24 bg-white border rounded shadow-lg z-10">
-                          <p
-                            className="px-4 py-2 text-gray-700 cursor-pointer hover:bg-gray-100"
-                            onClick={() => handleEdit(rowIndex)}
-                          >
-                            Edit
-                          </p>
-                          <p
-                            className="px-4 py-2 text-red-600 cursor-pointer hover:bg-gray-100"
-                            onClick={() => handleDelete(rowIndex)}
-                          >
-                            Delete
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  <input
+                    type="text"
+                    value={row[field]}
+                    onChange={(e) => handleChange(rowIndex, field, e.target.value)}
+                    className="w-16 p-1 border border-gray-300 rounded focus:border-blue-700 focus:ring-1 focus:ring-blue-700 outline-none"
+                  />
                 </Td>
               ))}
+              <Td>
+                <div className="relative">
+                  <HiOutlineDotsHorizontal
+                    className="text-xl text-gray-500 cursor-pointer"
+                    onClick={() => setOpenMenuIndex(openMenuIndex === rowIndex ? null : rowIndex)}
+                  />
+                  {openMenuIndex === rowIndex && (
+                    <div className="absolute mt-1 w-24 bg-white border rounded shadow-lg z-10">
+                      <p
+                        className="px-4 py-2 text-red-600 cursor-pointer hover:bg-gray-100"
+                        onClick={() => handleDeleteRow(row._id)}
+                      >
+                        Delete
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </Td>
             </Tr>
           ))}
         </TBody>

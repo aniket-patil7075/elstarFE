@@ -4,6 +4,7 @@ import ExampleMatrix from "./LaborMatrix/ExampleMatrix";
 
 const LaborMatrix = () => {
   const [selectedMatrix, setSelectedMatrix] = useState(null);
+  console.log("selected Matrix : ",selectedMatrix)
   return (
     <div>
       <div className="mb-5 ms-2">
@@ -19,11 +20,13 @@ const LaborMatrix = () => {
             <Matrices onSelectMatrix={setSelectedMatrix} />
           </div>
           <div className="w-full md:w-4/6 ">
-            <ExampleMatrix 
+            {/* <ExampleMatrix 
              initialData={selectedMatrix?.rows || [["0", "0", "0"]]} 
              titleData={selectedMatrix?.title || ""}
              idData = {selectedMatrix?._id || ""}
-            />
+            /> */}
+            <ExampleMatrix selectedMatrix={selectedMatrix} />
+
           </div>
         </div>
       </div>

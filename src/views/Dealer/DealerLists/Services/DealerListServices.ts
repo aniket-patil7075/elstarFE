@@ -401,3 +401,39 @@ export async function getAllLaborMatrix() {
         throw error.response?.data || 'Error in getting all labor matrix';
     }
 }
+
+export async function apiDeleteLaborFlag(id: string) {
+    try {
+        if (!id) {
+            throw new Error("ID is required for updating the delete flag.");
+        }
+
+        const response = await axios.put(
+            `${API_BASE_URL}${apiPrefix}/dealer/delete-labor-matrix/${id}`
+        );
+
+        console.log("Response for delete flag update API: ", response);
+        return response.data;
+    } catch (error: any) {
+        console.error("API Update Delete Flag Error:", error);
+        throw error; // Re-throw for better error handling
+    }
+}
+
+export async function apiDeletePricingFlag(id: string) {
+    try {
+        if (!id) {
+            throw new Error("ID is required for updating the delete flag.");
+        }
+
+        const response = await axios.put(
+            `${API_BASE_URL}${apiPrefix}/dealer/delete-pricing-matrix/${id}`
+        );
+
+        console.log("Response for delete flag update API: ", response);
+        return response.data;
+    } catch (error: any) {
+        console.error("API Update Delete Flag Error:", error);
+        throw error; // Re-throw for better error handling
+    }
+}

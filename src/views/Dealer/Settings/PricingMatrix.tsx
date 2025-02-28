@@ -19,11 +19,7 @@ const PricingMatrix = () => {
             <Matrices onSelectMatrix={setSelectedMatrix} />
           </div>
           <div className="w-full md:w-4/6 ">
-            <ExampleMatrix 
-             initialData={selectedMatrix?.rows || [["0", "0", "0"]]} 
-             titleData={selectedMatrix?.title || ""}
-             idData = {selectedMatrix?._id || ""}
-            />
+          <ExampleMatrix selectedMatrix={selectedMatrix} />
           </div>
         </div>
       </div>
