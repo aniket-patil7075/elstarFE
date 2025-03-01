@@ -136,7 +136,7 @@ const GeneralSetting = () => {
         <div className="w-1/4 p-4 "></div>
       </div>
 
-      <div className="flex flex-col   xl:flex-row w-full mt-7">
+      {/* <div className="flex flex-col   xl:flex-row w-full mt-7">
         <div className="w-full lg:w-3/4  p-5 border bg-gray-100">
           <GeneralData onDataChange={(data) => handleDataChange("generalData", data)} />
         </div>
@@ -148,7 +148,7 @@ const GeneralSetting = () => {
           <VehicleSetting onDataChange={(data) => handleDataChange("generalData", data)} />
         </div>
         <div className="w-1/4 p-4 "></div>
-      </div>
+      </div> */}
     </div>
   );
 };
