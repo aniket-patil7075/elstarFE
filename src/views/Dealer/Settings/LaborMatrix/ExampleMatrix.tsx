@@ -125,6 +125,7 @@ const ExampleMatrix = ({ selectedMatrix }) => {
           className="text-gray-700 font-semibold bg-transparent border border-transparent focus:border-blue-700 focus:ring-1 focus:ring-blue-700 p-2 outline-none"
         />
         <div className="flex gap-2 items-center">
+          
           <Button
             block
             size="sm"
@@ -147,9 +148,9 @@ const ExampleMatrix = ({ selectedMatrix }) => {
       <Table>
         <THead>
           <Tr className="!text-gray-700">
-            <Th className="!text-gray-700">Cost</Th>
-            <Th className="!text-gray-700">Markup</Th>
-            <Th className="!text-gray-700">Margin</Th>
+            <Th className="!text-gray-700">Hours</Th>
+            {/* <Th className="!text-gray-700">Markup</Th> */}
+            <Th className="!text-gray-700">Multiplier</Th>
             <Th className="!text-gray-700">Actions</Th>
           </Tr>
         </THead>
@@ -158,7 +159,7 @@ const ExampleMatrix = ({ selectedMatrix }) => {
             .filter((row: any) => row.rowDeleteFlag === 0)
             .map((row, rowIndex) => (
               <Tr key={row._id} className="relative">
-                {["cost", "markup", "margin"].map((field, cellIndex) => (
+                {["cost",  "margin"].map((field, cellIndex) => (
                   <Td key={cellIndex}>
                     <input
                       type="text"

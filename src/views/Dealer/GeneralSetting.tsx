@@ -23,10 +23,12 @@ import ESignature from "./GeneralSetting/ESignature";
 import Mileage from "./GeneralSetting/Mileage";
 import EstimateLineItems from "./GeneralSetting/EstimateLineItems";
 import { apiAddNewGeneralSetting } from "./DealerLists/Services/DealerListServices";
+import GeneralData from "./GeneralSetting/GeneralData";
+import VehicleSetting from "./GeneralSetting/VehicleSetting";
 
 const GeneralSetting = () => {
   const [data, setData] = useState("");
-  
+  console.log("General data : ",data )
 
   const handleDataChange = (key: string, value: any) => {
     setData((prevData: any) => ({
@@ -130,6 +132,20 @@ const GeneralSetting = () => {
       <div className="flex flex-col   xl:flex-row w-full mt-7">
         <div className="w-full lg:w-3/4  p-5 border bg-gray-100">
           <EstimateLineItems onLineItemChange={(data) => handleDataChange("lineItem", data)} />
+        </div>
+        <div className="w-1/4 p-4 "></div>
+      </div>
+
+      <div className="flex flex-col   xl:flex-row w-full mt-7">
+        <div className="w-full lg:w-3/4  p-5 border bg-gray-100">
+          <GeneralData onDataChange={(data) => handleDataChange("generalData", data)} />
+        </div>
+        <div className="w-1/4 p-4 "></div>
+      </div>
+
+      <div className="flex flex-col   xl:flex-row w-full mt-7">
+        <div className="w-full lg:w-3/4  p-5 border bg-gray-100">
+          <VehicleSetting onDataChange={(data) => handleDataChange("generalData", data)} />
         </div>
         <div className="w-1/4 p-4 "></div>
       </div>

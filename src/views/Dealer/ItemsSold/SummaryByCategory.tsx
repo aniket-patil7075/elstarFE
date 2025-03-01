@@ -2,7 +2,9 @@ import React from 'react'
 
 const SummaryByCategory = () => {
   return (
-    <div>SummaryByCategory</div>
+    <div>
+        <h3>Summary By Category</h3>
+    </div>
   )
 }
 

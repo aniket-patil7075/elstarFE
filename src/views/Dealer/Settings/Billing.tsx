@@ -49,13 +49,13 @@ const Billing = () => {
     estimateData();
   }, []);
 
-  const processedData = data.map((item) => {
+  const processedData = data.map((item:any) => {
     const total = item.grandTotal + item.remainingAmount;
     const status = total === item.grandTotal ? "Paid" : "Pending";
     const statusColor =
       status === "Paid" ? "text-green-500" : "text-yellow-500";
     return { ...item, total, status, statusColor };
-  });
+  }).filter((item) => item.total !== 0);;
 
   const generatePDF = (item:any) => {
     const doc = new jsPDF();

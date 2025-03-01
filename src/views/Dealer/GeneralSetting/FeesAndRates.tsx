@@ -70,7 +70,7 @@ const FeesAndRates = ({ onDataChange }: { onDataChange: (data: any) => void }) =
 
   return (
     <div>
-      <h4 className="text-xl">Fees & Rates</h4>
+      <h4 className="text-xl border-b-2 border-gray-300 pb-2">Fees & Rates</h4>
       <div className="flex flex-col xl:flex-row w-full my-3">
         <div className="w-full md:w-1/3">
           <div>
