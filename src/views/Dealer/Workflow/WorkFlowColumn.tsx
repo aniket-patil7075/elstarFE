@@ -18,6 +18,7 @@ import {
   HiTruck,
 } from "react-icons/hi";
 import { Button } from "@/components/ui";
+import { useNavigate } from "react-router-dom";
 const { Tr, Th, Td, THead, TBody } = Table;
 
 type ColumnType = {
@@ -59,6 +60,7 @@ const WorkFlowColumn: React.FC = () => {
     invoices: [],
   });
   const [order, setOrder] = useState([]);
+    const navigate = useNavigate();
 
   const fetchEstimate = async () => {
     try {
@@ -182,12 +184,14 @@ const WorkFlowColumn: React.FC = () => {
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                         className="min-h-[100px]"
+                        
                       >
                         {columns[col].map((order, index) => (
                           <Draggable
                             key={order._id}
                             draggableId={order._id}
                             index={index}
+                            
                           >
                             {(provided, snapshot) => (
                               <div
@@ -199,6 +203,10 @@ const WorkFlowColumn: React.FC = () => {
                                     ? "bg-blue-700 text-white"
                                     : ""
                                 }`}
+
+                                onClick={() =>
+                                  navigate(`/dealer/workflow/order/${order._id}-${order.orderNo}`)
+                                }
                               >
                                 <p className="font-bold text-blue-700">
                                   #({order.orderNo}) {order.orderName}

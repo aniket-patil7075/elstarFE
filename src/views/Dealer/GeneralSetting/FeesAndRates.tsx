@@ -1,9 +1,25 @@
+import {
+  Button,
+  Checkbox,
+  Dropdown,
+  FormItem,
+  Input,
+  Segment,
+} from "@/components/ui";
+import React, { ChangeEvent, useEffect, useState } from "react";
+import AddNewBrandModal from "../DealerSharedComponent/AddNewBrandModal";
+import AddNewRatesModal from "./FeesAndRates/AddNewRatesModal";
+import SelectAndButton from "@/components/ui/SelectAndButton";
+import { ErrorMessage, FormikErrors, FormikTouched } from "formik";
+import { useAppSelector } from "@/store";
+import { getAllGeneralRate } from "../DealerLists/Services/DealerInventoryServices";
 
-
-import { Checkbox, Dropdown, Input, Segment } from '@/components/ui'
-import React, { ChangeEvent, useState } from 'react'
-
-const FeesAndRates = ({ onDataChange }: { onDataChange: (data: any) => void }) => {
+const FeesAndRates = ({
+  onDataChange,
+}: {
+  onDataChange: (data: any) => void;
+}) => {
+  const [addRatesModelOpen, setAddRatesModelOpen] = useState(false);
   const [formData, setFormData] = useState({
     orderLevelCap: "",
     serviceValue: "",
@@ -12,30 +28,45 @@ const FeesAndRates = ({ onDataChange }: { onDataChange: (data: any) => void }) =
     selectedDropdown: "Default",
     includeShopSuppliesOn: {
       parts: false,
-      labor: false
+      labor: false,
     },
     includeEPAOn: {
       parts: false,
-      labor: false
+      labor: false,
     },
     taxLaborRates: {
       parts: false,
       labor: false,
       epa: false,
       shopSupplies: false,
-      subContract: false
-    }
+      subContract: false,
+    },
   });
+  const [allRates, setAllRates] = useState([]);
 
-  const dropdownItems = [
-    { key: "a", name: "Inc ($125.00/hrs)" },
-    { key: "b", name: "DEFAULT ($185.00/hrs)" },
-    { key: "c", name: "Body work ($95.00/hrs)" },
-    { key: "d", name: "Electrical ($285.00/hrs)" },
-    { key: "e", name: "Warranty ($188.00/hrs)" },
-    { key: "f", name: "Z W ($105.00/hrs)" },
-    { key: "g", name: "german new rate ($275.00/hrs)" },
-  ];
+  const fetchGeneralRate = async () => {
+    try {
+      let response = await getAllGeneralRate();
+      console.log("General Rate:", response);
+
+      const formattedRates = response.allGeneralRate.map((rate) => ({
+        label: `${rate.rateName} ($${rate.rate.toFixed(2)}/hr)`,
+        value: rate._id,
+      }));
+
+      setAllRates(formattedRates);
+    } catch (error) {
+      console.error("Error fetching general rate:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGeneralRate();
+  }, []);
+
+  const handleNewRateAdded = () => {
+    fetchGeneralRate(); // Re-fetch rates when a new one is added
+  };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -60,8 +91,8 @@ const FeesAndRates = ({ onDataChange }: { onDataChange: (data: any) => void }) =
         ...prev,
         [category]: {
           ...prev[category as keyof typeof prev],
-          [key]: !prev[category as keyof typeof prev][key]
-        }
+          [key]: !prev[category as keyof typeof prev][key],
+        },
       };
       onDataChange(updatedData);
       return updatedData;
@@ -83,25 +114,49 @@ const FeesAndRates = ({ onDataChange }: { onDataChange: (data: any) => void }) =
           <div className="my-5">
             <p className="text-black font-semibold">Order Level Cap ($)</p>
             <div className="my-2 w-3/4">
-              <Input name="orderLevelCap" value={formData.orderLevelCap} onChange={handleInputChange} placeholder="0.00 $" size="md" />
+              <Input
+                name="orderLevelCap"
+                value={formData.orderLevelCap}
+                onChange={handleInputChange}
+                placeholder="0.00 $"
+                size="md"
+              />
             </div>
           </div>
           <div className="my-5">
             <p className="text-black font-semibold">Service Value (%)</p>
             <div className="my-2 w-3/4">
-              <Input name="serviceValue" value={formData.serviceValue} onChange={handleInputChange} placeholder="0.00 $" size="md" />
+              <Input
+                name="serviceValue"
+                value={formData.serviceValue}
+                onChange={handleInputChange}
+                placeholder="0.00 $"
+                size="md"
+              />
             </div>
           </div>
           <div className="my-5">
-            <p className="text-black font-semibold">Include shop supplies on:</p>
+            <p className="text-black font-semibold">
+              Include shop supplies on:
+            </p>
             <div className="my-2 w-3/4">
               <div className="my-2">
-                <Checkbox checked={formData.includeShopSuppliesOn.parts} onChange={() => handleCheckboxChange("includeShopSuppliesOn", "parts")}>
+                <Checkbox
+                  checked={formData.includeShopSuppliesOn.parts}
+                  onChange={() =>
+                    handleCheckboxChange("includeShopSuppliesOn", "parts")
+                  }
+                >
                   Parts
                 </Checkbox>
               </div>
               <div className="my-2">
-                <Checkbox checked={formData.includeShopSuppliesOn.labor} onChange={() => handleCheckboxChange("includeShopSuppliesOn", "labor")}>
+                <Checkbox
+                  checked={formData.includeShopSuppliesOn.labor}
+                  onChange={() =>
+                    handleCheckboxChange("includeShopSuppliesOn", "labor")
+                  }
+                >
                   Labor
                 </Checkbox>
               </div>
@@ -110,15 +165,24 @@ const FeesAndRates = ({ onDataChange }: { onDataChange: (data: any) => void }) =
           <div className="my-5">
             <p className="text-black font-semibold">Select Rate:</p>
             <div className="my-2 w-3/4">
-              <div className="w-full border bg-white">
-                <Dropdown title={formData.selectedDropdown} className="bg-white">
-                  {dropdownItems.map((item) => (
-                    <Dropdown.Item key={item.key} eventKey={item.key} onSelect={() => onDropdownItemClick(item.name)}>
-                      {item.name}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown>
-              </div>
+              <FormItem>
+                <SelectAndButton
+                  name="rate"
+                  options={allRates} // Ensure this contains valid options
+                  addNewButtonLabel="Add New Rate"
+                  addNewClick={() => setAddRatesModelOpen(true)}
+                  placeholder="Select or Add Rate"
+                  className="mb-4"
+                />
+              </FormItem>
+
+              {addRatesModelOpen && (
+                <AddNewRatesModal
+                  isOpen={addRatesModelOpen}
+                  onClose={() => setAddRatesModelOpen(false)}
+                  onRateAdded={handleNewRateAdded}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -126,19 +190,31 @@ const FeesAndRates = ({ onDataChange }: { onDataChange: (data: any) => void }) =
           <div>
             <p className="text-black font-semibold">EPA (%)</p>
             <div className="my-2 w-3/4">
-              <Input name="epa" value={formData.epa} onChange={handleInputChange} placeholder="0.00 %" size="md" />
+              <Input
+                name="epa"
+                value={formData.epa}
+                onChange={handleInputChange}
+                placeholder="0.00 %"
+                size="md"
+              />
             </div>
           </div>
           <div className="my-5">
             <p className="text-black font-semibold">Include EPA on:</p>
             <div className="my-2 w-3/4">
               <div className="my-2">
-                <Checkbox checked={formData.includeEPAOn.parts} onChange={() => handleCheckboxChange("includeEPAOn", "parts")}>
+                <Checkbox
+                  checked={formData.includeEPAOn.parts}
+                  onChange={() => handleCheckboxChange("includeEPAOn", "parts")}
+                >
                   Parts
                 </Checkbox>
               </div>
               <div className="my-2">
-                <Checkbox checked={formData.includeEPAOn.labor} onChange={() => handleCheckboxChange("includeEPAOn", "labor")}>
+                <Checkbox
+                  checked={formData.includeEPAOn.labor}
+                  onChange={() => handleCheckboxChange("includeEPAOn", "labor")}
+                >
                   Labor
                 </Checkbox>
               </div>
@@ -149,34 +225,63 @@ const FeesAndRates = ({ onDataChange }: { onDataChange: (data: any) => void }) =
           <div>
             <p className="text-black font-semibold">Tax (%)</p>
             <div className="my-2 w-3/4">
-              <Input name="tax" value={formData.tax} onChange={handleInputChange} placeholder="0.00 %" size="md" />
+              <Input
+                name="tax"
+                value={formData.tax}
+                onChange={handleInputChange}
+                placeholder="0.00 %"
+                size="md"
+              />
             </div>
           </div>
           <div className="my-5">
             <p className="text-black font-semibold">Labor Rates:</p>
             <div className="my-2 w-3/4">
               <div className="my-2">
-                <Checkbox checked={formData.taxLaborRates.parts} onChange={() => handleCheckboxChange("taxLaborRates", "parts")}>
+                <Checkbox
+                  checked={formData.taxLaborRates.parts}
+                  onChange={() =>
+                    handleCheckboxChange("taxLaborRates", "parts")
+                  }
+                >
                   Parts
                 </Checkbox>
               </div>
               <div className="my-2">
-                <Checkbox checked={formData.taxLaborRates.labor} onChange={() => handleCheckboxChange("taxLaborRates", "labor")}>
+                <Checkbox
+                  checked={formData.taxLaborRates.labor}
+                  onChange={() =>
+                    handleCheckboxChange("taxLaborRates", "labor")
+                  }
+                >
                   Labor
                 </Checkbox>
               </div>
               <div className="my-2">
-                <Checkbox checked={formData.taxLaborRates.epa} onChange={() => handleCheckboxChange("taxLaborRates", "epa")}>
+                <Checkbox
+                  checked={formData.taxLaborRates.epa}
+                  onChange={() => handleCheckboxChange("taxLaborRates", "epa")}
+                >
                   EPA
                 </Checkbox>
               </div>
               <div className="my-2">
-                <Checkbox checked={formData.taxLaborRates.shopSupplies} onChange={() => handleCheckboxChange("taxLaborRates", "shopSupplies")}>
+                <Checkbox
+                  checked={formData.taxLaborRates.shopSupplies}
+                  onChange={() =>
+                    handleCheckboxChange("taxLaborRates", "shopSupplies")
+                  }
+                >
                   Shop Supplies
                 </Checkbox>
               </div>
               <div className="my-2">
-                <Checkbox checked={formData.taxLaborRates.subContract} onChange={() => handleCheckboxChange("taxLaborRates", "subContract")}>
+                <Checkbox
+                  checked={formData.taxLaborRates.subContract}
+                  onChange={() =>
+                    handleCheckboxChange("taxLaborRates", "subContract")
+                  }
+                >
                   Sub Contract
                 </Checkbox>
               </div>

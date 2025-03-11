@@ -376,3 +376,35 @@ export async function apiDeleteVendor(id: string) {
     }
 }
 
+export async function apiAddNewRate(data: any) {
+    try {
+        const response = await axios.post(`${API_BASE_URL}${apiPrefix}/dealer/add-general-rate`, data);
+        console.log("response of rate : " ,response)
+        return response.data;
+    }
+    catch (error: any) {
+        if (error.response) {
+            throw new Error(`Server Error: ${error.response.data.message || 'Error in saving Brand'}`);
+
+        } else if (error.request) {
+            // No response was received from the server
+            throw new Error('Network Error: Unable to reach the server');
+        } else {
+            // Some other error
+            throw new Error('Unexpected Error: ' + error.message);
+        }
+
+    }
+}
+
+export async function getAllGeneralRate() {
+    try {
+        const response = await axios.get(`${API_BASE_URL}${apiPrefix}/dealer/get-all-general-rate`);
+        return response.data; 
+    } catch (error: any) {
+        console.error('get-all-general-rate error', error);
+        throw error.response?.data || 'Error in getting all General Rate';
+    }
+}
+
+

@@ -20,6 +20,7 @@ import { GoTag } from "react-icons/go";
 import { AiOutlineDollar } from "react-icons/ai";
 import {
   getAllFees,
+  getAllGeneralRate,
   getAllParts,
   getAllTires,
 } from "../../DealerLists/Services/DealerInventoryServices";
@@ -92,8 +93,28 @@ const ServicesTab = ({
   const tireTableRefs = useRef<Record<number, any>>({});
   const laborTableRefs = useRef<Record<number, any>>({});
   const partTableRefs = useRef<Record<number, any>>({});
-
+    const [allRates, setAllRates] = useState([]);
   
+    const fetchGeneralRate = async () => {
+      try {
+        let response = await getAllGeneralRate();        
+  
+        const formattedRates = response.allGeneralRate.map((rate) => ({
+          label: `${rate.rateName} ($${rate.rate.toFixed(2)}/hr)`,
+          value: rate._id,
+        }));
+  
+        setAllRates(formattedRates);
+      } catch (error) {
+        console.error("Error fetching general rate:", error);
+      }
+    };
+  
+    useEffect(() => {
+      fetchGeneralRate();
+    }, []);
+
+    console.log("General Rate:", allRates);
 
 
   const handleAddService = () => {
