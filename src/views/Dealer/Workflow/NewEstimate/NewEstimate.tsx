@@ -4,6 +4,7 @@ import {
   Card,
   Drawer,
   Dropdown,
+  FormItem,
   Input,
   Menu,
   Notification,
@@ -56,6 +57,8 @@ import LeftSidePanel from "@/components/template/SidePanel/LeftSidePanel";
 import NewEstimateCustomerTab from "./NewEstimateCustomerTab";
 import NewEstimateVehicleTab from "./newEstimateVehicleTab";
 import { useLocation } from "react-router-dom";
+import { getAllGeneralRate } from "../../DealerLists/Services/DealerInventoryServices";
+import AddNewRatesModal from "../../GeneralSetting/FeesAndRates/AddNewRatesModal";
 
 interface Vehicle {
   _id: string;
@@ -94,6 +97,7 @@ const NewEstimate = () => {
   const [servicesData, setServicesData]: any = useState({});
   const [autoSaving, setAutoSaving] = useState(false);
   const [estimateData, setEstimateData]: any = useState({});
+  const [addRatesModelOpen, setAddRatesModelOpen] = useState(false);
   const [grandTotal, setGrandTotal] = useState<{
     [key: number]: string | number;
   }>({});
@@ -101,7 +105,8 @@ const NewEstimate = () => {
   const [isAppointmentModelOpen, setisAppointmentModelOpen]: any =
     useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [totalServiceGrandTotal, setTotalServiceGrandTotal] = useState<number>(0);
+  const [totalServiceGrandTotal, setTotalServiceGrandTotal] =
+    useState<number>(0);
   const timerRef = useRef(null);
   const location = useLocation();
   const { status } = location.state || {};
@@ -109,12 +114,32 @@ const NewEstimate = () => {
   const firstKey = Object.keys(grandTotal)[0];
   const navigate = useNavigate();
 
-//   const totalServiceGrandTotal = Object.values(servicesData).reduce((acc, service:any) => {
-//     return acc + (service.serviceGrandTotal || 0);
-// }, 0);
+  const [allRates, setAllRates] = useState([]);
 
-// console.log("Total Service Grand Total:", totalServiceGrandTotal);
+  const fetchGeneralRate = async () => {
+    try {
+      let response = await getAllGeneralRate();
 
+      const formattedRates = response.allGeneralRate.map((rate) => ({
+        label: `${rate.rateName} ($${rate.rate.toFixed(2)}/hr)`,
+        value: rate._id,
+      }));
+
+      setAllRates(formattedRates);
+    } catch (error) {
+      console.error("Error fetching general rate:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGeneralRate();
+  }, []);
+
+  //   const totalServiceGrandTotal = Object.values(servicesData).reduce((acc, service:any) => {
+  //     return acc + (service.serviceGrandTotal || 0);
+  // }, 0);
+
+  // console.log("Total Service Grand Total:", totalServiceGrandTotal);
 
   const estimateGrandTotal = firstKey
     ? parseFloat(grandTotal[Number(firstKey)]?.toString() || "0")
@@ -395,15 +420,18 @@ const NewEstimate = () => {
   ]);
 
   useEffect(() => {
-    setTotalServiceGrandTotal(calculateTotalServiceGrandTotal()); 
-  }, [servicesData, orderNumber,
+    setTotalServiceGrandTotal(calculateTotalServiceGrandTotal());
+  }, [
+    servicesData,
+    orderNumber,
     orderTitle,
     selectedCustomer,
     selectedVehicle,
     customerComment,
     customerRecommendations,
     servicesData,
-    grandTotal,]);
+    grandTotal,
+  ]);
   // const customerOptions = [
   //   { value: "Faiz", label: <div className="flex align-center justify-center">
   //     <p className="mt-2 mr-8">FU</p>
@@ -653,10 +681,10 @@ const NewEstimate = () => {
 
               {isPaymentModelOpen && (
                 <PaymentModel
-                handleClosePaymentModel={setisPaymentModelOpen}
-                estimateData={estimateData}
-                estimateGrandTotal={totalServiceGrandTotal}
-                setPaymentSuccess={setPaymentSuccess}
+                  handleClosePaymentModel={setisPaymentModelOpen}
+                  estimateData={estimateData}
+                  estimateGrandTotal={totalServiceGrandTotal}
+                  setPaymentSuccess={setPaymentSuccess}
                 />
               )}
             </TabContent>
@@ -1058,7 +1086,7 @@ const NewEstimate = () => {
                         </Menu.MenuCollapse>
                       </Menu>
                       <br />
-                      <div className="w-full border-t"></div>
+                      <div className="w-full border-t mb-5"></div>
                       {/* <Menu className="p-0">
                         <Menu.MenuCollapse
                           labelClass="w-full"
@@ -1078,7 +1106,7 @@ const NewEstimate = () => {
                       <Card
                         // className="fixed bottom-0 w-3/12 right-0"
                         headerClass="font-semibold text-lg text-indigo-600"
-                        bodyClass="text-center"
+                        bodyClass="text-center "
                         footerClass="flex justify-end"
                         footer={cardFooter}
                       >
@@ -1112,6 +1140,30 @@ const NewEstimate = () => {
                           setPaymentSuccess={setPaymentSuccess}
                         />
                       )}
+
+                      <div className="mt-5">
+                        <p className="text-black font-semibold">Select Rate:</p>
+                        <div className="my-2 ">
+                          <FormItem>
+                            <SelectAndButton
+                              name="rate"
+                              options={allRates} // Ensure this contains valid options
+                              addNewButtonLabel="Add New Rate"
+                              addNewClick={() => setAddRatesModelOpen(true)}
+                              placeholder="Select or Add Rate"
+                              className="mb-4"
+                            />
+                          </FormItem>
+
+                          {addRatesModelOpen && (
+                            <AddNewRatesModal
+                              isOpen={addRatesModelOpen}
+                              onClose={() => setAddRatesModelOpen(false)}
+                              // onRateAdded={handleNewRateAdded}
+                            />
+                          )}
+                        </div>
+                      </div>
                     </TabContent>
 
                     <TabContent value="customer">

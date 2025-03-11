@@ -168,11 +168,11 @@ const FeesAndRates = ({
               <FormItem>
                 <SelectAndButton
                   name="rate"
-                  options={allRates} // Ensure this contains valid options
+                  options={allRates} 
                   addNewButtonLabel="Add New Rate"
                   addNewClick={() => setAddRatesModelOpen(true)}
                   placeholder="Select or Add Rate"
-                  className="mb-4"
+                  className="mb-4"                  
                 />
               </FormItem>
 
