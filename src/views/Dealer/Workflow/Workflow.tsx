@@ -41,11 +41,24 @@ interface EstimateCardProps {
 }
 
 const ProductList = () => {
-  const [selectedValue, setSelectedValue] = useState<string | null>(null);
-
+  const [selectedValue, setSelectedValue] = useState<string | null>(
+    localStorage.getItem("selectedValue") || null
+  );
+  
   const handleSegmentChange = (value: string) => {
     setSelectedValue(value);
+    localStorage.setItem("selectedValue", value);
   };
+  
+  // Optional: Sync state with localStorage when component mounts
+  useEffect(() => {
+    const storedValue = localStorage.getItem("selectedValue");
+    if (storedValue) {
+      setSelectedValue(storedValue);
+    }
+  }, []);
+
+  console.log("selected tab : ", selectedValue)
 
   const [estimatesByWorkflow, setestimatesByWorkflow]: any = useState([]);
 
