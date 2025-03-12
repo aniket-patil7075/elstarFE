@@ -58,7 +58,6 @@ const ProductList = () => {
     }
   }, []);
 
-  console.log("selected tab : ", selectedValue)
 
   const [estimatesByWorkflow, setestimatesByWorkflow]: any = useState([]);
 
@@ -277,18 +276,23 @@ const ProductList = () => {
             <Segment.Item
               value="columns"
               onClick={() => handleSegmentChange("columns")}
+              className={selectedValue === "columns" ? "text-blue-700 font-bold" : ""}
             >
               Columns
             </Segment.Item>
             <Segment.Item
               value="lists-and-parts"
               onClick={() => handleSegmentChange("lists-and-parts")}
+              className={
+                selectedValue === "lists-and-parts" ? "text-blue-700 font-bold" : ""
+              }
             >
               Lists
             </Segment.Item>
             <Segment.Item
               value="time"
               onClick={() => handleSegmentChange("time")}
+              className={selectedValue === "time" ? "text-blue-700 font-bold" : ""}
             >
               Parts & Tires
             </Segment.Item>

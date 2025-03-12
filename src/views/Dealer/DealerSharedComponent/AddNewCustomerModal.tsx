@@ -1,6 +1,6 @@
-import { apiNewCustomer } from "../../Dealer/DealerLists/Services/DealerListServices";
+import { apiNewCustomer, getAllCustomers } from "../../Dealer/DealerLists/Services/DealerListServices";
 import { Button } from "@/components/ui";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import BasicInfo from "../../Dealer/DealerLists/Customers/CustomersForm/BasicInfo";
 import { Formik, Form } from "formik";
 import toast from "@/components/ui/toast";
@@ -11,9 +11,9 @@ import {
   useAppSelector,
 } from "../DealerLists/Store";
 import { validationSchema } from "../DealerLists/Customers/CustomersStatistics";
+import { use } from "i18next";
 
 const AddNewCustomerModal = ({ handleButtonClick }: any) => {
-  //   const [showForm, setShowForm] = useState(false)
   const [showFees, setShowFees] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -25,10 +25,7 @@ const AddNewCustomerModal = ({ handleButtonClick }: any) => {
   const fetchData = useCallback(() => {
     dispatch(getCustomers({ pageIndex, pageSize, sort, query, filterData }));
   }, [pageIndex, pageSize, sort, query, filterData, dispatch]);
-  // Toggle form on button click
-  // const handleButtonClick = () => {
-  //     setShowForm(!showForm) // Toggle form visibility
-  // }
+
 
   const initialValues = {
     firstName: "",

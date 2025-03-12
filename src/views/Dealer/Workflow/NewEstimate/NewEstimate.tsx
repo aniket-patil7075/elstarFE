@@ -114,26 +114,6 @@ const NewEstimate = () => {
   const firstKey = Object.keys(grandTotal)[0];
   const navigate = useNavigate();
 
-  const [allRates, setAllRates] = useState([]);
-
-  const fetchGeneralRate = async () => {
-    try {
-      let response = await getAllGeneralRate();
-
-      const formattedRates = response.allGeneralRate.map((rate) => ({
-        label: `${rate.rateName} ($${rate.rate.toFixed(2)}/hr)`,
-        value: rate._id,
-      }));
-
-      setAllRates(formattedRates);
-    } catch (error) {
-      console.error("Error fetching general rate:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchGeneralRate();
-  }, []);
 
   //   const totalServiceGrandTotal = Object.values(servicesData).reduce((acc, service:any) => {
   //     return acc + (service.serviceGrandTotal || 0);
@@ -746,6 +726,31 @@ const NewEstimate = () => {
     }
   };
 
+  const [allRates, setAllRates] = useState([]);
+
+  const fetchGeneralRate = async () => {
+    try {
+      let response = await getAllGeneralRate();
+
+      const formattedRates = response.allGeneralRate.map((rate) => ({
+        label: `${rate.rateName} ($${rate.rate.toFixed(2)}/hr)`,
+        value: rate._id,
+      }));
+
+      setAllRates(formattedRates);
+    } catch (error) {
+      console.error("Error fetching general rate:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGeneralRate();
+  }, []);
+
+  const handleNewRateAdded = () => {
+    fetchGeneralRate(); // Re-fetch rates when a new one is added
+  };
+
   return (
     <div className="new-estimate w-full h-full ">
       {estimateData && estimateData._id ? (
@@ -909,7 +914,7 @@ const NewEstimate = () => {
 
             <div className="cust-and-veh-inputs flex mt-8">
               <SelectAndButton
-                options={customerOptions}
+                // options={customerOptions}
                 addNewButtonLabel="Add New Customer"
                 value={selectedCustomer}
                 onChange={async (value: any) => {
@@ -939,20 +944,20 @@ const NewEstimate = () => {
               ) : null}
 
               <SelectAndButton
-                options={vehicleOptions}
+                // options={vehicleOptions}
                 addNewButtonLabel="Add New Vehicle"
                 value={selectedVehicle}
                 onChange={(value: any) => setSelectedVehicle(value)}
                 placeholder="Add Vehicle..."
                 addNewClick={() => setAddVehicleModalOpen(!addVehicleModalOpen)}
-                className="mb-4 w-[256px]"
-                styles={{
-                  menu: (base) => ({
-                    ...base,
-                    maxHeight: "150px", // Limit the height of the dropdown
-                    overflowY: "auto", // Add vertical scrolling
-                  }),
-                }}
+                className="mb-4 w-[256px] "
+                // styles={{
+                //   menu: (base) => ({
+                //     ...base,
+                //     maxHeight: "150px", // Limit the height of the dropdown
+                //     overflowY: "auto", // Add vertical scrolling
+                //   }),
+                // }}
               />
               {addVehicleModalOpen ? (
                 <AddNewVehicleModal
@@ -1159,7 +1164,7 @@ const NewEstimate = () => {
                             <AddNewRatesModal
                               isOpen={addRatesModelOpen}
                               onClose={() => setAddRatesModelOpen(false)}
-                              // onRateAdded={handleNewRateAdded}
+                              onRateAdded={handleNewRateAdded}
                             />
                           )}
                         </div>

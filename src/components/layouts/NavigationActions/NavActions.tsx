@@ -74,7 +74,7 @@ const NotificationButton = () => {
             </button> */}
 
       
-      <button
+      {/* <button
         onClick={() => {
           handleEstimateClick();
         }}
@@ -88,21 +88,21 @@ const NotificationButton = () => {
         className="p-2 bg-transparent rounded-full hover:bg-gray-100 focus:outline-none"
       >
         <HiOutlineCalendar className="text-2xl text-gray-600" />
-      </button>
+      </button> */}
 
-      {/* <button
+      <button
         onClick={toggleNotificationDrawer}
         className="p-2 bg-transparent rounded-full hover:bg-gray-100 focus:outline-none"
       >
         <HiOutlineBell className="text-2xl text-gray-600" />
-      </button> */}
+      </button>
 
-      {/* <button
+      <button
         onClick={toggleMessageDrawer}
         className="p-2 bg-transparent rounded-full hover:bg-gray-100 focus:outline-none"
       >
         <HiOutlineMail className="text-2xl text-gray-600" />
-      </button> */}
+      </button>
 
       <button className="p-2 bg-transparent rounded-full hover:bg-gray-100 focus:outline-none">
         <AddToggle />

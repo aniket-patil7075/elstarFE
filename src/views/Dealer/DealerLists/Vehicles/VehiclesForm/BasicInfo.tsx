@@ -17,7 +17,10 @@ import { values } from "lodash";
 import { Avatar, Button, Dropdown, Select } from "@/components/ui";
 import VehiclesImage from "./VehiclesImage";
 import SelectAndButton from "@/components/ui/SelectAndButton";
-import { getAllCustomers } from "../../Services/DealerListServices";
+import {
+  getAllCustomers,
+  getAllVehicles,
+} from "../../Services/DealerListServices";
 import AddNewCustomerModal from "@/views/Dealer/DealerSharedComponent/AddNewCustomerModal";
 
 type FormFieldsName = {
@@ -28,31 +31,25 @@ type FormFieldsName = {
   model: string;
   subModel?: string;
   transmission?: string;
-  engineSize?: string;
-  driveTrain?: string;
-  type?: string;
-  // mileage?:string
-  // mileage: {
-  //     value?: number
-  //     distance?: 'mi' | 'km'
-  //     noVehicleOdometer?: boolean
-  // }
-  licencePlate: Array<{
-    licenceType: string;
-    licenceNumber: string;
-  }>;
-  unit?: string;
-  vin?: string;
-  color?: string;
-  productionDate?: string;
-  note?: string;
-  tags?: string;
 };
 
 interface Customer {
   firstName: string;
   lastName: string;
-  [key: string]: any; // Add this if there are additional properties
+  [key: string]: any;
+}
+
+interface Vehicle {
+  _id: string;
+  customerId: string;
+  make: string;
+  model: string;
+  year: string;
+  subModel?: string;
+  licencePlate?: { plateNumber: string }[];
+  value?: string;
+  label?: JSX.Element;
+  customers?: Customer[];
 }
 
 type BasicInfo = {
@@ -95,12 +92,17 @@ const BasicInfo = (props: BasicInfo) => {
   const [showFees, setShowFees] = useState(false);
   const [isTagDialogOpen, setIsTagDialogOpen] = useState(false);
   const [image, setImage] = useState<File | null>(null);
-
   const [customerOptions, setCustomerOptions] = useState([]);
   const [addCustomerModalOpen, setAddCustomerModalOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
     null
   );
+  const [vehicleOptions, setVehicleOptions] = useState<Vehicle[]>([]);
+  const [yearInput, setYearInput] = useState("");
+  const [makeInput, setMakeInput] = useState("");
+  const [modelInput, setModelInput] = useState("");
+  const [subModelInput, setSubModelInput] = useState("");
+  const [filteredVehicles, setFilteredVehicles] = useState([]);
 
   // console.log("selected customer : ", selectedCustomer)
 
@@ -108,60 +110,8 @@ const BasicInfo = (props: BasicInfo) => {
     ? `${selectedCustomer.firstName || ""} ${selectedCustomer.lastName || ""}`
     : "";
 
-    const customerId = selectedCustomer && selectedCustomer._id ? selectedCustomer._id : "";
-// console.log("selected customer id: ", customerId);
-
-
-  // console.log("Selected Customer Name : ", customerName)
-
-
-  // const fetchCustomers = async () => {
-  //   let customers = await getAllCustomers();
-  //   let labelValArr = [];
-  //   if (customers.allCustomers && customers.allCustomers.length) {
-  //     labelValArr = customers.allCustomers.map((cust: any) => {
-  //       let name = `${cust.firstName || ""} ${cust.lastName || ""}`;
-  //       cust.value = name;
-  //       cust.label = (
-  //         <div className="flex items-center justify-start w-full cursor-pointer">
-  //           <Avatar
-  //             shape="circle"
-  //             size="sm"
-  //             className="mr-4 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-100"
-  //           >
-  //             {`${cust.firstName[0] || ""}${cust.lastName[0] || ""}`}
-  //           </Avatar>
-  //           <div className="flex flex-col">
-  //             <p className="text-black">{name}</p>
-  //             {cust.phoneNumber && cust.phoneNumber.length ? (
-  //               <p className="text-xs">
-  //                 Mobile: {`${cust.phoneNumber[0].number || ""}`}
-  //               </p>
-  //             ) : null}
-  //           </div>
-  //         </div>
-  //       );
-  //       return cust;
-  //     });
-  //   }
-
-  //   setCustomerOptions(labelValArr);
-  // };
-
-  // useEffect(() => {
-  //   fetchCustomers();
-  // }, []);
-
-  // const handleSelect = (key: string) => {
-  //   const selected = customers.find((customer) => customer.key === key);
-  //   if (selected) {
-  //     setSelectedCustomer(selected.name);
-  //     // Call setFieldValue or other logic as needed
-  //   }
-  // };
-  // function setFieldValue(arg0: string, arg1: string): void {
-  //     throw new Error('Function not implemented.')
-  // }
+  const customerId =
+    selectedCustomer && selectedCustomer._id ? selectedCustomer._id : "";
 
   useEffect(() => {
     if (selectedVehicle) {
@@ -176,7 +126,7 @@ const BasicInfo = (props: BasicInfo) => {
     image: "",
     year: vehicle.year,
     make: vehicle.make,
-    customerName : vehicle.customerName,
+    customerName: vehicle.customerName,
     model: vehicle.model,
     subModel: vehicle.subModel,
     transmission: vehicle.transmission,
@@ -186,7 +136,7 @@ const BasicInfo = (props: BasicInfo) => {
     mileage: vehicle.mileage,
     licenceType: vehicle.licenceType,
     licenceNumber: vehicle.licenceNumber,
-    licencePlate : vehicle.licenceType,
+    licencePlate: vehicle.licenceType,
     unit: vehicle.unit,
     vin: vehicle.vin,
     color: vehicle.color,
@@ -194,8 +144,94 @@ const BasicInfo = (props: BasicInfo) => {
     note: vehicle.note,
     // Map other fields appropriately
   });
+
+  const fetchVehicles = async () => {
+    let response = await getAllVehicles();
+    if (response?.status === "success") {
+      setVehicleOptions(response.allVehicles);
+    }
+  };
+
+  useEffect(() => {
+    fetchVehicles();
+  }, []);
+
+  console.log("fetch vehicle : ", vehicleOptions);
+
+  useEffect(() => {
+    const filtered = vehicleOptions.filter(
+      (vehicle) =>
+        (String(vehicle.year ?? "").startsWith(yearInput) ||
+          yearInput === "") &&
+        (String(vehicle.make ?? "")
+          .toLowerCase()
+          .startsWith(makeInput.toLowerCase()) ||
+          makeInput === "") &&
+        (String(vehicle.model ?? "")
+          .toLowerCase()
+          .startsWith(modelInput.toLowerCase()) ||
+          modelInput === "") &&
+        (String(vehicle.subModel ?? "")
+          .toLowerCase()
+          .startsWith(subModelInput.toLowerCase()) ||
+          subModelInput === "")
+    );
+    setFilteredVehicles(filtered);
+  }, [yearInput, makeInput, modelInput, subModelInput, vehicleOptions]);
+
+  console.log("Filtered Vehicles:", filteredVehicles);
+
   return (
     <AdaptableCard divider className="mb-2 p-4">
+      {yearInput.trim() ||
+      makeInput.trim() ||
+      modelInput.trim() ||
+      subModelInput.trim() ? (
+        <div className="w-full border bg-gray-100 py-1 mb-4 relative">
+          <Dropdown
+            title={
+              filteredVehicles.length > 0
+                ? `${filteredVehicles.length} ${filteredVehicles.length === 1 ? "vehicle" : "vehicles"} matches found.`
+                : "No vehicles found"
+            }
+            placement="bottom"
+            menuStyle={{
+              marginTop: "8px",
+              minWidth: "480px",
+              left: "0%",
+              transform: "translateX(-50%)",
+            }}
+            onSelect={(val) => setSelectedVehicle(val)}
+          >
+            {filteredVehicles.length > 0 ? (
+              filteredVehicles.map((vehicle) => (
+                <Dropdown.Item
+                  key={vehicle._id}
+                  eventKey={vehicle._id}
+                  className="p-2 w-full"
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <p className="font-semibold text-gray-900 flex-1 truncate">
+                      {vehicle.year} {vehicle.make} {vehicle.model}{" "}
+                      {vehicle.subModel}
+                    </p>
+                    <button
+                      className="bg-blue-700 text-white px-3 py-1 text-sm rounded hover:bg-blue-800 transition"
+                      onClick={() => handleChooseAction("choose", vehicle._id)}
+                    >
+                      Choose
+                    </button>
+                  </div>
+                </Dropdown.Item>
+              ))
+            ) : (
+              <Dropdown.Item disabled className="p-2 text-gray-500 text-center">
+                No vehicles found
+              </Dropdown.Item>
+            )}
+          </Dropdown>
+        </div>
+      ) : null}
       <div className="flex flex-col lg:flex-row space-y-2 lg:space-y-0 lg:space-x-4">
         {/* Image Section with Year and Make */}
         <div className="lg:w-1/2 w-full">
@@ -204,63 +240,55 @@ const BasicInfo = (props: BasicInfo) => {
 
         {/* Year and Make Fields */}
         <div className="lg:w-1/2 w-full flex flex-col -space-y-2">
-          <FormItem
-            label="Year"
-            labelClass="block text-gray-800 dark:text-white font-semibold "
-          >
+          <FormItem label="Year">
             <Field
               type="text"
               name="year"
               placeholder="2024"
               component={Input}
-              className="border border-gray-300 outline-none p-1 rounded-md focus:ring-0 focus:ring-blue-300 bg-slate-50"
+              className="border border-gray-300 p-1 rounded-md bg-slate-50"
+              value={yearInput}
+              onChange={(e) => setYearInput(e.target.value)}
             />
           </FormItem>
 
-          <FormItem
-            label="Make"
-            labelClass="block text-gray-800 dark:text-white font-semibold mb-1 "
-          >
+          <FormItem label="Make">
             <Field
               type="text"
               name="make"
               placeholder="Honda"
               component={Input}
-              className="border border-gray-300 outline-none p-1 rounded-md focus:ring-0 focus:ring-blue-300 bg-slate-50 mb-5"
+              className="border border-gray-300 p-1 rounded-md bg-slate-50"
+              value={makeInput}
+              onChange={(e) => setMakeInput(e.target.value)}
             />
           </FormItem>
-
-          
         </div>
       </div>
 
       {/* Model and Sub Model Fields - Full Width */}
       <div className="flex space-x-4 mt-2">
-        <FormItem
-          label="Model"
-          labelClass="block text-gray-800 dark:text-white font-semibold mb-1"
-          className="w-1/2"
-        >
+        <FormItem label="Model" className="w-1/2">
           <Field
             type="text"
             name="model"
             placeholder="Accord"
             component={Input}
-            className="border border-gray-300 outline-none p-1 rounded-md focus:ring-0 focus:ring-blue-300 bg-slate-50"
+            className="border border-gray-300 p-1 rounded-md bg-slate-50"
+            value={modelInput}
+            onChange={(e) => setModelInput(e.target.value)}
           />
         </FormItem>
 
-        <FormItem
-          label="Sub Model"
-          labelClass="block text-gray-800 dark:text-white font-semibold mb-1"
-          className="w-1/2"
-        >
+        <FormItem label="Sub Model" className="w-1/2">
           <Field
             type="text"
             name="subModel"
             placeholder="Base"
             component={Input}
-            className="border border-gray-300 outline-none p-1 rounded-md focus:ring-0 focus:ring-blue-300 bg-slate-50"
+            className="border border-gray-300 p-1 rounded-md bg-slate-50"
+            value={subModelInput}
+            onChange={(e) => setSubModelInput(e.target.value)}
           />
         </FormItem>
       </div>
