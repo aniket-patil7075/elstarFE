@@ -407,4 +407,45 @@ export async function getAllGeneralRate() {
     }
 }
 
+export async function apiDeleteCustomer(id: string) {
+    try {
+        const response = await axios.post(`${API_BASE_URL}${apiPrefix}/dealer/delete-customer/${id}`);
+        console.log("Response for delete customer : ", response)
+        return response.data;
+    }
+    catch (error: any) {
+        if (error.response) {
+            throw new Error(`Server Error: ${error.response.data.message || 'Error in deleting customer'}`);
+        } else if (error.request) {
+            
+            throw new Error('Network Error: Unable to reach the server');
+        } else {
+            // Some other error
+            throw new Error('Unexpected Error: ' + error.message);
+        }
+
+    }
+}
+
+
+export async function apiDeleteVehicle(id: string) {
+    try {
+        const response = await axios.post(`${API_BASE_URL}${apiPrefix}/dealer/delete-vehicle/${id}`);
+        console.log("Response for delete vehicle : ", response)
+        return response.data;
+    }
+    catch (error: any) {
+        if (error.response) {
+            throw new Error(`Server Error: ${error.response.data.message || 'Error in deleting customer'}`);
+        } else if (error.request) {
+            
+            throw new Error('Network Error: Unable to reach the server');
+        } else {
+            // Some other error
+            throw new Error('Unexpected Error: ' + error.message);
+        }
+
+    }
+}
+
 

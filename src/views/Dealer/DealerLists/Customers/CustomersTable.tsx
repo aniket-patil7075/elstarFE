@@ -10,6 +10,8 @@ import {
 } from "../Store";
 import { cloneDeep } from "lodash";
 import { format } from "date-fns";
+import { apiDeleteCustomer } from "../Services/DealerInventoryServices";
+import { Notification, toast } from "@/components/ui";
 
 // Define the proper structure for your columns based on ColumnDef
 type ColumnDef<T> = {
@@ -65,21 +67,36 @@ const CustomersTable = () => {
     }));
   };
 
-  const handleAction = (action: string, id: string) => {
-    const selectedPart = originalData.find((part: any) => part.id === id); // Assuming feeName is unique
-
-    if (action === "edit" && selectedPart) {
-      setIsUpdate(true); // Set isUpdate to true when edit is clicked
-      setShowForm(true);
-      setSelectedPart(selectedPart);
+  const handleAction = async (action: string, id: string) => {
+    if (action === "edit") {
+      console.log(`Edit action for ID: ${id}`);
+      // Handle edit logic here
     } else if (action === "delete") {
       console.log(`Delete action for ID: ${id}`);
-      // Call the delete API
-      {
-        // apiDeletePart(id); // API call to delete the fee
-        fetchData(); // Refresh data after deletion
+
+      try {
+        // Call the delete API and wait for it to complete
+        await apiDeleteCustomer(id);
+
+        // Show success notification
+        toast.push(
+          <Notification title="Success" type="success">
+            Customer Deleted Successfully
+          </Notification>
+        );
+
+        // Refresh data after deletion
+        fetchData();
+      } catch (error) {
+        console.error("Error deleting customer:", error);
+        toast.push(
+          <Notification title="Error" type="danger">
+            Failed to delete customer
+          </Notification>
+        );
       }
     }
+
     setShowMenu((prev) => ({
       ...prev,
       [id]: false,
@@ -109,8 +126,8 @@ const CustomersTable = () => {
       {
         header: "",
         accessorKey: "actions",
-        cell: ({ row }: any) => {
-          const id = row.original.id; // Get the row ID (you can use an index or unique identifier)
+        cell: ({ row }: { row: any }) => {
+          const id = row.original.id;
           return (
             <div className="relative">
               <button
@@ -121,12 +138,12 @@ const CustomersTable = () => {
               </button>
               {showMenu[id] && (
                 <div className="z-10 absolute right-0 mt-2 bg-white border border-gray-300 rounded shadow-md">
-                  <button
+                  {/* <button
                     onClick={() => handleAction("edit", id)}
                     className="block px-4 py-2 hover:bg-gray-200"
                   >
                     Edit
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => handleAction("delete", id)}
                     className="block px-4 py-2 text-red-600 hover:bg-gray-200"
@@ -140,7 +157,7 @@ const CustomersTable = () => {
         },
       },
     ],
-    [selectedTags, searchTerm]
+    [selectedTags, searchTerm, showMenu]
   );
 
   // Handler for adding a tag

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { HiOutlinePlus } from 'react-icons/hi'; // Importing the plus icon from react-icons
+import { HiDotsHorizontal, HiOutlinePlus } from 'react-icons/hi'; // Importing the plus icon from react-icons
 import DataTable from '@/components/shared/DataTable';
+import { Notification, toast } from '@/components/ui';
 
 // Define the proper structure for your columns based on ColumnDef
 type ColumnDef<T> = {
@@ -29,6 +30,49 @@ const FleetsTable = () => {
     const [savedTags] = useState<string[]>(['Permanent', 'VIP', 'New', 'Returning']); // List of saved tags
     const [searchTerm, setSearchTerm] = useState<string>(''); // Search term for filtering tags
     const [selectedTags, setSelectedTags] = useState<Record<number, string[]>>({}); // Tags for each customer by index
+    const [showMenu, setShowMenu] = useState<{ [key: string]: boolean }>({});
+
+      const toggleMenu = (id: string) => {
+        setShowMenu((prev) => ({
+          ...prev,
+          [id]: !prev[id],
+        }));
+      };
+    
+      const handleAction = async (action: string, id: string) => {
+        if (action === "edit") {
+          console.log(`Edit action for ID: ${id}`);
+          // Handle edit logic here
+        } else if (action === "delete") {
+          console.log(`Delete action for ID: ${id}`);
+    
+          try {
+            // Call the delete API and wait for it to complete
+            // await apiDeleteVehicle(id);
+    
+            // Show success notification
+            toast.push(
+              <Notification title="Success" type="success">
+                Vehicle Deleted Successfully
+              </Notification>
+            );
+    
+            
+          } catch (error) {
+            console.error("Error deleting vehicle:", error);
+            toast.push(
+              <Notification title="Error" type="danger">
+                Failed to delete vehicle
+              </Notification>
+            );
+          }
+        }
+    
+        setShowMenu((prev) => ({
+          ...prev,
+          [id]: false,
+        }));
+      };
 
     const columns: ColumnDef<CustomerData>[] = useMemo(() => [
         { header: 'Company Name', accessorKey: 'company', sortable: true },
@@ -97,7 +141,40 @@ const FleetsTable = () => {
                 </div>
             ),
         },
-    ], [selectedTags, searchTerm]);
+        {
+                header: "",
+                accessorKey: "actions",
+                cell: ({ row }: { row: any }) => {
+                  const id = row.original.id;
+                  return (
+                    <div className="relative">
+                      <button
+                        onClick={() => toggleMenu(id)}
+                        className="p-2 rounded-full text-gray-600 hover:bg-gray-200"
+                      >
+                        <HiDotsHorizontal />
+                      </button>
+                      {showMenu[id] && (
+                        <div className="z-10 absolute right-0 mt-2 bg-white border border-gray-300 rounded shadow-md">
+                          {/* <button
+                                    onClick={() => handleAction("edit", id)}
+                                    className="block px-4 py-2 hover:bg-gray-200"
+                                  >
+                                    Edit
+                                  </button> */}
+                          <button
+                            onClick={() => handleAction("delete", id)}
+                            className="block px-4 py-2 text-red-600 hover:bg-gray-200"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                },
+              },
+    ], [selectedTags, searchTerm , showMenu]);
 
     // Handler for adding a tag
     const handleAddTag = (rowIndex: number, tag: string) => {
