@@ -109,6 +109,7 @@ const NewEstimate = () => {
   const [totalServiceGrandTotal, setTotalServiceGrandTotal] =
     useState<number>(0);
   const [chooseVehicle, setChooseVehicle] = useState(null); // State to store selected vehicle
+  const [selectedRate , setSelectedRate] = useState({})
   const timerRef = useRef(null);
   const location = useLocation();
   const { status } = location.state || {};
@@ -124,7 +125,6 @@ const NewEstimate = () => {
   );
   const [chooseCustomer, setChooseCustomer] = useState(null); // State to store selected customer
 
-console.log("Choose vehicle Id : ", chooseVehicleId)
 
   const chooseCustomerFunction = async () => {
     try {
@@ -843,6 +843,7 @@ console.log("Choose vehicle Id : ", chooseVehicleId)
       const formattedRates = response.allGeneralRate.map((rate) => ({
         label: `${rate.rateName} ($${rate.rate.toFixed(2)}/hr)`,
         value: rate._id,
+        rate : rate.rate
       }));
 
       setAllRates(formattedRates);
@@ -1050,6 +1051,7 @@ console.log("Choose vehicle Id : ", chooseVehicleId)
                     onRecommendatioChange={(value: any) =>
                       setCustomerRecommendations(value)
                     }
+                    selectedRate={selectedRate || 0}
                   />
                 </TabContent>
 
@@ -1199,6 +1201,10 @@ console.log("Choose vehicle Id : ", chooseVehicleId)
                               name="rate"
                               options={allRates} // Ensure this contains valid options
                               addNewButtonLabel="Add New Rate"
+                              onChange={async (value: any) => {
+                                
+                                await setSelectedRate(value.rate ?? 0);              
+                              }}
                               addNewClick={() => setAddRatesModelOpen(true)}
                               placeholder="Select or Add Rate"
                               className="mb-4"

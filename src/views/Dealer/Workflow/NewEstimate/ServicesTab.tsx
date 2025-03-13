@@ -43,6 +43,7 @@ const ServicesTab = ({
   setGrandTotal,
   savedTotal,
   grandTotal,
+  selectedRate,
 }: any) => {
   const [services, setServices] = useState<any[]>([]);
   const [showNoteField, setShowNoteField] = useState(false);
@@ -92,10 +93,8 @@ const ServicesTab = ({
   const tireTableRefs = useRef<Record<number, any>>({});
   const laborTableRefs = useRef<Record<number, any>>({});
   const partTableRefs = useRef<Record<number, any>>({});
-  
 
-  
-
+  console.log("selected Rate i services : ", selectedRate);
 
   const handleAddService = () => {
     setServices([
@@ -111,7 +110,6 @@ const ServicesTab = ({
       },
     ]);
   };
-
 
   const handleRemoveService = (index) => {
     const updatedServices = services.filter((_, i) => i !== index);
@@ -293,9 +291,9 @@ const ServicesTab = ({
   //   }
   // }, [prefillServicesData, laborRef])
 
-// const totalServiceGrandTotal = services.reduce((acc, service) => acc + service.serviceGrandTotal, 0);
+  // const totalServiceGrandTotal = services.reduce((acc, service) => acc + service.serviceGrandTotal, 0);
 
-// console.log("Total Service Grand Total:", totalServiceGrandTotal);
+  // console.log("Total Service Grand Total:", totalServiceGrandTotal);
 
   const generateTypeTabForHover = (
     handleChange: any,
@@ -531,7 +529,7 @@ const ServicesTab = ({
             className="h-8 w-14 text-center"
             placeholder="0"
             type="text"
-            value={value}
+            value={selectedRate ?? value ?? 0} // Prioritize selectedRate
             onChange={(e) => {
               handleChange(rowIndex, { rate: +e.target.value });
               handleLaborCalculation(
@@ -541,6 +539,7 @@ const ServicesTab = ({
                 rowIndex
               );
             }}
+            
           />
         </div>
       ),

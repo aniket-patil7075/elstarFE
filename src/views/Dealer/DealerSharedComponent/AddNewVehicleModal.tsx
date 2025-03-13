@@ -402,6 +402,7 @@ const AddNewVehicleModal = ({ handleButtonClick,customerid }: any) => {
                                                     setFieldValue={
                                                         setFieldValue
                                                     }
+                                                    handleClick={handleButtonClick}
                                                 />
                                                 <div className="absolute bottom-0 left-0 right-0 flex justify-end p-2 border-t bg-white">
                                                     <Button

@@ -86,7 +86,7 @@ const NumericFormatInput = ({
   );
 };
 
-const BasicInfo = (props: BasicInfo) => {
+const BasicInfo = ({handleClick},props: BasicInfo) => {
   const { touched, errors, selectedVehicle, setFieldValue } = props;
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
@@ -188,6 +188,10 @@ const BasicInfo = (props: BasicInfo) => {
     console.log("Action:", action);
     console.log("vehicle ID:", vehicleId);
     dispatch(setSelectedVehicle(vehicleId));
+
+    if (handleClick) {
+      handleClick(); 
+    }
   };
 
   return (

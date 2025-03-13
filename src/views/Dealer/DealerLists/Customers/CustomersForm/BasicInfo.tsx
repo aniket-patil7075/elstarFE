@@ -79,7 +79,7 @@ type BasicInfo = {
   errors: FormikErrors<FormFieldsName>;
 };
 
-const BasicInfo = ({ touched, errors }: BasicInfo) => {
+const BasicInfo = ({ touched, errors,handleClick  }: BasicInfo) => {
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const [showAdditionalInfoForm, setShowAdditionalInfoForm] = useState(false);
   const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
@@ -202,6 +202,10 @@ const BasicInfo = ({ touched, errors }: BasicInfo) => {
     console.log("Action:", action);
     console.log("Customer ID:", customerId);
     dispatch(setSelectedCustomer(customerId));
+
+    if (handleClick) {
+      handleClick(); 
+    }
   };
 
   return (

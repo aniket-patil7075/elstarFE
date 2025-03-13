@@ -107,7 +107,7 @@ const AddNewCustomerModal = ({ handleButtonClick }: any) => {
               >
                 {({ touched, errors, handleSubmit }) => (
                   <Form onSubmit={handleSubmit}>
-                    <BasicInfo touched={touched} errors={errors} />
+                    <BasicInfo touched={touched} errors={errors}  handleClick={handleButtonClick} />
                   
                     <div className="absolute bottom-0 left-0 right-0 flex justify-end p-2 border-t bg-white">
                       <Button
