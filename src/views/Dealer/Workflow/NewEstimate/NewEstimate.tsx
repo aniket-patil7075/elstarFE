@@ -59,6 +59,7 @@ import NewEstimateVehicleTab from "./newEstimateVehicleTab";
 import { useLocation } from "react-router-dom";
 import { getAllGeneralRate } from "../../DealerLists/Services/DealerInventoryServices";
 import AddNewRatesModal from "../../GeneralSetting/FeesAndRates/AddNewRatesModal";
+import { useSelector } from "react-redux";
 
 interface Vehicle {
   _id: string;
@@ -107,6 +108,7 @@ const NewEstimate = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [totalServiceGrandTotal, setTotalServiceGrandTotal] =
     useState<number>(0);
+  const [chooseVehicle, setChooseVehicle] = useState(null); // State to store selected vehicle
   const timerRef = useRef(null);
   const location = useLocation();
   const { status } = location.state || {};
@@ -114,12 +116,75 @@ const NewEstimate = () => {
   const firstKey = Object.keys(grandTotal)[0];
   const navigate = useNavigate();
 
+  const chooseCustomerId = useSelector(
+    (state: any) => state.customer.selectedCustomer
+  );
+  const chooseVehicleId = useSelector(
+    (state: any) => state.vehicle.selectedVehicle
+  );
+  const [chooseCustomer, setChooseCustomer] = useState(null); // State to store selected customer
 
-  //   const totalServiceGrandTotal = Object.values(servicesData).reduce((acc, service:any) => {
-  //     return acc + (service.serviceGrandTotal || 0);
-  // }, 0);
+console.log("Choose vehicle Id : ", chooseVehicleId)
 
-  // console.log("Total Service Grand Total:", totalServiceGrandTotal);
+  const chooseCustomerFunction = async () => {
+    try {
+      const response = await getAllCustomers();
+      
+
+      if (response?.status === "success" && response?.allCustomers?.length) {
+        const selectedCustomer = response.allCustomers.find(
+          (customer) => customer._id === chooseCustomerId
+        );
+
+        if (selectedCustomer) {
+          
+          setChooseCustomer(selectedCustomer); // Set the matched customer in state
+        } else {
+          
+          setChooseCustomer(null); // Reset state if no match found
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+    }
+  };
+
+  const chooseVehicleFunction = async () => {
+    try {
+      const response = await getAllVehicles(chooseCustomerId); // Fetch vehicles for the selected customer
+      console.log("Choose vehicle:", response);
+
+      if (response?.status === "success" && response?.allVehicles?.length) {
+        const selectedVehicle = response.allVehicles.find(
+          (vehicle) => vehicle._id === chooseVehicleId
+        );
+
+        if (selectedVehicle) {
+          console.log("Selected Vehicle:", selectedVehicle);
+          setChooseVehicle(selectedVehicle); // Set the matched vehicle in state
+        } else {
+          console.log("No vehicle found with the selected ID.");
+          setChooseVehicle(null); // Reset state if no match found
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching vehicles:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (chooseVehicleId) {
+      chooseVehicleFunction();
+    }
+  }, [chooseVehicleId]); // Fetch only when `chooseVehicleId` changes
+
+  useEffect(() => {
+    if (chooseCustomerId) {
+      chooseCustomerFunction();
+    }
+  }, [chooseCustomerId]); // Fetch only when `chooseCustomerId` changes
+
+
 
   const estimateGrandTotal = firstKey
     ? parseFloat(grandTotal[Number(firstKey)]?.toString() || "0")
@@ -244,6 +309,73 @@ const NewEstimate = () => {
     setCustomerOptions(labelValArr);
   };
 
+  const fetchSelectedCustomer = async () => {
+    let customer = chooseCustomer; // Assuming `chooseCustomer` is available in scope
+    let labelValArr = [];
+
+    if (customer && customer._id) {
+      let name = `${customer.firstName || ""} ${customer.lastName || ""}`;
+      customer.value = name;
+      customer.label = (
+        <div className="flex items-center justify-start w-full cursor-pointer">
+          <Avatar
+            shape="circle"
+            size="sm"
+            className="mr-4 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-100"
+          >
+            {`${customer.firstName[0] || ""}${customer.lastName[0] || ""}`}
+          </Avatar>
+          <div className="flex flex-col">
+            <p className="text-black">{name}</p>
+            {customer.phoneNumber && customer.phoneNumber.length ? (
+              <p className="text-xs">
+                Mobile: {`${customer.phoneNumber[0].number || ""}`}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      );
+
+      labelValArr.push(customer);
+    }
+
+    setCustomerOptions(labelValArr);
+  };
+
+  console.log("Choose vehicle in estimate : ", chooseVehicle)
+
+  const fetchSelectedVehicle = async () => {
+    let vehicle = chooseVehicle; // Assuming `chooseVehicle` is available in scope
+    let labelValArr = [];
+  
+    if (vehicle && vehicle._id) {
+      let vehicleName = `${vehicle.year || ""} ${vehicle.make || ""} ${vehicle.model || ""}`;
+      vehicle.value = vehicleName;
+      vehicle.label = (
+        <div className="flex items-center justify-start w-full cursor-pointer">
+          <Avatar
+            shape="circle"
+            size="sm"
+            className="mr-4 bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-100"
+          >
+            {vehicle.make[0] || ""}
+          </Avatar>
+          <div className="flex flex-col">
+            <p className="text-black">{vehicleName}</p>
+            {vehicle.licencePlate && vehicle.licencePlate.length ? (
+              <p className="text-xs">Plate: {vehicle.licencePlate[0] || ""}</p>
+            ) : null}
+          </div>
+        </div>
+      );
+  
+      labelValArr.push(vehicle);
+    }
+  
+    setVehicleOptions(labelValArr);
+  };
+  
+
   const selectedCustomerId = selectedCustomer?._id || null;
   const fetchVehicles = async () => {
     let vehicles = await getAllVehicles(selectedCustomer?._id);
@@ -320,6 +452,8 @@ const NewEstimate = () => {
     // Call your APIs
     fetchVehicles();
     fetchCustomers();
+    fetchSelectedCustomer();
+    fetchSelectedVehicle()
   }, []);
 
   const calculateTotalServiceGrandTotal = (): number => {
@@ -630,34 +764,6 @@ const NewEstimate = () => {
                   </Button>
                 </div>
               )}
-              {/* {estimateData ? (
-                estimateData.status === "In Progress" ||
-                estimateData.status === "Invoices" ? (
-                  <Card
-                    headerClass="font-semibold text-lg text-indigo-600"
-                    bodyClass="text-center"
-                    footerClass="flex justify-end"
-                    footer={cardFooter}
-                  >
-                    <div className="flex items-center justify-between">
-                      <h6>Grand Total</h6>
-                      <h6>${estimateGrandTotal}</h6>
-                    </div>
-                  </Card>
-                ) :  estimateData.status === "Dropped Off" ? (
-                  <div>
-                    <Button variant="solid" className="w-full mt-4">
-                      Invoice
-                    </Button>
-                  </div>
-                ) : (
-                  <div>
-                    <Button variant="solid" className="w-full mt-4">
-                      Invoice
-                    </Button>
-                  </div>
-                )
-              ) : null} */}
 
               {isPaymentModelOpen && (
                 <PaymentModel
@@ -682,12 +788,14 @@ const NewEstimate = () => {
   useEffect(() => {
     if (!addCustomerModalOpen) {
       fetchCustomers();
+      fetchSelectedCustomer();
     }
   }, [addCustomerModalOpen]);
 
   useEffect(() => {
     if (!addVehicleModalOpen) {
       fetchVehicles();
+      fetchSelectedVehicle()
     }
   }, [addVehicleModalOpen]);
 
@@ -777,41 +885,6 @@ const NewEstimate = () => {
                 />
               </div>
 
-              {/* <div className="estimate-interaction-buttons flex justify-start items-center">
-              <div className="button-with-dropdown flex items-center justify-center">
-                <Button variant="twoTone" className="flex justify-center items-center print-btn h-[2.4rem] font-medium" onClick={() => { }}>
-                  <AiOutlinePrinter className="w-4 h-4 mr-1" />
-                  Print
-                </Button>
-                <Dropdown placement="bottom-end" menuStyle={{ marginTop: "20px" }} renderTitle={dropdownBtn}>
-                  {dropdownItems.map((item) => (
-                    <Dropdown.Item key={item.key} eventKey={item.key}>
-                      {item.name}
-                    </Dropdown.Item>
-                  ))}
-                </Dropdown>
-              </div>
-              <Button variant="twoTone" className="flex justify-center items-center ml-3 h-[2.4rem] font-medium" onClick={() => { setsendEstimateOpen(!sendEstimateOpen) }}>
-                <FiSend className="mr-1" />
-                Send
-              </Button>
-
-              <Button variant="twoTone" className="flex justify-center items-center ml-3 h-[2.4rem] font-medium" onClick={() => { }}>
-                <FaRegMessage className="mr-1" />
-                Message
-              </Button>
-
-              <Dropdown placement="bottom-end" menuStyle={{ marginTop: "8px" }} renderTitle={otherOptionsBtn}>
-                {otherItems.map((item) => (
-                  <Dropdown.Item key={item.key} eventKey={item.key}>
-                    {item.name}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown>
-
-              <p className="ml-4 w-[70px] flex justify-center items-center">{autoSaving ? <span className="flex justify-start items center">Saving <Spinner className="ml-2 mt-1" size={14} /></span> : <IoCloudDoneOutline size={20} />}</p>
-              
-            </div> */}
               <div className="estimate-interaction-buttons flex flex-wrap sm:flex-nowrap justify-start items-center">
                 <div className="button-with-dropdown flex items-center justify-center mb-2 sm:mb-0 sm:w-auto w-full">
                   <Button
@@ -889,51 +962,24 @@ const NewEstimate = () => {
               </div>
             </div>
 
-            {/* <div className="block lg:hidden px-4 py-2">
-                <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 border rounded-md"
-              aria-label="Toggle Menu"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                />
-              </svg>
-            </button>
-              </div> */}
-
             <div className="cust-and-veh-inputs flex mt-8">
               <SelectAndButton
-                // options={customerOptions}
-                addNewButtonLabel="Add New Customer"
-                value={selectedCustomer}
+                options={customerOptions} // List of customer options
+                addNewButtonLabel="Add New Customer" // Label for the "Add New" button
+                value={chooseCustomer} // Use `chooseCustomer` as the selected value
                 onChange={async (value: any) => {
+                  // Update both `chooseCustomer` and `selectedCustomer`
+                  await setChooseCustomer(value);
                   await setSelectedCustomer(value);
 
+                  // Fetch vehicles for the selected customer
                   fetchVehiclesbycus(value._id);
                 }}
-                placeholder="Add Customer..."
+                placeholder="Add Customer..." // Placeholder text
                 addNewClick={() =>
                   setAddCustomerModalOpen(!addCustomerModalOpen)
-                }
-                className="mb-4 mr-12 w-[256px]"
-                // styles={{
-                //   menu: (base) => ({
-                //     ...base,
-                //     maxHeight: "200px", // Limit the height of the dropdown
-                //     overflowY: "auto", // Add vertical scrolling
-                //   }),
-                // }}
+                } // Open the "Add New Customer" modal
+                className="mb-4 mr-12 w-[256px]" // Styling
               />
               {addCustomerModalOpen ? (
                 <AddNewCustomerModal
@@ -944,20 +990,17 @@ const NewEstimate = () => {
               ) : null}
 
               <SelectAndButton
-                // options={vehicleOptions}
-                addNewButtonLabel="Add New Vehicle"
-                value={selectedVehicle}
-                onChange={(value: any) => setSelectedVehicle(value)}
-                placeholder="Add Vehicle..."
-                addNewClick={() => setAddVehicleModalOpen(!addVehicleModalOpen)}
-                className="mb-4 w-[256px] "
-                // styles={{
-                //   menu: (base) => ({
-                //     ...base,
-                //     maxHeight: "150px", // Limit the height of the dropdown
-                //     overflowY: "auto", // Add vertical scrolling
-                //   }),
-                // }}
+                options={vehicleOptions} // List of vehicle options
+                addNewButtonLabel="Add New Vehicle" // Label for the "Add New" button
+                value={chooseVehicle} // Use `chooseVehicle` as the selected value
+                onChange={async (value: any) => {
+                  // Update both `chooseVehicle` and `selectedVehicle`
+                  await setChooseVehicle(value);
+                  await setSelectedVehicle(value);
+                }}
+                placeholder="Add Vehicle..." // Placeholder text
+                addNewClick={() => setAddVehicleModalOpen(!addVehicleModalOpen)} // Open the "Add New Vehicle" modal
+                className="mb-4 w-[256px]" // Styling
               />
               {addVehicleModalOpen ? (
                 <AddNewVehicleModal
@@ -1145,6 +1188,8 @@ const NewEstimate = () => {
                           setPaymentSuccess={setPaymentSuccess}
                         />
                       )}
+
+                      <div className="w-full border-t my-5"></div>
 
                       <div className="mt-5">
                         <p className="text-black font-semibold">Select Rate:</p>

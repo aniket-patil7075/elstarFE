@@ -276,7 +276,7 @@ const ProductList = () => {
             <Segment.Item
               value="columns"
               onClick={() => handleSegmentChange("columns")}
-              className={selectedValue === "columns" ? "text-blue-700 font-bold" : ""}
+              className={selectedValue === "columns" ? "text-indigo-700 font-bold" : ""}
             >
               Columns
             </Segment.Item>
@@ -284,7 +284,7 @@ const ProductList = () => {
               value="lists-and-parts"
               onClick={() => handleSegmentChange("lists-and-parts")}
               className={
-                selectedValue === "lists-and-parts" ? "text-blue-700 font-bold" : ""
+                selectedValue === "lists-and-parts" ? "text-indigo-700 font-bold" : ""
               }
             >
               Lists
@@ -292,7 +292,7 @@ const ProductList = () => {
             <Segment.Item
               value="time"
               onClick={() => handleSegmentChange("time")}
-              className={selectedValue === "time" ? "text-blue-700 font-bold" : ""}
+              className={selectedValue === "time" ? "text-indigo-700 font-bold" : ""}
             >
               Parts & Tires
             </Segment.Item>

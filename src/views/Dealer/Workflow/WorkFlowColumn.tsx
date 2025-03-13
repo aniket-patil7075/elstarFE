@@ -167,7 +167,7 @@ const WorkFlowColumn: React.FC = () => {
                   className="p-3 border border-gray-300 text-center w-1/4 capitalize"
                 >
                   {col.replace(/([A-Z])/g, " $1").trim()}
-                  <span className="ms-3 border rounded-full bg-blue-700 py-1 px-2 text-white ">
+                  <span className="ms-3 border rounded-full bg-indigo-700 py-1 px-2 text-white ">
                     {orderCounts[col] ?? 0}
                   </span>
                 </Th>
@@ -200,7 +200,7 @@ const WorkFlowColumn: React.FC = () => {
                                 {...provided.dragHandleProps}
                                 className={`p-3 mb-2 bg-white text-black rounded-lg shadow-md cursor-pointer transition ${
                                   snapshot.isDragging
-                                    ? "bg-blue-700 text-white"
+                                    ? "bg-indigo-700 text-white"
                                     : ""
                                 }`}
 
@@ -208,10 +208,10 @@ const WorkFlowColumn: React.FC = () => {
                                   navigate(`/dealer/workflow/order/${order._id}-${order.orderNo}`)
                                 }
                               >
-                                <p className="font-bold text-blue-700">
+                                <p className="font-bold text-indigo-700">
                                   #({order.orderNo}) {order.orderName}
                                 </p>
-                                <span className="ps-3 my-2 rounded bg-blue-100 text-blue-900 flex items-center w-1/4">
+                                <span className="ps-3 my-2 rounded bg-indigo-100 text-indigo-900 flex items-center w-1/4">
                                   Add <HiOutlinePlus className="ms-1" />
                                 </span>
 

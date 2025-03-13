@@ -9,6 +9,8 @@ import workflowReducer, { WorkflowState } from '@/views/Dealer/Workflow/store';
 import inventoryReducer, { InventoryState } from '@/views/Dealer/DealerInventory/store';
 import listReducer, { DealerListState } from '@/views/Dealer/DealerLists/Store/index';
 import estimateReducer, { EstimateState } from '@/views/Dealer/Workflow/NewEstimate/store';
+import customerReducer, { CustomerState } from "@/views/Dealer/Workflow/store/customerSlice";
+import vehicleReducer, { VehicleState } from "@/views/Dealer/Workflow/store/vehicleSlice";
 
 export type RootState = CombinedState<{
     auth: CombinedState<AuthState>
@@ -21,6 +23,8 @@ export type RootState = CombinedState<{
     allBrands: InventoryState; // Use 'dealer' directly here instead of 'data'
     list: DealerListState;
     estimate: EstimateState;
+    customer: CustomerState;
+    vehicle : VehicleState
     [RtkQueryService.reducerPath]: any
 }>
 
@@ -38,6 +42,8 @@ const staticReducers = {
     inventory: inventoryReducer,
     list: listReducer,
     estimate: estimateReducer,
+    customer: customerReducer,
+    vehicle : vehicleReducer,
     [RtkQueryService.reducerPath]: RtkQueryService.reducer,
 }
 

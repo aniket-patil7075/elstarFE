@@ -2743,7 +2743,7 @@ const ServicesTab = ({
                         <div>
                           <p>
                             $
-                            {/* {(
+                            {(
                               (Object.values(laborSubTotal[idx] || {}).reduce(
                                 (sum, value) => sum + (value ? value : 0),
                                 0
@@ -2770,8 +2770,8 @@ const ServicesTab = ({
                                 (sum, value) => sum + (value ? value : 0),
                                 0
                               ) || 0)
-                            ).toFixed(2)} */}
-                            {service.serviceGrandTotal}
+                            ).toFixed(2)}
+                            {/* {service.serviceGrandTotal} */}
                           </p>
                         </div>
                       </div>

@@ -22,6 +22,8 @@ import {
   getAllVehicles,
 } from "../../Services/DealerListServices";
 import AddNewCustomerModal from "@/views/Dealer/DealerSharedComponent/AddNewCustomerModal";
+import { useDispatch } from "react-redux";
+import { setSelectedVehicle } from "@/views/Dealer/Workflow/store/vehicleSlice";
 
 type FormFieldsName = {
   image?: string;
@@ -103,6 +105,7 @@ const BasicInfo = (props: BasicInfo) => {
   const [modelInput, setModelInput] = useState("");
   const [subModelInput, setSubModelInput] = useState("");
   const [filteredVehicles, setFilteredVehicles] = useState([]);
+  const dispatch = useDispatch();
 
   // console.log("selected customer : ", selectedCustomer)
 
@@ -181,17 +184,23 @@ const BasicInfo = (props: BasicInfo) => {
 
   console.log("Filtered Vehicles:", filteredVehicles);
 
+  const handleChooseAction = (action: any, vehicleId: any) => {
+    console.log("Action:", action);
+    console.log("vehicle ID:", vehicleId);
+    dispatch(setSelectedVehicle(vehicleId));
+  };
+
   return (
     <AdaptableCard divider className="mb-2 p-4">
       {yearInput.trim() ||
       makeInput.trim() ||
       modelInput.trim() ||
       subModelInput.trim() ? (
-        <div className="w-full border bg-gray-100 py-1 mb-4 relative">
+        <div className="w-full border bg-indigo-100 text-indigo-600 font-bold py-1 mb-4 relative">
           <Dropdown
             title={
               filteredVehicles.length > 0
-                ? `${filteredVehicles.length} ${filteredVehicles.length === 1 ? "vehicle" : "vehicles"} matches found.`
+                ? `${filteredVehicles.length} ${filteredVehicles.length === 1 ? "vehicle" : "vehicles"} matches found `
                 : "No vehicles found"
             }
             placement="bottom"
@@ -216,7 +225,7 @@ const BasicInfo = (props: BasicInfo) => {
                       {vehicle.subModel}
                     </p>
                     <button
-                      className="bg-blue-700 text-white px-3 py-1 text-sm rounded hover:bg-blue-800 transition"
+                      className="bg-indigo-600 text-white px-3 py-1 text-sm rounded hover:bg-indigo-500 transition"
                       onClick={() => handleChooseAction("choose", vehicle._id)}
                     >
                       Choose

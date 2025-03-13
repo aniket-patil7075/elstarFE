@@ -16,6 +16,8 @@ import { Button, Dropdown } from "@/components/ui";
 import FeesInfo from "./FeesInfo";
 import { getAllCustomers } from "../../Services/DealerListServices";
 import SelectAndButton from "@/components/ui/SelectAndButton";
+import { useDispatch } from "react-redux";
+import { setSelectedCustomer } from "@/views/Dealer/Workflow/store/customerSlice";
 // import AdditionInfo from './AdditionalInfo'
 
 export type FormFieldsName = {
@@ -92,6 +94,7 @@ const BasicInfo = ({ touched, errors }: BasicInfo) => {
   const [lastNameInput, setLastNameInput] = useState("");
   const [emailInput, setEmailInput] = useState("");
   const [filteredCustomers, setFilteredCustomers] = useState([]);
+  const dispatch = useDispatch();
 
   const fetchCustomers = async () => {
     try {
@@ -116,15 +119,28 @@ const BasicInfo = ({ touched, errors }: BasicInfo) => {
   console.log("All customers : ", customerOptions);
 
   useEffect(() => {
-    const filtered = customerOptions.filter((customer) =>
-      (String(customer.phoneNumber?.[0]?.number ?? "").startsWith(phoneInput) || phoneInput === "") &&
-      (String(customer.firstName ?? "").toLowerCase().startsWith(firstNameInput.toLowerCase()) || firstNameInput === "") &&
-      (String(customer.lastName ?? "").toLowerCase().startsWith(lastNameInput.toLowerCase()) || lastNameInput === "") &&
-      (String(customer.email ?? "").toLowerCase().startsWith(emailInput.toLowerCase()) || emailInput === "")
+    const filtered = customerOptions.filter(
+      (customer) =>
+        (String(customer.phoneNumber?.[0]?.number ?? "").startsWith(
+          phoneInput
+        ) ||
+          phoneInput === "") &&
+        (String(customer.firstName ?? "")
+          .toLowerCase()
+          .startsWith(firstNameInput.toLowerCase()) ||
+          firstNameInput === "") &&
+        (String(customer.lastName ?? "")
+          .toLowerCase()
+          .startsWith(lastNameInput.toLowerCase()) ||
+          lastNameInput === "") &&
+        (String(customer.email ?? "")
+          .toLowerCase()
+          .startsWith(emailInput.toLowerCase()) ||
+          emailInput === "")
     );
     setFilteredCustomers(filtered);
   }, [phoneInput, firstNameInput, lastNameInput, emailInput, customerOptions]);
-  
+
   console.log("filterd customer : ", filteredCustomers);
 
   const [formValues, setFormValues] = useState<FormFieldsName>({
@@ -182,9 +198,10 @@ const BasicInfo = ({ touched, errors }: BasicInfo) => {
     }));
   };
 
-  const handleChooseAction = (action, customerId) => {
+  const handleChooseAction = (action:any, customerId:any) => {
     console.log("Action:", action);
     console.log("Customer ID:", customerId);
+    dispatch(setSelectedCustomer(customerId));
   };
 
   return (
@@ -202,7 +219,7 @@ const BasicInfo = ({ touched, errors }: BasicInfo) => {
       firstNameInput.trim() ||
       lastNameInput.trim() ||
       emailInput.trim() ? (
-        <div className="w-full border bg-gray-100 py-1 mb-4 relative">
+        <div className="w-full border bg-indigo-100 text-indigo-600 font-bold py-1 mb-4 relative">
           <Dropdown
             title={
               filteredCustomers.length > 0
@@ -216,7 +233,7 @@ const BasicInfo = ({ touched, errors }: BasicInfo) => {
               left: "0%",
               transform: "translateX(-50%)",
             }}
-            onSelect={(val) => setSelectedWorkflow(val)}
+            // onSelect={(val) => setSelectedWorkflow(val)}
           >
             {filteredCustomers.length > 0 ? (
               filteredCustomers.map((customer) => (
@@ -230,11 +247,12 @@ const BasicInfo = ({ touched, errors }: BasicInfo) => {
                       {customer.firstName} {customer.lastName}
                     </p>
                     <button
-                      className="bg-blue-700 text-white px-3 py-1 text-sm rounded hover:bg-blue-800 transition"
+                      className="bg-indigo-600 text-white px-3 py-1 text-sm rounded hover:bg-indigo-500 transition"
                       onClick={() => handleChooseAction("choose", customer._id)}
                     >
                       Choose
                     </button>
+                    
                   </div>
                 </Dropdown.Item>
               ))
