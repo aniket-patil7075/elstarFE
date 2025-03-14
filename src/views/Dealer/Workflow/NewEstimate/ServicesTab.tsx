@@ -95,6 +95,16 @@ const ServicesTab = ({
   const partTableRefs = useRef<Record<number, any>>({});
 
   console.log("selected Rate i services : ", selectedRate);
+  const [selectRate, setSelectRate] = useState<number>(
+    typeof selectedRate === "number" ? selectedRate : 0
+  );
+  
+  useEffect(() => {
+    if (typeof selectedRate === "number" && selectedRate !== selectRate) {
+      setSelectRate(selectedRate);
+    }
+  }, [selectedRate, selectRate]); // Prevents unnecessary re-renders
+  
 
   const handleAddService = () => {
     setServices([
@@ -529,7 +539,7 @@ const ServicesTab = ({
             className="h-8 w-14 text-center"
             placeholder="0"
             type="text"
-            value={selectedRate ?? value ?? 0} // Prioritize selectedRate
+            value={ selectRate}
             onChange={(e) => {
               handleChange(rowIndex, { rate: +e.target.value });
               handleLaborCalculation(
@@ -539,7 +549,6 @@ const ServicesTab = ({
                 rowIndex
               );
             }}
-            
           />
         </div>
       ),
@@ -619,7 +628,7 @@ const ServicesTab = ({
           servicesTableData[serviceNo - 1]["labors"][rowIndex]
         ) {
           let data = servicesTableData[serviceNo - 1]["labors"][rowIndex];
-          if (data.rate && data.hours) val = data.rate * data.hours;
+          if (selectRate && data.hours) val = selectRate * data.hours;
           if (data.discount?.value) {
             let discount =
               data.discount.type === "%"
