@@ -544,7 +544,7 @@ const ServicesTab = ({
               handleChange(rowIndex, { rate: +e.target.value });
               handleLaborCalculation(
                 "rate",
-                +e.target.value,
+                selectRate,
                 serviceNo,
                 rowIndex
               );

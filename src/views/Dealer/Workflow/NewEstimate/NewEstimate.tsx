@@ -90,7 +90,9 @@ const NewEstimate = () => {
   const [selectedCustomer, setSelectedCustomer]: any = useState(null);
   const [selectedVehicle, setSelectedVehicle]: any = useState(null);
   const [customerOptions, setCustomerOptions] = useState([]);
+  const [chooseCustomerOptions, setChooseCustomerOptions] = useState([]);
   const [vehicleOptions, setVehicleOptions] = useState<Vehicle[]>([]);
+  const [chooseVehicleOptions, setChooseVehicleOptions] = useState<Vehicle[]>([]);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [orderTitle, setOrderTitle] = useState("");
   const [customerComment, setCustomerComment] = useState("");
@@ -309,8 +311,11 @@ const NewEstimate = () => {
     setCustomerOptions(labelValArr);
   };
 
+  
+
   const fetchSelectedCustomer = async () => {
-    let customer = chooseCustomer; // Assuming `chooseCustomer` is available in scope
+    let customer = chooseCustomer; 
+    console.log("choose customer : ", chooseCustomer)
     let labelValArr = [];
 
     if (customer && customer._id) {
@@ -339,7 +344,7 @@ const NewEstimate = () => {
       labelValArr.push(customer);
     }
 
-    setCustomerOptions(labelValArr);
+    setChooseCustomerOptions(labelValArr);
   };
 
   console.log("Choose vehicle in estimate : ", chooseVehicle)
@@ -372,7 +377,7 @@ const NewEstimate = () => {
       labelValArr.push(vehicle);
     }
   
-    setVehicleOptions(labelValArr);
+    setChooseCustomerOptions(labelValArr);
   };
   
 
@@ -965,7 +970,7 @@ const NewEstimate = () => {
 
             <div className="cust-and-veh-inputs flex mt-8">
               <SelectAndButton
-                options={customerOptions} // List of customer options
+                options={chooseCustomerOptions} // List of customer options
                 addNewButtonLabel="Add New Customer" // Label for the "Add New" button
                 value={chooseCustomer} // Use `chooseCustomer` as the selected value
                 onChange={async (value: any) => {
@@ -991,7 +996,7 @@ const NewEstimate = () => {
               ) : null}
 
               <SelectAndButton
-                options={vehicleOptions} // List of vehicle options
+                options={chooseVehicleOptions} // List of vehicle options
                 addNewButtonLabel="Add New Vehicle" // Label for the "Add New" button
                 value={chooseVehicle} // Use `chooseVehicle` as the selected value
                 onChange={async (value: any) => {
