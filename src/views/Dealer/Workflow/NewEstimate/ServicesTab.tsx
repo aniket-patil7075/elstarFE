@@ -689,6 +689,56 @@ const ServicesTab = ({
         return <span className="block text-center">${val.toFixed(2)}</span>;
       },
     },
+    // {
+    //   header: "Subtotal",
+    //   accessor: "subtotal",
+    //   render: (
+    //     value: number,
+    //     rowIndex: number,
+    //     handleChange: (
+    //       index: number,
+    //       values: Record<string, any>,
+    //       serviceNo: number
+    //     ) => void,
+    //     serviceNo: number
+    //   ) => {
+    //     let val = 0;
+    
+    //     if (
+    //       servicesTableData[serviceNo - 1] &&
+    //       servicesTableData[serviceNo - 1]["labors"] &&
+    //       servicesTableData[serviceNo - 1]["labors"][rowIndex]
+    //     ) {
+    //       let data = servicesTableData[serviceNo - 1]["labors"][rowIndex];
+    //       if ((selectRate || data.rate) && data.hours) val = (selectRate || data.rate) * data.hours;
+    //       if (data.discount?.value) {
+    //         let discount =
+    //           data.discount.type === "%"
+    //             ? val * (data.discount.value / 100)
+    //             : data.discount.value;
+    //         val -= discount;
+    //       }
+    //     }
+    //     if (value !== val) {
+    //       val = value;
+    //     }
+    //     const subtotalValue = typeof val === 'number' && !isNaN(val) ? val : 0;
+    
+    //     return (
+    //       <div className="w-full flex justify-center align-center">
+    //         <Input
+    //           className="h-8 w-20 text-center"
+    //           type="text"
+    //           value={subtotalValue.toFixed(2)}
+    //           onChange={(e) => {
+    //             const newValue = parseFloat(e.target.value) || 0;
+    //             handleChange(rowIndex, { subtotal: newValue }, serviceNo);
+    //           }}
+    //         />
+    //       </div>
+    //     );
+    //   },
+    // },
   ];
 
   const initialData = [
