@@ -94,7 +94,6 @@ const ServicesTab = ({
   const laborTableRefs = useRef<Record<number, any>>({});
   const partTableRefs = useRef<Record<number, any>>({});
 
-  console.log("selected Rate i services : ", selectedRate);
   const [selectRate, setSelectRate] = useState<number>(
     typeof selectedRate === "number" ? selectedRate : 0
   );

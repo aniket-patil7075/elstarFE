@@ -92,7 +92,9 @@ const NewEstimate = () => {
   const [customerOptions, setCustomerOptions] = useState([]);
   const [chooseCustomerOptions, setChooseCustomerOptions] = useState([]);
   const [vehicleOptions, setVehicleOptions] = useState<Vehicle[]>([]);
-  const [chooseVehicleOptions, setChooseVehicleOptions] = useState<Vehicle[]>([]);
+  const [chooseVehicleOptions, setChooseVehicleOptions] = useState<Vehicle[]>(
+    []
+  );
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [orderTitle, setOrderTitle] = useState("");
   const [customerComment, setCustomerComment] = useState("");
@@ -111,7 +113,7 @@ const NewEstimate = () => {
   const [totalServiceGrandTotal, setTotalServiceGrandTotal] =
     useState<number>(0);
   const [chooseVehicle, setChooseVehicle] = useState(null); // State to store selected vehicle
-  const [selectedRate , setSelectedRate] = useState({})
+  const [selectedRate, setSelectedRate] = useState({});
   const timerRef = useRef(null);
   const location = useLocation();
   const { status } = location.state || {};
@@ -125,24 +127,24 @@ const NewEstimate = () => {
   const chooseVehicleId = useSelector(
     (state: any) => state.vehicle.selectedVehicle
   );
-  const [chooseCustomer, setChooseCustomer] = useState(null); // State to store selected customer
+  const [chooseCustomer, setChooseCustomer] = useState(null);
 
+  console.log("selected cusotmer for save : ", selectedCustomer);
+  console.log("vehicle Id  : ", chooseVehicleId);
+  console.log("vehicle name  : ", chooseVehicle);
+  console.log("vehicle options  : ", chooseVehicleOptions);
 
   const chooseCustomerFunction = async () => {
     try {
       const response = await getAllCustomers();
-      
 
       if (response?.status === "success" && response?.allCustomers?.length) {
         const selectedCustomer = response.allCustomers.find(
           (customer) => customer._id === chooseCustomerId
         );
-
         if (selectedCustomer) {
-          
           setChooseCustomer(selectedCustomer); // Set the matched customer in state
         } else {
-          
           setChooseCustomer(null); // Reset state if no match found
         }
       }
@@ -153,8 +155,9 @@ const NewEstimate = () => {
 
   const chooseVehicleFunction = async () => {
     try {
-      const response = await getAllVehicles(chooseCustomerId); // Fetch vehicles for the selected customer
-      console.log("Choose vehicle:", response);
+      const response = await getAllVehicles();
+
+      console.log("vehicle response : ", response);
 
       if (response?.status === "success" && response?.allVehicles?.length) {
         const selectedVehicle = response.allVehicles.find(
@@ -162,10 +165,8 @@ const NewEstimate = () => {
         );
 
         if (selectedVehicle) {
-          console.log("Selected Vehicle:", selectedVehicle);
           setChooseVehicle(selectedVehicle); // Set the matched vehicle in state
         } else {
-          console.log("No vehicle found with the selected ID.");
           setChooseVehicle(null); // Reset state if no match found
         }
       }
@@ -185,8 +186,6 @@ const NewEstimate = () => {
       chooseCustomerFunction();
     }
   }, [chooseCustomerId]); // Fetch only when `chooseCustomerId` changes
-
-
 
   const estimateGrandTotal = firstKey
     ? parseFloat(grandTotal[Number(firstKey)]?.toString() || "0")
@@ -311,11 +310,9 @@ const NewEstimate = () => {
     setCustomerOptions(labelValArr);
   };
 
-  
-
   const fetchSelectedCustomer = async () => {
-    let customer = chooseCustomer; 
-    console.log("choose customer : ", chooseCustomer)
+    let customer = chooseCustomer;
+    console.log("choose customer : ", chooseCustomer);
     let labelValArr = [];
 
     if (customer && customer._id) {
@@ -347,12 +344,10 @@ const NewEstimate = () => {
     setChooseCustomerOptions(labelValArr);
   };
 
-  console.log("Choose vehicle in estimate : ", chooseVehicle)
-
   const fetchSelectedVehicle = async () => {
     let vehicle = chooseVehicle; // Assuming `chooseVehicle` is available in scope
     let labelValArr = [];
-  
+
     if (vehicle && vehicle._id) {
       let vehicleName = `${vehicle.year || ""} ${vehicle.make || ""} ${vehicle.model || ""}`;
       vehicle.value = vehicleName;
@@ -367,21 +362,21 @@ const NewEstimate = () => {
           </Avatar>
           <div className="flex flex-col">
             <p className="text-black">{vehicleName}</p>
-            {vehicle.licencePlate && vehicle.licencePlate.length ? (
-              <p className="text-xs">Plate: {vehicle.licencePlate[0] || ""}</p>
-            ) : null}
+            {vehicle.subModel && vehicle.licencePlate.length ? (
+                <p className="text-xs">{`${vehicle.subModel || ""} ${vehicle.licencePlate[0].plateNumber || ""}`}</p>
+              ) : null}
           </div>
         </div>
       );
-  
+
       labelValArr.push(vehicle);
     }
-  
-    setChooseCustomerOptions(labelValArr);
+
+    setChooseVehicleOptions(labelValArr);
   };
-  
 
   const selectedCustomerId = selectedCustomer?._id || null;
+
   const fetchVehicles = async () => {
     let vehicles = await getAllVehicles(selectedCustomer?._id);
 
@@ -458,8 +453,8 @@ const NewEstimate = () => {
     fetchVehicles();
     fetchCustomers();
     fetchSelectedCustomer();
-    fetchSelectedVehicle()
-  }, []);
+    fetchSelectedVehicle();
+  }, [chooseCustomer, chooseVehicle]);
 
   const calculateTotalServiceGrandTotal = (): number => {
     return Object.values(servicesData).reduce((acc: number, service: any) => {
@@ -795,14 +790,14 @@ const NewEstimate = () => {
       fetchCustomers();
       fetchSelectedCustomer();
     }
-  }, [addCustomerModalOpen]);
+  }, [addCustomerModalOpen, chooseCustomer]);
 
   useEffect(() => {
     if (!addVehicleModalOpen) {
       fetchVehicles();
-      fetchSelectedVehicle()
+      fetchSelectedVehicle();
     }
-  }, [addVehicleModalOpen]);
+  }, [addVehicleModalOpen, chooseVehicle]);
 
   function calculateTotalPay(estimateData: {
     services?: { isAuthorized: boolean; serviceGrandTotal: number }[];
@@ -848,7 +843,7 @@ const NewEstimate = () => {
       const formattedRates = response.allGeneralRate.map((rate) => ({
         label: `${rate.rateName} ($${rate.rate.toFixed(2)}/hr)`,
         value: rate._id,
-        rate : rate.rate
+        rate: rate.rate,
       }));
 
       setAllRates(formattedRates);
@@ -864,6 +859,22 @@ const NewEstimate = () => {
   const handleNewRateAdded = () => {
     fetchGeneralRate(); // Re-fetch rates when a new one is added
   };
+
+
+  useEffect(() => {
+    if (chooseCustomer) {
+      setSelectedCustomer(chooseCustomer);
+      fetchVehiclesbycus(chooseCustomer._id);
+    }
+  }, [chooseCustomer]); // Only runs when `chooseCustomer` changes
+  
+  useEffect(() => {
+    if (chooseVehicle) {
+      setSelectedVehicle(chooseVehicle);
+    }
+  }, [chooseVehicle]); // Separate effect for `chooseVehicle`
+  
+  
 
   return (
     <div className="new-estimate w-full h-full ">
@@ -970,22 +981,19 @@ const NewEstimate = () => {
 
             <div className="cust-and-veh-inputs flex mt-8">
               <SelectAndButton
-                options={chooseCustomerOptions} // List of customer options
-                addNewButtonLabel="Add New Customer" // Label for the "Add New" button
-                value={chooseCustomer} // Use `chooseCustomer` as the selected value
+                options={chooseCustomerOptions}
+                addNewButtonLabel="Add New Customer"
+                value={chooseCustomer ?? selectedCustomer}
                 onChange={async (value: any) => {
-                  // Update both `chooseCustomer` and `selectedCustomer`
-                  await setChooseCustomer(value);
+                  console.log("Value in select and button:", value);
                   await setSelectedCustomer(value);
-
-                  // Fetch vehicles for the selected customer
                   fetchVehiclesbycus(value._id);
                 }}
-                placeholder="Add Customer..." // Placeholder text
+                placeholder="Add Customer..."
                 addNewClick={() =>
                   setAddCustomerModalOpen(!addCustomerModalOpen)
-                } // Open the "Add New Customer" modal
-                className="mb-4 mr-12 w-[256px]" // Styling
+                }
+                className="mb-4 mr-12 w-[256px]"
               />
               {addCustomerModalOpen ? (
                 <AddNewCustomerModal
@@ -998,10 +1006,10 @@ const NewEstimate = () => {
               <SelectAndButton
                 options={chooseVehicleOptions} // List of vehicle options
                 addNewButtonLabel="Add New Vehicle" // Label for the "Add New" button
-                value={chooseVehicle} // Use `chooseVehicle` as the selected value
+                value={chooseVehicle ?? selectedVehicle} // Use `chooseVehicle` as the selected value
                 onChange={async (value: any) => {
                   // Update both `chooseVehicle` and `selectedVehicle`
-                  await setChooseVehicle(value);
+                  // await setChooseVehicle(value);
                   await setSelectedVehicle(value);
                 }}
                 placeholder="Add Vehicle..." // Placeholder text
@@ -1207,8 +1215,7 @@ const NewEstimate = () => {
                               options={allRates} // Ensure this contains valid options
                               addNewButtonLabel="Add New Rate"
                               onChange={async (value: any) => {
-                                
-                                await setSelectedRate(value.rate ?? 0);              
+                                await setSelectedRate(value.rate ?? 0);
                               }}
                               addNewClick={() => setAddRatesModelOpen(true)}
                               placeholder="Select or Add Rate"
