@@ -129,10 +129,6 @@ const NewEstimate = () => {
   );
   const [chooseCustomer, setChooseCustomer] = useState(null);
 
-  console.log("selected cusotmer for save : ", selectedCustomer);
-  console.log("vehicle Id  : ", chooseVehicleId);
-  console.log("vehicle name  : ", chooseVehicle);
-  console.log("vehicle options  : ", chooseVehicleOptions);
 
   const chooseCustomerFunction = async () => {
     try {
@@ -156,8 +152,6 @@ const NewEstimate = () => {
   const chooseVehicleFunction = async () => {
     try {
       const response = await getAllVehicles();
-
-      console.log("vehicle response : ", response);
 
       if (response?.status === "success" && response?.allVehicles?.length) {
         const selectedVehicle = response.allVehicles.find(
@@ -312,7 +306,6 @@ const NewEstimate = () => {
 
   const fetchSelectedCustomer = async () => {
     let customer = chooseCustomer;
-    console.log("choose customer : ", chooseCustomer);
     let labelValArr = [];
 
     if (customer && customer._id) {
@@ -985,7 +978,6 @@ const NewEstimate = () => {
                 addNewButtonLabel="Add New Customer"
                 value={chooseCustomer ?? selectedCustomer}
                 onChange={async (value: any) => {
-                  console.log("Value in select and button:", value);
                   await setSelectedCustomer(value);
                   fetchVehiclesbycus(value._id);
                 }}

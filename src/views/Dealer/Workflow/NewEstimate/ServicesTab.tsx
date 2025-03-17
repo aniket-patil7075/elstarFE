@@ -31,6 +31,7 @@ import TabNav from "@/components/ui/Tabs/TabNav";
 import AddNewFeeModal from "../../DealerSharedComponent/AddNewFeeModal";
 import AddNewTireModal from "../../DealerSharedComponent/AddNewTireModal";
 import { getEstimateById } from "../../Services/WorkflowService";
+import { date } from "yup";
 
 const ServicesTab = ({
   comment,
@@ -97,13 +98,14 @@ const ServicesTab = ({
   const [selectRate, setSelectRate] = useState<number>(
     typeof selectedRate === "number" ? selectedRate : 0
   );
-  
+
   useEffect(() => {
     if (typeof selectedRate === "number" && selectedRate !== selectRate) {
       setSelectRate(selectedRate);
     }
   }, [selectedRate, selectRate]); // Prevents unnecessary re-renders
-  
+
+  console.log("selecct rate : ", selectRate);
 
   const handleAddService = () => {
     setServices([
@@ -429,6 +431,22 @@ const ServicesTab = ({
     });
   };
 
+  useEffect(() => {
+    // Loop through all services and their labor rows to recalculate labor costs
+    services.forEach((service, serviceIndex) => {
+      service.labors.forEach((labor: any, laborIndex: any) => {
+        if (labor.hours && labor.rate) {
+          handleLaborCalculation(
+            "rate",
+            selectRate,
+            serviceIndex + 1,
+            laborIndex
+          );
+        }
+      });
+    });
+  }, [selectRate]);
+
   const columns = [
     {
       header: "Labor",
@@ -538,12 +556,12 @@ const ServicesTab = ({
             className="h-8 w-14 text-center"
             placeholder="0"
             type="text"
-            value={ selectRate}
+            value={selectRate || value}
             onChange={(e) => {
-              handleChange(rowIndex, { rate: +e.target.value });
+              handleChange(rowIndex, { rate: selectRate ?? +e.target.value });
               handleLaborCalculation(
                 "rate",
-                selectRate,
+                selectRate ?? +e.target.value,
                 serviceNo,
                 rowIndex
               );
@@ -552,6 +570,34 @@ const ServicesTab = ({
         </div>
       ),
     },
+    // {
+    //   header: "Rate/hr",
+    //   accessor: "rate",
+    //   render: (
+    //     value: number,
+    //     rowIndex: number,
+    //     handleChange: (index: number, values: object) => void,
+    //     serviceNo: number
+    //   ) => (
+    //     <div className="w-full flex justify-center align-center">
+    //       <Input
+    //         className="h-8 w-14 text-center"
+    //         placeholder="0"
+    //         type="text"
+    //         value={ selectRate ?? value}
+    //         onChange={(e) => {
+    //           handleChange(rowIndex, { selectRate });
+    //           // handleLaborCalculation(
+    //           //   "rate",
+    //           //   selectRate,
+    //           //   serviceNo,
+    //           //   rowIndex
+    //           // );
+    //         }}
+    //       />
+    //     </div>
+    //   ),
+    // },
     {
       header: "Discount",
       accessor: "discount",
@@ -627,7 +673,7 @@ const ServicesTab = ({
           servicesTableData[serviceNo - 1]["labors"][rowIndex]
         ) {
           let data = servicesTableData[serviceNo - 1]["labors"][rowIndex];
-          if (selectRate && data.hours) val = selectRate * data.hours;
+          if ((selectRate || data.rate) && data.hours) val = (selectRate || data.rate) * data.hours;
           if (data.discount?.value) {
             let discount =
               data.discount.type === "%"
@@ -636,9 +682,6 @@ const ServicesTab = ({
             val -= discount;
           }
         }
-
-        // console.log("Value of subtotal : ",value)
-        // console.log("Val of subtotal : ",val)
         if (val !== value) {
           handleChange(rowIndex, { subtotal: val }, serviceNo);
         }
