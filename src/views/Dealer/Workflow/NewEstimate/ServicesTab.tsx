@@ -673,7 +673,9 @@ const ServicesTab = ({
           servicesTableData[serviceNo - 1]["labors"][rowIndex]
         ) {
           let data = servicesTableData[serviceNo - 1]["labors"][rowIndex];
-          if ((selectRate || data.rate) && data.hours) val = (selectRate || data.rate) * data.hours;
+          if ((selectRate || data.rate) && data.hours) {
+            val = (selectRate || data.rate) * data.hours;
+          }
           if (data.discount?.value) {
             let discount =
               data.discount.type === "%"
@@ -682,11 +684,33 @@ const ServicesTab = ({
             val -= discount;
           }
         }
-        if (val !== value) {
-          handleChange(rowIndex, { subtotal: val }, serviceNo);
+
+        // Ensure val is a number before using toFixed
+        val = typeof val === "number" && !isNaN(val) ? val : 0;
+
+        // If the manually entered value is different from the calculated value, use the manual value
+        if (value !== val && typeof value === "number" && !isNaN(value)) {
+          val = value;
         }
 
-        return <span className="block text-center">${val.toFixed(2)}</span>;
+        return (
+          <div className="w-full flex justify-center align-center">
+            <Input
+              className="h-8 w-20 text-center"
+              placeholder="0"
+              type="text"
+              value={val.toFixed(2)}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+                if (/^\d*\.?\d*$/.test(inputValue)) {
+                  // Validate if the input is a valid number
+                  const manualValue = parseFloat(inputValue) || 0;
+                  handleChange(rowIndex, { subtotal: manualValue }, serviceNo);
+                }
+              }}
+            />
+          </div>
+        );
       },
     },
     // {
@@ -703,7 +727,7 @@ const ServicesTab = ({
     //     serviceNo: number
     //   ) => {
     //     let val = 0;
-    
+
     //     if (
     //       servicesTableData[serviceNo - 1] &&
     //       servicesTableData[serviceNo - 1]["labors"] &&
@@ -723,7 +747,7 @@ const ServicesTab = ({
     //       val = value;
     //     }
     //     const subtotalValue = typeof val === 'number' && !isNaN(val) ? val : 0;
-    
+
     //     return (
     //       <div className="w-full flex justify-center align-center">
     //         <Input
