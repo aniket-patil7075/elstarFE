@@ -48,6 +48,7 @@ import TabNav from "@/components/ui/Tabs/TabNav";
 import TabContent from "@/components/ui/Tabs/TabContent";
 import dayjs from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
+import { useNavigate } from "react-router-dom";
 dayjs.extend(isBetween);
 
 type ColumnDef<T> = {
@@ -85,6 +86,8 @@ interface Appointment {
 const DealerDashboard = () => {
   // ------------------------------Unpaid Table ------------------------------------
   const [data, setData] = useState<Estimate[]>([]);
+  const navigate = useNavigate();
+  console.log("row data : ", data)
 
   const fetchAppointment = async () => {
     try {
@@ -378,6 +381,11 @@ const DealerDashboard = () => {
               <DataTable
                 columns={columns}
                 data={data}
+                onRowClick={(row: any) =>
+                  navigate(
+                    `/dealer/workflow/order/${row.original._id}-${row.original.orderNo}`
+                  )
+                }
                 loading={!data.length}
                 skeletonAvatarColumns={[0]}
                 skeletonAvatarProps={{ width: 28, height: 28 }}
