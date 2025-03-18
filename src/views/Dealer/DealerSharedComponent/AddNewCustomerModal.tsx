@@ -77,9 +77,9 @@ const AddNewCustomerModal = ({ handleButtonClick }: any) => {
                 validationSchema={validationSchema}
                 onSubmit={async (values, { resetForm, setSubmitting }) => {
                   try {
-                    console.log("Saving new customer:", values);
-                    const response = await apiNewCustomer(values); // Save customer to the API
-
+                    console.log("Saving new customer :", values);
+                    const response = await apiNewCustomer(values); 
+                    console.log("API Response of customer :", response);
                     toast.push(
                       <Notification title="Success" type="success">
                         New Customer Saved Successfully

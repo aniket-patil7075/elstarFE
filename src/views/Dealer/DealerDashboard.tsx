@@ -87,7 +87,6 @@ const DealerDashboard = () => {
   // ------------------------------Unpaid Table ------------------------------------
   const [data, setData] = useState<Estimate[]>([]);
   const navigate = useNavigate();
-  console.log("row data : ", data)
 
   const fetchAppointment = async () => {
     try {

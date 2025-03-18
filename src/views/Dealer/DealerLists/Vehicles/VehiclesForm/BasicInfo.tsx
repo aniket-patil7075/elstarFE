@@ -9,6 +9,7 @@ import {
   FormikTouched,
   FieldProps,
   FieldInputProps,
+  useFormikContext,
 } from "formik";
 import { useEffect, useState, type ComponentType } from "react";
 import type { InputProps } from "@/components/ui/Input";
@@ -86,8 +87,8 @@ const NumericFormatInput = ({
   );
 };
 
-const BasicInfo = ({handleClick},props: BasicInfo) => {
-  const { touched, errors, selectedVehicle, setFieldValue } = props;
+const BasicInfo = ({ handleClick }, props: BasicInfo) => {
+  const { touched, errors, selectedVehicle } = props;
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
   const [showAddress, setShowAddress] = useState(false);
@@ -106,6 +107,7 @@ const BasicInfo = ({handleClick},props: BasicInfo) => {
   const [subModelInput, setSubModelInput] = useState("");
   const [filteredVehicles, setFilteredVehicles] = useState([]);
   const dispatch = useDispatch();
+  const { values, setFieldValue } = useFormikContext();
 
   // console.log("selected customer : ", selectedCustomer)
 
@@ -190,8 +192,35 @@ const BasicInfo = ({handleClick},props: BasicInfo) => {
     dispatch(setSelectedVehicle(vehicleId));
 
     if (handleClick) {
-      handleClick(); 
+      handleClick();
     }
+  };
+
+  const handleYearChange = (e) => {
+    const value = e.target.value;
+    setYearInput(value); // Update local state for filtering
+    setFieldValue("year", value); // Update Formik state
+  };
+
+  // Handler for make input changes
+  const handleMakeChange = (e) => {
+    const value = e.target.value;
+    setMakeInput(value); // Update local state for filtering
+    setFieldValue("make", value); // Update Formik state
+  };
+
+  // Handler for model input changes
+  const handleModelChange = (e) => {
+    const value = e.target.value;
+    setModelInput(value); // Update local state for filtering
+    setFieldValue("model", value); // Update Formik state
+  };
+
+  // Handler for subModel input changes
+  const handleSubModelChange = (e) => {
+    const value = e.target.value;
+    setSubModelInput(value); // Update local state for filtering
+    setFieldValue("subModel", value); // Update Formik state
   };
 
   return (
@@ -260,8 +289,8 @@ const BasicInfo = ({handleClick},props: BasicInfo) => {
               placeholder="2024"
               component={Input}
               className="border border-gray-300 p-1 rounded-md bg-slate-50"
-              value={yearInput}
-              onChange={(e) => setYearInput(e.target.value)}
+              value={yearInput} // Controlled by local state
+              onChange={handleYearChange}
             />
           </FormItem>
 
@@ -272,8 +301,8 @@ const BasicInfo = ({handleClick},props: BasicInfo) => {
               placeholder="Honda"
               component={Input}
               className="border border-gray-300 p-1 rounded-md bg-slate-50"
-              value={makeInput}
-              onChange={(e) => setMakeInput(e.target.value)}
+              value={makeInput} // Controlled by local state
+              onChange={handleMakeChange}
             />
           </FormItem>
         </div>
@@ -288,8 +317,8 @@ const BasicInfo = ({handleClick},props: BasicInfo) => {
             placeholder="Accord"
             component={Input}
             className="border border-gray-300 p-1 rounded-md bg-slate-50"
-            value={modelInput}
-            onChange={(e) => setModelInput(e.target.value)}
+            value={modelInput} // Controlled by local state
+            onChange={handleModelChange}
           />
         </FormItem>
 
@@ -300,8 +329,8 @@ const BasicInfo = ({handleClick},props: BasicInfo) => {
             placeholder="Base"
             component={Input}
             className="border border-gray-300 p-1 rounded-md bg-slate-50"
-            value={subModelInput}
-            onChange={(e) => setSubModelInput(e.target.value)}
+            value={subModelInput} // Controlled by local state
+            onChange={handleSubModelChange}
           />
         </FormItem>
       </div>

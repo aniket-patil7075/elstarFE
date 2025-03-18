@@ -8,6 +8,7 @@ import {
   FormikTouched,
   FormikProps,
   Formik,
+  useFormikContext,
 } from "formik";
 import { useEffect, useState } from "react";
 import { HiDocumentText, HiMail, HiX } from "react-icons/hi";
@@ -79,7 +80,7 @@ type BasicInfo = {
   errors: FormikErrors<FormFieldsName>;
 };
 
-const BasicInfo = ({ touched, errors,handleClick  }: BasicInfo) => {
+const BasicInfo = ({ touched, errors, handleClick }: BasicInfo) => {
   const [selectedContact, setSelectedContact] = useState<string | null>(null);
   const [showAdditionalInfoForm, setShowAdditionalInfoForm] = useState(false);
   const [showAdditionalInfo, setShowAdditionalInfo] = useState(false);
@@ -198,14 +199,41 @@ const BasicInfo = ({ touched, errors,handleClick  }: BasicInfo) => {
     }));
   };
 
-  const handleChooseAction = (action:any, customerId:any) => {
+  const handleChooseAction = (action: any, customerId: any) => {
     console.log("Action:", action);
     console.log("Customer ID:", customerId);
     dispatch(setSelectedCustomer(customerId));
 
     if (handleClick) {
-      handleClick(); 
+      handleClick();
     }
+  };
+
+  const { values, setFieldValue } = useFormikContext();
+  // Update both Formik state and local state when input changes
+  const handleFirstNameChange = (e) => {
+    const value = e.target.value;
+    setFirstNameInput(value); // Update local state for filtering
+    setFieldValue("firstName", value); // Update Formik state
+  };
+
+  const handleLastNameChange = (e) => {
+    const value = e.target.value;
+    setLastNameInput(value); // Update local state for filtering
+    setFieldValue("lastName", value); // Update Formik state
+  };
+
+  // Handler for phoneNumber input changes
+  const handlePhoneNumberChange = (e, index) => {
+    const value = e.target.value;
+    setPhoneInput(value); // Update local state for filtering
+    setFieldValue(`phoneNumber.${index}.number`, value); // Update Formik state
+  };
+
+  const handleEmailChange = (e, index) => {
+    const value = e.target.value;
+    setEmailInput(value); // Update local state for filtering
+    setFieldValue(`email.${index}`, value); // Update Formik state
   };
 
   return (
@@ -256,7 +284,6 @@ const BasicInfo = ({ touched, errors,handleClick  }: BasicInfo) => {
                     >
                       Choose
                     </button>
-                    
                   </div>
                 </Dropdown.Item>
               ))
@@ -283,7 +310,7 @@ const BasicInfo = ({ touched, errors,handleClick  }: BasicInfo) => {
             component={Input}
             className="border border-gray-300 outline-none p-1 rounded-md focus:ring-0 focus:ring-blue-300 bg-slate-50"
             value={firstNameInput}
-            onChange={(e) => setFirstNameInput(e.target.value)}
+            onChange={handleFirstNameChange}
             required
           />
         </FormItem>
@@ -300,8 +327,8 @@ const BasicInfo = ({ touched, errors,handleClick  }: BasicInfo) => {
             placeholder="Last Name"
             component={Input}
             className="border border-gray-300 outline-none p-1 rounded-md focus:ring-0 focus:ring-blue-300 bg-slate-50"
-            value={lastNameInput}
-            onChange={(e) => setLastNameInput(e.target.value)}
+            value={lastNameInput} // Controlled by local state
+            onChange={handleLastNameChange} // Custom handler
             required
           />
         </FormItem>
@@ -333,8 +360,9 @@ const BasicInfo = ({ touched, errors,handleClick  }: BasicInfo) => {
                   placeholder="Phone Number"
                   component={Input}
                   className="border border-gray-300 outline-none p-1 rounded-md focus:ring-0 focus:ring-blue-300 bg-slate-50"
-                  value={phoneInput}
-                  onChange={(e) => setPhoneInput(e.target.value)}
+                  value={phoneInput} // Controlled by local state
+                  onChange={(e) => handlePhoneNumberChange(e, index)} // Custom handler
+                  required
                 />
               </FormItem>
             </div>
@@ -358,8 +386,9 @@ const BasicInfo = ({ touched, errors,handleClick  }: BasicInfo) => {
                 placeholder="Enter email address"
                 component={Input}
                 className="border border-gray-300 outline-none p-1 rounded-md focus:ring-0 focus:ring-blue-300 bg-slate-50"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
+                value={emailInput} // Controlled by local state
+                onChange={(e) => handleEmailChange(e, index)} // Custom handler
+                required
               />
             </FormItem>
 
