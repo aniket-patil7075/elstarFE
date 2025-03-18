@@ -20,7 +20,12 @@ import type { OnSortParam, ColumnDef } from "@/components/shared/DataTable";
 import Tabs from "@/components/ui/Tabs";
 import Tag from "@/components/ui/Tag";
 import Button from "@/components/ui/Button";
-import { HiDownload, HiOutlineInboxIn, HiOutlinePlus, HiPlusCircle } from "react-icons/hi";
+import {
+  HiDownload,
+  HiOutlineInboxIn,
+  HiOutlinePlus,
+  HiPlusCircle,
+} from "react-icons/hi";
 import { Dropdown, Notification, toast } from "@/components/ui";
 import {
   apiDeleteEstimate,
@@ -397,6 +402,9 @@ const WorkflowTable = () => {
 
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status"); // Get status from URL
+
+  console.log("Status : ", status)
+
   const statusTabMapping = {
     Estimates: `tab${allCountAccToStatus?.estimates?.id}`,
     "Dropped Off": `tab${allCountAccToStatus?.droppedOff?.id}`,
@@ -404,38 +412,43 @@ const WorkflowTable = () => {
     Invoices: `tab${allCountAccToStatus?.invoices?.id}`,
   };
 
-  const defaultTab = statusTabMapping[status] || `tab${allCountAccToStatus?.all?.id}`;
+  const defaultTab = statusTabMapping[status] || "tab1";
+
+
+  console.log("defaultTab:", defaultTab);
+  console.log("All Tab Value:", `tab${allCountAccToStatus?.all?.id}`);
+  
 
   return (
     <>
-    <div className="lg:flex items-center justify-between mb-4">
-            <h3 className="mb-4 lg:mb-0">All Estimates</h3>
-            <div className="flex flex-col lg:flex-row lg:items-center ms-3">
-            <WorkflowTableSearch />
-            <Link
-                download
-                className="block lg:inline-block md:mx-2 md:mb-0 mb-4"
-                to="/data/product-list.csv"
-                target="_blank"
-            >
-                <Button block size="sm" icon={<HiDownload />}>
-                    Export
-                </Button>
-            </Link>
-
-            <Button
-                onClick={onClick}
-                className="mr-2 block lg:inline-block md:mb-0 mb-4"
-                variant="solid"
-                loading={loading}
-                size="sm"
-            >
-                PDF
+      <div className="lg:flex items-center justify-between mb-4">
+        <h3 className="mb-4 lg:mb-0">All Estimates</h3>
+        <div className="flex flex-col lg:flex-row lg:items-center ms-3">
+          <WorkflowTableSearch />
+          <Link
+            download
+            className="block lg:inline-block md:mx-2 md:mb-0 mb-4"
+            to="/data/product-list.csv"
+            target="_blank"
+          >
+            <Button block size="sm" icon={<HiDownload />}>
+              Export
             </Button>
+          </Link>
+
+          <Button
+            onClick={onClick}
+            className="mr-2 block lg:inline-block md:mb-0 mb-4"
+            variant="solid"
+            loading={loading}
+            size="sm"
+          >
+            PDF
+          </Button>
         </div>
-          </div>
-    
-      <Tabs defaultValue={defaultTab} className="mt-5">
+      </div>
+
+      <Tabs defaultValue={defaultTab || "tab1"} className="mt-5">
         <TabList>
           <TabNav value={`tab${allCountAccToStatus?.all?.id}`}>
             All
