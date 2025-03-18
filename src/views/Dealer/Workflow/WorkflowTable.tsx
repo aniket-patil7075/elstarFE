@@ -13,7 +13,7 @@ import {
   getWorkflowTableCount,
 } from "./store/index";
 import useThemeClass from "@/utils/hooks/useThemeClass";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import dayjs from "dayjs";
 import cloneDeep from "lodash/cloneDeep";
 import type { OnSortParam, ColumnDef } from "@/components/shared/DataTable";
@@ -395,6 +395,17 @@ const WorkflowTable = () => {
     };
   };
 
+  const [searchParams] = useSearchParams();
+  const status = searchParams.get("status"); // Get status from URL
+  const statusTabMapping = {
+    Estimates: `tab${allCountAccToStatus?.estimates?.id}`,
+    "Dropped Off": `tab${allCountAccToStatus?.droppedOff?.id}`,
+    "In Progress": `tab${allCountAccToStatus?.inProgress?.id}`,
+    Invoices: `tab${allCountAccToStatus?.invoices?.id}`,
+  };
+
+  const defaultTab = statusTabMapping[status] || `tab${allCountAccToStatus?.all?.id}`;
+
   return (
     <>
     <div className="lg:flex items-center justify-between mb-4">
@@ -424,7 +435,7 @@ const WorkflowTable = () => {
         </div>
           </div>
     
-      <Tabs defaultValue="tab1" className="mt-5">
+      <Tabs defaultValue={defaultTab} className="mt-5">
         <TabList>
           <TabNav value={`tab${allCountAccToStatus?.all?.id}`}>
             All
@@ -504,6 +515,11 @@ const WorkflowTable = () => {
             <DataTable
               columns={columns}
               data={filteredDataByWorkflow(data, "Estimates")}
+              onRowClick={(row: any) =>
+                navigate(
+                  `/dealer/workflow/order/${row.original.id}-${row.original.orderNo}`
+                )
+              }
               skeletonAvatarColumns={[0]}
               skeletonAvatarProps={{ width: 28, height: 28 }}
               loading={loading}
@@ -517,6 +533,11 @@ const WorkflowTable = () => {
             <DataTable
               columns={columns}
               data={filteredDataByWorkflow(data, "Dropped Off")}
+              onRowClick={(row: any) =>
+                navigate(
+                  `/dealer/workflow/order/${row.original.id}-${row.original.orderNo}`
+                )
+              }
               skeletonAvatarColumns={[0]}
               skeletonAvatarProps={{ width: 28, height: 28 }}
               loading={loading}
@@ -530,6 +551,11 @@ const WorkflowTable = () => {
             <DataTable
               columns={columns}
               data={filteredDataByWorkflow(data, "In Progress")}
+              onRowClick={(row: any) =>
+                navigate(
+                  `/dealer/workflow/order/${row.original.id}-${row.original.orderNo}`
+                )
+              }
               skeletonAvatarColumns={[0]}
               skeletonAvatarProps={{ width: 28, height: 28 }}
               loading={loading}

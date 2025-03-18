@@ -215,6 +215,8 @@ const DealerDashboard = () => {
         useEffect(() => {
           estimateStatusData();
         }, []);
+
+
   const statuses = ["Estimates", "Dropped Off", "In Progress", "Invoice"];
 
 
@@ -360,7 +362,8 @@ const DealerDashboard = () => {
             </THead>
             <TBody>
               {summary.map((row) => (
-                <Tr key={row.status}>
+                <Tr key={row.status} onClick={() => navigate(`/dealer/workflow/?status=${encodeURIComponent(row.status)}`)} 
+                style={{ cursor: "pointer" }}>
                   <Td>{row.status}</Td>
                   <Td>{row.orderCount} Orders</Td>
                   <Td>$ {row.grandTotal.toFixed(2)}</Td>
