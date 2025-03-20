@@ -446,6 +446,7 @@ const ServicesTab = ({
       });
     });
   }, [selectRate]);
+  
 
   const columns = [
     {
@@ -556,15 +557,15 @@ const ServicesTab = ({
             className="h-8 w-14 text-center"
             placeholder="0"
             type="text"
-            value={selectRate || value}
+            value={selectRate ?? value}
             onChange={(e) => {
-              handleChange(rowIndex, { rate: selectRate ?? +e.target.value });
-              handleLaborCalculation(
-                "rate",
-                selectRate ?? +e.target.value,
-                serviceNo,
-                rowIndex
-              );
+              handleChange(rowIndex, { rate: selectRate });
+              // handleLaborCalculation(
+              //   "rate",
+              //   +e.target.value,
+              //   serviceNo,
+              //   rowIndex
+              // );
             }}
           />
         </div>
@@ -673,9 +674,7 @@ const ServicesTab = ({
           servicesTableData[serviceNo - 1]["labors"][rowIndex]
         ) {
           let data = servicesTableData[serviceNo - 1]["labors"][rowIndex];
-          if ((selectRate || data.rate) && data.hours) {
-            val = (selectRate || data.rate) * data.hours;
-          }
+          if (selectRate && data.hours) val = selectRate * data.hours;
           if (data.discount?.value) {
             let discount =
               data.discount.type === "%"
@@ -685,34 +684,76 @@ const ServicesTab = ({
           }
         }
 
-        // Ensure val is a number before using toFixed
-        val = typeof val === "number" && !isNaN(val) ? val : 0;
-
-        // If the manually entered value is different from the calculated value, use the manual value
-        if (value !== val && typeof value === "number" && !isNaN(value)) {
-          val = value;
+        // console.log("Value of subtotal : ",value)
+        // console.log("Val of subtotal : ",val)
+        if (val !== value) {
+          handleChange(rowIndex, { subtotal: val }, serviceNo);
         }
 
-        return (
-          <div className="w-full flex justify-center align-center">
-            <Input
-              className="h-8 w-20 text-center"
-              placeholder="0"
-              type="text"
-              value={val.toFixed(2)}
-              onChange={(e) => {
-                const inputValue = e.target.value;
-                if (/^\d*\.?\d*$/.test(inputValue)) {
-                  // Validate if the input is a valid number
-                  const manualValue = parseFloat(inputValue) || 0;
-                  handleChange(rowIndex, { subtotal: manualValue }, serviceNo);
-                }
-              }}
-            />
-          </div>
-        );
+        return <span className="block text-center">${val.toFixed(2)}</span>;
       },
     },
+    // {
+    //   header: "Subtotal",
+    //   accessor: "subtotal",
+    //   render: (
+    //     value: number,
+    //     rowIndex: number,
+    //     handleChange: (
+    //       index: number,
+    //       values: Record<string, any>,
+    //       serviceNo: number
+    //     ) => void,
+    //     serviceNo: number
+    //   ) => {
+    //     let val = 0;
+
+    //     if (
+    //       servicesTableData[serviceNo - 1] &&
+    //       servicesTableData[serviceNo - 1]["labors"] &&
+    //       servicesTableData[serviceNo - 1]["labors"][rowIndex]
+    //     ) {
+    //       let data = servicesTableData[serviceNo - 1]["labors"][rowIndex];
+    //       if ((selectRate || data.rate) && data.hours) {
+    //         val = (selectRate || data.rate) * data.hours;
+    //       }
+    //       if (data.discount?.value) {
+    //         let discount =
+    //           data.discount.type === "%"
+    //             ? val * (data.discount.value / 100)
+    //             : data.discount.value;
+    //         val -= discount;
+    //       }
+    //     }
+
+    //     // Ensure val is a number before using toFixed
+    //     val = typeof val === "number" && !isNaN(val) ? val : 0;
+
+    //     // If the manually entered value is different from the calculated value, use the manual value
+    //     if (value !== val && typeof value === "number" && !isNaN(value)) {
+    //       val = value;
+    //     }
+
+    //     return (
+    //       <div className="w-full flex justify-center align-center">
+    //         <Input
+    //           className="h-8 w-20 text-center"
+    //           placeholder="0"
+    //           type="text"
+    //           value={val.toFixed(2)}
+    //           onChange={(e) => {
+    //             const inputValue = e.target.value;
+    //             if (/^\d*\.?\d*$/.test(inputValue)) {
+    //               // Validate if the input is a valid number
+    //               const manualValue = parseFloat(inputValue) || 0;
+    //               handleChange(rowIndex, { subtotal: manualValue }, serviceNo);
+    //             }
+    //           }}
+    //         />
+    //       </div>
+    //     );
+    //   },
+    // },
     // {
     //   header: "Subtotal",
     //   accessor: "subtotal",
