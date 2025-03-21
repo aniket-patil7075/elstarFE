@@ -33,6 +33,7 @@ import AddNewFeeModal from "../../DealerSharedComponent/AddNewFeeModal";
 import AddNewTireModal from "../../DealerSharedComponent/AddNewTireModal";
 import { getEstimateById } from "../../Services/WorkflowService";
 import { date } from "yup";
+import AddNewRatesModal from "../../GeneralSetting/FeesAndRates/AddNewRatesModal";
 
 const ServicesTab = ({
   comment,
@@ -73,7 +74,7 @@ const ServicesTab = ({
   const [feesSubTotal, setFeesSubTotal] = useState({});
   const [overallDiscount, setOverallDiscount] = useState({});
   const [activeServiceNo, setActiveServiceNo] = useState(0);
-
+  const [addRatesModelOpen, setAddRatesModelOpen] = useState(false);
   const laborSubTotalMap = useRef({});
   const partSubTotalMap = useRef({});
   const tireSubTotalMap = useRef({});
@@ -487,6 +488,10 @@ const ServicesTab = ({
     fetchGeneralRate();
   }, []);
 
+  const handleNewRateAdded = () => {
+    fetchGeneralRate(); // Re-fetch rates when a new one is added
+  };
+
   const columns = [
     {
       header: "Labor",
@@ -618,37 +623,39 @@ const ServicesTab = ({
         handleChange: (index: number, values: object) => void,
         serviceNo: number
       ) => {
-        console.log("Current value:", value);
-        console.log("Row index:", rowIndex);
-        console.log("Service number:", serviceNo);
-    
         return (
           <div className="w-full flex justify-center align-center">
             <SelectAndButton
               name="rate"
               options={allRates}
               addNewButtonLabel="Add"
-              addNewClick={() => console.log("Add New Rate Clicked")}
+              value={allRates.find(
+                (option) => +option.label.replace(/[^0-9.]/g, "") === value
+              ) || null}
+              addNewClick={() => setAddRatesModelOpen(true)}
               placeholder="Rate"
-              className=""
-              // value={value} // Pass the current value to the SelectAndButton component
+              className="w-32"
+              styles={{
+                menuList: (provided) => ({
+                  ...provided,
+                  maxHeight: "100px", 
+                  overflowY: "auto", 
+                }),
+              }}
               onChange={(selectedValue) => {
-    
-                // Extract the numeric part from the label (e.g., "40" from "$40.00/hr")
                 const numericValue = selectedValue.label.replace(/[^0-9.]/g, "");
-    
-                // Ensure numericValue is a number
                 const newRate = +numericValue;
-    
-                // Update the state using handleChange
                 handleChange(rowIndex, { rate: newRate });
-                console.log("selected new rate:", newRate);
-    
-                // Trigger labor calculation
                 handleLaborCalculation("rate", newRate, serviceNo, rowIndex);
-                console.log("Labor calculation triggered for service:", serviceNo);
               }}
             />
+            {addRatesModelOpen && (
+                <AddNewRatesModal
+                  isOpen={addRatesModelOpen}
+                  onClose={() => setAddRatesModelOpen(false)}
+                  onRateAdded={handleNewRateAdded}
+                />
+              )}
           </div>
         );
       },

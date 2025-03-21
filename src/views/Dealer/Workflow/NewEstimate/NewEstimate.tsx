@@ -129,6 +129,11 @@ const NewEstimate = () => {
   );
   const [chooseCustomer, setChooseCustomer] = useState(null);
 
+  const totalValue = Array.isArray(grandTotal) ? grandTotal[0] : 
+                   typeof grandTotal === "object" && grandTotal !== null ? grandTotal[0] : 
+                   grandTotal;
+
+  console.log("saved Total:", totalValue || {});
 
   const chooseCustomerFunction = async () => {
     try {
@@ -809,7 +814,6 @@ const NewEstimate = () => {
   // Example usage:
   const totalPay = calculateTotalPay(estimateData);
 
-  // console.log("total pay : ",totalPay)
 
   const handleDeleteFunction = async () => {
     try {
@@ -1043,6 +1047,7 @@ const NewEstimate = () => {
 
               <div className="bg-[#f0f1fa] pl-7 pr-4 lg:px-10 -mr-4 -ml-8 py-5 h-full">
                 <TabContent value="services">
+                  
                   <ServicesTab
                     savedTotal={grandTotal || {}}
                     setGrandTotal={setGrandTotal}
@@ -1167,7 +1172,7 @@ const NewEstimate = () => {
                       >
                         <div className="flex item-center justify-between">
                           <h6> Total Pay</h6>
-                          <h6>${totalServiceGrandTotal}</h6>
+                          <h6>${totalValue}</h6>
                         </div>
                       </Card>
                       {/* )} */}
@@ -1198,7 +1203,7 @@ const NewEstimate = () => {
 
                       <div className="w-full border-t my-5"></div>
 
-                      <div className="mt-5">
+                      {/* <div className="mt-5">
                         <p className="text-black font-semibold">Select Rate:</p>
                         <div className="my-2 ">
                           <FormItem>
@@ -1223,7 +1228,7 @@ const NewEstimate = () => {
                             />
                           )}
                         </div>
-                      </div>
+                      </div> */}
                     </TabContent>
 
                     <TabContent value="customer">
