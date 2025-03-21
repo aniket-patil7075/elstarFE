@@ -51,14 +51,23 @@ interface Customer {
   name: string;
 }
 
-const AddNewAppointmentModal = ({
+interface AddNewAppointmentModalProps {
+  eventsData: any[];
+  setEventsData: React.Dispatch<React.SetStateAction<any[]>>;
+  setModalOpen: (open: boolean) => void;
+  isModalOpen: boolean;
+  selectedEvent: any | null;
+  isNewAppointment: boolean;
+}
+
+const AddNewAppointmentModal: React.FC<AddNewAppointmentModalProps> = ({
   eventsData,
   setEventsData,
   setModalOpen,
   isModalOpen,
   selectedEvent,
   isNewAppointment,
-}: any) => {
+}) => {
   const disablePastDates = (date: Date) => {
     return dayjs(date).isBefore(dayjs(), "day"); // Disables dates before today
   };
@@ -79,7 +88,7 @@ const AddNewAppointmentModal = ({
   const [startDateTime, setStartDateTime] = useState<Date | null>(selectedEvent?.start ? new Date(selectedEvent.start) : null);
   const [endDateTime, setEndDateTime] = useState<Date | null>(selectedEvent?.end ? new Date(selectedEvent.end) : null);
   
-
+console.log("selected event : ", setEventsData)
 
   const dispatch = useAppDispatch();
   
@@ -117,7 +126,6 @@ const AddNewAppointmentModal = ({
     const endDateTimeIso = endDateTime.toISOString();
 
     const newEventData = {
-      //   id: (eventsData.length + 1).toString(),
       title: values.title,
       start: startDateTime,
       end: endDateTime,
@@ -130,9 +138,15 @@ const AddNewAppointmentModal = ({
       status: values.status,
     };
 
-    setEventsData((prevEvents: any) => [...prevEvents, newEventData]);
+    console.log("new event data : ", newEventData);
 
-    // console.log("Appointment Data for update : ", newEventData);
+    // Ensure setEventsData is a function before calling it
+    if (typeof setEventsData === 'function') {
+      setEventsData((prevEvents: any) => [...prevEvents, newEventData]);
+    } else {
+      console.error("setEventsData is not a function");
+    }
+
     await apiAddNewAppointment(newEventData);
     fetch();
   };
