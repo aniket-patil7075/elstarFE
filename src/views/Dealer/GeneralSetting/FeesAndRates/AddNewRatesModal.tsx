@@ -12,7 +12,7 @@ import { HiOutlineSave } from "react-icons/hi";
 import { cloneDeep } from "lodash";
 import { useEffect, useState } from "react";
 import { apiAddNewGeneralSetting } from "../../DealerLists/Services/DealerListServices";
-import { apiAddNewRate, getAllGeneralRate } from "../../DealerLists/Services/DealerInventoryServices";
+import { apiAddNewRate, apiUpdateRate, getAllGeneralRate } from "../../DealerLists/Services/DealerInventoryServices";
 
 const validationSchema = Yup.object().shape({
   rateName: Yup.string().required("Rate Name is required"),
@@ -21,11 +21,21 @@ const validationSchema = Yup.object().shape({
     .required("Rate is required"),
 });
 
-const AddNewRatesModal = ({ isOpen, onClose, onRateAdded  }: any) => {
+const AddNewRatesModal = ({ isOpen, onClose, onRateAdded , editData }: any) => {
   const [showForm, setshowForm] = useState(true);
-  const initialValues = { rateName: "", rate: 0 };
-  const handleCancel = () => onClose();
 
+  
+  const initialValues = editData
+  ? { rateName: editData.rateName, rate: editData.rate }
+  : { rateName: "", rate: 0 };
+
+const handleCancel = () => {
+  setshowForm(false);
+  onClose();
+};
+
+
+    console.log("Edit data : ",editData)
   return (
     <>
       {showForm && (
@@ -39,7 +49,7 @@ const AddNewRatesModal = ({ isOpen, onClose, onRateAdded  }: any) => {
             style={{ height: "42vh" }}
           >
             <div className="flex justify-between items-center p-3 border-b">
-              <h3 className="text-base font-semibold">New Rate</h3>
+            <h3 className="text-base font-semibold">{editData ? "Edit Rate" : "New Rate"}</h3>
               <button
                 className="text-gray-500 hover:text-gray-700"
                 onClick={handleCancel}
@@ -54,10 +64,14 @@ const AddNewRatesModal = ({ isOpen, onClose, onRateAdded  }: any) => {
                 onSubmit={async (values, { resetForm, setSubmitting }) => {
                   const formData = cloneDeep(values);
                   try {
-                    await apiAddNewRate(formData);
+                    if (editData) {
+                      await apiUpdateRate(values , editData.id); 
+                    } else {
+                      await apiAddNewRate(values); // Add new API call
+                    }
                     toast.push(
                       <Notification title="Success" type="success">
-                        New Rate Saved Successfully
+                        {editData ? "Rate Updated Successfully" : "New Rate Saved Successfully"}
                       </Notification>
                     );
                     resetForm();
@@ -117,7 +131,7 @@ const AddNewRatesModal = ({ isOpen, onClose, onRateAdded  }: any) => {
                           className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5"
                           type="submit"
                         >
-                          Save
+                           {editData ? "Update" : "Save"}
                         </Button>
                       </div>
                     </FormContainer>

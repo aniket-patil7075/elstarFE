@@ -397,6 +397,26 @@ export async function apiAddNewRate(data: any) {
     }
 }
 
+export async function apiUpdateRate(data: any, id: string) {
+    try {
+        const response = await axios.put(`${API_BASE_URL}${apiPrefix}/dealer/update-general-rate/${id}`, data);
+        return response.data;
+    }
+    catch (error: any) {
+        if (error.response) {
+            throw new Error(`Server Error: ${error.response.data.message || 'Error in saving Fee'}`);
+
+        } else if (error.request) {
+            // No response was received from the server
+            throw new Error('Network Error: Unable to reach the server');
+        } else {
+            // Some other error
+            throw new Error('Unexpected Error: ' + error.message);
+        }
+
+    }
+}
+
 export async function getAllGeneralRate() {
     try {
         const response = await axios.get(`${API_BASE_URL}${apiPrefix}/dealer/get-all-general-rate`);

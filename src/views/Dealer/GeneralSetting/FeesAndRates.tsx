@@ -47,18 +47,21 @@ const FeesAndRates = ({
   const fetchGeneralRate = async () => {
     try {
       let response = await getAllGeneralRate();
-      console.log("General Rate:", response);
-
+  
       const formattedRates = response.allGeneralRate.map((rate) => ({
         label: `${rate.rateName} ($${rate.rate.toFixed(2)}/hr)`,
-        value: rate._id,
+        value: rate._id, // Ensure `value` contains the ID
+        id: rate._id, // Explicitly include `id`
+        rateName: rate.rateName, 
+        rate: rate.rate
       }));
-
+  
       setAllRates(formattedRates);
     } catch (error) {
       console.error("Error fetching general rate:", error);
     }
   };
+  
 
   useEffect(() => {
     fetchGeneralRate();
@@ -97,6 +100,13 @@ const FeesAndRates = ({
       onDataChange(updatedData);
       return updatedData;
     });
+  };
+
+  const [editData, setEditData] = useState(null); // Store selected data
+
+  const handleEditClick = (rate: any) => {
+    setEditData(rate);
+    setAddRatesModelOpen(true);
   };
 
   return (
@@ -168,11 +178,44 @@ const FeesAndRates = ({
               <FormItem>
                 <SelectAndButton
                   name="rate"
-                  options={allRates} 
+                  options={allRates}
                   addNewButtonLabel="Add New Rate"
-                  addNewClick={() => setAddRatesModelOpen(true)}
+                  addNewClick={() => {
+                    setEditData(null);
+                    setAddRatesModelOpen(true);
+                  }}
+                  onEditClick={(selectedValue) => {
+
+                    // Extract rate name and value from the selected string
+                    const match = selectedValue.match(
+                      /^(.*?) \(\$(\d+(\.\d+)?)\/hr\)$/
+                    );
+                    if (!match) {
+                      console.error("Invalid rate format:", selectedValue);
+                      return;
+                    }
+
+                    const rateName = match[1];
+                    const rateValue = parseFloat(match[2]);
+
+                    // Find the matching rate using rateName and rate
+                    const selectedRate = allRates.find(
+                      (rate) =>
+                        rate.rateName === rateName && rate.rate === rateValue
+                    );
+
+
+                    if (selectedRate) {
+                      handleEditClick(selectedRate);
+                    } else {
+                      console.error(
+                        "Rate not found for selected value:",
+                        selectedValue
+                      );
+                    }
+                  }}
                   placeholder="Select or Add Rate"
-                  className="mb-4"                  
+                  className="mb-4"
                 />
               </FormItem>
 
@@ -181,6 +224,7 @@ const FeesAndRates = ({
                   isOpen={addRatesModelOpen}
                   onClose={() => setAddRatesModelOpen(false)}
                   onRateAdded={handleNewRateAdded}
+                  editData={editData}
                 />
               )}
             </div>
