@@ -20,6 +20,7 @@ import { GoTag } from "react-icons/go";
 import { AiOutlineDollar } from "react-icons/ai";
 import {
   getAllFees,
+  getAllGeneralRate,
   getAllParts,
   getAllTires,
 } from "../../DealerLists/Services/DealerInventoryServices";
@@ -105,7 +106,7 @@ const ServicesTab = ({
     }
   }, [selectedRate, selectRate]); // Prevents unnecessary re-renders
 
-  console.log("selecct rate : ", selectRate);
+  // console.log("selecct rate : ", selectRate);
 
   const handleAddService = () => {
     setServices([
@@ -449,21 +450,42 @@ const ServicesTab = ({
 
   const RateCell = ({ value, rowIndex, handleChange, serviceNo }) => {
     const [selectRate, setSelectRate] = useState<number | undefined>(value);
-  
+
     useEffect(() => {
       if (selectRate !== undefined) {
         handleChange(rowIndex, { rate: selectRate });
         handleLaborCalculation("rate", selectRate, serviceNo, rowIndex);
       }
     }, [selectRate]);
-  
+
     return (
       <div className="w-full flex justify-center align-center text-black">
         <span className="h-8 w-14 text-center">{selectRate || value}</span>
       </div>
     );
   };
-  
+
+  const [allRates, setAllRates] = useState([]);
+
+  const fetchGeneralRate = async () => {
+    try {
+      let response = await getAllGeneralRate();
+      console.log("General Rate:", response);
+
+      const formattedRates = response.allGeneralRate.map((rate) => ({
+        label: `$${rate.rate.toFixed(2)}/hr`,
+        value: rate._id,
+      }));
+
+      setAllRates(formattedRates);
+    } catch (error) {
+      console.error("Error fetching general rate:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGeneralRate();
+  }, []);
 
   const columns = [
     {
@@ -578,47 +600,91 @@ const ServicesTab = ({
     //     }, [selectRate]);
 
     //     console.log("value : ",value)
-    
+
     //     return (
     //       <div className="w-full flex justify-center align-center">
     //         <span className="h-8 w-14 text-center">{selectRate === 0 ? value : selectRate}</span>
     //       </div>
     //     );
     //   },
-    // },    
+    // },
 
-    // CORRET WORKING CODE 
     {
       header: "Rate/hr",
       accessor: "rate",
-      
       render: (
         value: number,
         rowIndex: number,
         handleChange: (index: number, values: object) => void,
         serviceNo: number
-        
-      ) => (
-        
-        <div className="w-full flex justify-center align-center">
-          <Input
-            className="h-8 w-14 text-center"
-            placeholder="0"
-            type="text"
-            value={value}
-            onChange={(e) => {
-              handleChange(rowIndex, { rate: +e.target.value });
-              handleLaborCalculation(
-                "rate",
-                +e.target.value,
-                serviceNo,
-                rowIndex
-              );
-            }}
-          />
-        </div>
-      ),
+      ) => {
+        console.log("Current value:", value);
+        console.log("Row index:", rowIndex);
+        console.log("Service number:", serviceNo);
+    
+        return (
+          <div className="w-full flex justify-center align-center">
+            <SelectAndButton
+              name="rate"
+              options={allRates}
+              addNewButtonLabel="Add"
+              addNewClick={() => console.log("Add New Rate Clicked")}
+              placeholder="Rate"
+              className=""
+              // value={value} // Pass the current value to the SelectAndButton component
+              onChange={(selectedValue) => {
+    
+                // Extract the numeric part from the label (e.g., "40" from "$40.00/hr")
+                const numericValue = selectedValue.label.replace(/[^0-9.]/g, "");
+    
+                // Ensure numericValue is a number
+                const newRate = +numericValue;
+    
+                // Update the state using handleChange
+                handleChange(rowIndex, { rate: newRate });
+                console.log("selected new rate:", newRate);
+    
+                // Trigger labor calculation
+                handleLaborCalculation("rate", newRate, serviceNo, rowIndex);
+                console.log("Labor calculation triggered for service:", serviceNo);
+              }}
+            />
+          </div>
+        );
+      },
     },
+    // CORRET WORKING CODE
+    // {
+    //   header: "Rate/hr",
+    //   accessor: "rate",
+
+    //   render: (
+    //     value: number,
+    //     rowIndex: number,
+    //     handleChange: (index: number, values: object) => void,
+    //     serviceNo: number
+
+    //   ) => (
+
+    //     <div className="w-full flex justify-center align-center">
+    //       <Input
+    //         className="h-8 w-14 text-center"
+    //         placeholder="0"
+    //         type="text"
+    //         value={value}
+    //         onChange={(e) => {
+    //           handleChange(rowIndex, { rate: +e.target.value });
+    //           handleLaborCalculation(
+    //             "rate",
+    //             +e.target.value,
+    //             serviceNo,
+    //             rowIndex
+    //           );
+    //         }}
+    //       />
+    //     </div>
+    //   ),
+    // },
     // {
     //   header: "Rate/hr",
     //   accessor: "rate",
