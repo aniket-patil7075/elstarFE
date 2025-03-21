@@ -446,6 +446,23 @@ const ServicesTab = ({
       });
     });
   }, [selectRate]);
+
+  const RateCell = ({ value, rowIndex, handleChange, serviceNo }) => {
+    const [selectRate, setSelectRate] = useState<number | undefined>(value);
+  
+    useEffect(() => {
+      if (selectRate !== undefined) {
+        handleChange(rowIndex, { rate: selectRate });
+        handleLaborCalculation("rate", selectRate, serviceNo, rowIndex);
+      }
+    }, [selectRate]);
+  
+    return (
+      <div className="w-full flex justify-center align-center text-black">
+        <span className="h-8 w-14 text-center">{selectRate || value}</span>
+      </div>
+    );
+  };
   
 
   const columns = [
@@ -543,29 +560,60 @@ const ServicesTab = ({
         </div>
       ),
     },
+
+    // {
+    //   header: "Rate/hr",
+    //   accessor: "rate",
+    //   render: (
+    //     value: number,
+    //     rowIndex: number,
+    //     handleChange: (index: number, values: object) => void,
+    //     serviceNo: number,// Assuming this is passed from props
+    //   ) => {
+    //     useEffect(() => {
+    //       if (selectRate !== undefined) {
+    //         handleChange(rowIndex, { rate: selectRate });
+    //         handleLaborCalculation("rate", selectRate, serviceNo, rowIndex);
+    //       }
+    //     }, [selectRate]);
+
+    //     console.log("value : ",value)
+    
+    //     return (
+    //       <div className="w-full flex justify-center align-center">
+    //         <span className="h-8 w-14 text-center">{selectRate === 0 ? value : selectRate}</span>
+    //       </div>
+    //     );
+    //   },
+    // },    
+
+    // CORRET WORKING CODE 
     {
       header: "Rate/hr",
       accessor: "rate",
+      
       render: (
         value: number,
         rowIndex: number,
         handleChange: (index: number, values: object) => void,
         serviceNo: number
+        
       ) => (
+        
         <div className="w-full flex justify-center align-center">
           <Input
             className="h-8 w-14 text-center"
             placeholder="0"
             type="text"
-            value={selectRate ?? value}
+            value={value}
             onChange={(e) => {
-              handleChange(rowIndex, { rate: selectRate });
-              // handleLaborCalculation(
-              //   "rate",
-              //   +e.target.value,
-              //   serviceNo,
-              //   rowIndex
-              // );
+              handleChange(rowIndex, { rate: +e.target.value });
+              handleLaborCalculation(
+                "rate",
+                +e.target.value,
+                serviceNo,
+                rowIndex
+              );
             }}
           />
         </div>
@@ -674,7 +722,7 @@ const ServicesTab = ({
           servicesTableData[serviceNo - 1]["labors"][rowIndex]
         ) {
           let data = servicesTableData[serviceNo - 1]["labors"][rowIndex];
-          if (selectRate && data.hours) val = selectRate * data.hours;
+          if (data.rate && data.hours) val = data.rate * data.hours;
           if (data.discount?.value) {
             let discount =
               data.discount.type === "%"
