@@ -60,6 +60,7 @@ import { useLocation } from "react-router-dom";
 import { getAllGeneralRate } from "../../DealerLists/Services/DealerInventoryServices";
 import AddNewRatesModal from "../../GeneralSetting/FeesAndRates/AddNewRatesModal";
 import { useSelector } from "react-redux";
+import SummaryTab from "./SummaryTab";
 
 interface Vehicle {
   _id: string;
@@ -1063,7 +1064,9 @@ const NewEstimate = () => {
                   />
                 </TabContent>
 
-                <TabContent value="summary">hi</TabContent>
+                <TabContent value="summary">
+                  <SummaryTab />
+                </TabContent>
                 <TabContent value="inspections">hi</TabContent>
                 <TabContent value="timeClocks">hi</TabContent>
                 <TabContent value="partsAndTires">hi</TabContent>
