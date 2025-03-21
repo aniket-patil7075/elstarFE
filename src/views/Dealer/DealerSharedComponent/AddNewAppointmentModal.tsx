@@ -87,8 +87,7 @@ const AddNewAppointmentModal: React.FC<AddNewAppointmentModalProps> = ({
   const [selectedColor, setSelectedColor] = useState("");
   const [startDateTime, setStartDateTime] = useState<Date | null>(selectedEvent?.start ? new Date(selectedEvent.start) : null);
   const [endDateTime, setEndDateTime] = useState<Date | null>(selectedEvent?.end ? new Date(selectedEvent.end) : null);
-  
-console.log("selected event : ", setEventsData)
+
 
   const dispatch = useAppDispatch();
   
