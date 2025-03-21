@@ -133,8 +133,6 @@ const NewEstimate = () => {
                    typeof grandTotal === "object" && grandTotal !== null ? grandTotal[0] : 
                    grandTotal;
 
-  console.log("saved Total:", totalValue || {});
-
   const chooseCustomerFunction = async () => {
     try {
       const response = await getAllCustomers();

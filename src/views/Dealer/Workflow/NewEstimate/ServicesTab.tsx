@@ -471,8 +471,6 @@ const ServicesTab = ({
   const fetchGeneralRate = async () => {
     try {
       let response = await getAllGeneralRate();
-      console.log("General Rate:", response);
-
       const formattedRates = response.allGeneralRate.map((rate) => ({
         label: `$${rate.rate.toFixed(2)}/hr`,
         value: rate._id,
@@ -788,14 +786,16 @@ const ServicesTab = ({
         serviceNo: number
       ) => {
         let val = 0;
-
+    
         if (
           servicesTableData[serviceNo - 1] &&
           servicesTableData[serviceNo - 1]["labors"] &&
           servicesTableData[serviceNo - 1]["labors"][rowIndex]
         ) {
           let data = servicesTableData[serviceNo - 1]["labors"][rowIndex];
-          if (data.rate && data.hours) val = data.rate * data.hours;
+          if ((selectRate || data.rate) && data.hours) {
+            val = (selectRate || data.rate) * data.hours;
+          }
           if (data.discount?.value) {
             let discount =
               data.discount.type === "%"
@@ -804,16 +804,36 @@ const ServicesTab = ({
             val -= discount;
           }
         }
-
-        // console.log("Value of subtotal : ",value)
-        // console.log("Val of subtotal : ",val)
-        if (val !== value) {
-          handleChange(rowIndex, { subtotal: val }, serviceNo);
+    
+        // Ensure val is a valid number
+        val = typeof val === "number" && !isNaN(val) ? val : 0;
+    
+        // Use manually entered value if different from calculated value
+        if (value !== val && typeof value === "number" && !isNaN(value)) {
+          val = value;
         }
-
-        return <span className="block text-center">${val.toFixed(2)}</span>;
+    
+        return (
+          <div className="w-full flex justify-center items-center">
+            <input
+              className="h-8 w-20 text-center border rounded px-2"
+              placeholder="0"
+              type="text"
+              value={val.toFixed(2)}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+                if (/^\d*\.?\d*$/.test(inputValue)) {
+                  // Validate if the input is a valid number
+                  const manualValue = parseFloat(inputValue) || 0;
+                  handleChange(rowIndex, { subtotal: manualValue }, serviceNo);
+                }
+              }}
+            />
+          </div>
+        );
       },
     },
+    
     // {
     //   header: "Subtotal",
     //   accessor: "subtotal",
