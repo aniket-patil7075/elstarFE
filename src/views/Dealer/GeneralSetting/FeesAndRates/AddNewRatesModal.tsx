@@ -100,7 +100,7 @@ const handleCancel = () => {
                           autoComplete="off"
                           component={Input}
                           placeholder="Rate Name"
-                          className="border border-gray-300 outline-none p-1 rounded-md focus:ring-2 focus:ring-indigo-500"
+                          className="border border-gray-400 outline-none p-1 rounded-md focus:ring-2 focus:ring-indigo-500"
                         />
                       </FormItem>
                       <FormItem
